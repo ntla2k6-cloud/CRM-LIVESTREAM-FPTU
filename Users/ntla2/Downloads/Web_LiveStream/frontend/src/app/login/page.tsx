@@ -43,7 +43,6 @@ export default function LoginPage() {
               <input 
                 type="email" 
                 required
-                placeholder="VD: tuanta@fpt.edu.vn" 
                 className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold rounded-xl pl-11 pr-4 py-3.5 focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] outline-none transition-all"
               />
             </div>
@@ -59,7 +58,6 @@ export default function LoginPage() {
               <input 
                 type="password" 
                 required
-                placeholder="••••••••" 
                 className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold rounded-xl pl-11 pr-4 py-3.5 focus:border-[#005691] focus:ring-1 focus:ring-[#005691] outline-none transition-all"
               />
             </div>
