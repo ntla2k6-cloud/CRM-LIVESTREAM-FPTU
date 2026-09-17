@@ -9,9 +9,6 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "LIVE FPTU HCM",
   description: "Hệ thống quản lý Livestream All-in-one của Đại học FPT TP.HCM",
-  icons: {
-    icon: '/icon.svg',
-  }
 };
 
 export default function RootLayout({
