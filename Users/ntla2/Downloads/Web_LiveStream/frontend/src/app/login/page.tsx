@@ -1,22 +1,9 @@
 "use client"
-import React, { useState } from 'react';
-import { Lock, Mail, ArrowRight, ShieldCheck } from "lucide-react";
-import { useRouter } from "next/navigation";
+import React from 'react';
+import { ShieldCheck } from "lucide-react";
 import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    // Mock login delay
-    setTimeout(() => {
-      router.push('/cskh');
-    }, 1500);
-  };
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center relative overflow-hidden font-sans">
       
@@ -33,62 +20,12 @@ export default function LoginPage() {
             </div>
           </div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">Hệ thống Quản trị LIVE</h1>
-          <p className="text-sm font-bold text-slate-500 mt-2">Vui lòng đăng nhập để tiếp tục làm việc</p>
-        </div>
-
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-slate-400 uppercase ml-1">Email nội bộ</label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input 
-                type="email" 
-                required
-                className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold rounded-xl pl-11 pr-4 py-3.5 focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] outline-none transition-all"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="flex justify-between items-center ml-1">
-              <label className="text-[11px] font-bold text-slate-400 uppercase">Mật khẩu</label>
-              <a href="#" className="text-[11px] font-bold text-[#005691] hover:underline">Quên mật khẩu?</a>
-            </div>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input 
-                type="password" 
-                required
-                className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold rounded-xl pl-11 pr-4 py-3.5 focus:border-[#005691] focus:ring-1 focus:ring-[#005691] outline-none transition-all"
-              />
-            </div>
-          </div>
-
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="w-full mt-4 bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-slate-900/20 disabled:opacity-70"
-          >
-            {loading ? (
-              <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-            ) : (
-              <>Đăng nhập hệ thống <ArrowRight size={18} /></>
-            )}
-          </button>
-        </form>
-
-        <div className="mt-8 relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-200"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-4 bg-white text-xs font-bold text-slate-400 uppercase">Hoặc</span>
-          </div>
+          <p className="text-sm font-bold text-slate-500 mt-2">Vui lòng đăng nhập bằng tài khoản Google để tiếp tục</p>
         </div>
 
         <button 
           onClick={() => signIn('google')}
-          className="w-full mt-6 bg-white border-2 border-slate-100 hover:bg-slate-50 text-slate-700 font-bold py-3.5 rounded-xl flex items-center justify-center gap-3 transition-colors"
+          className="w-full bg-white border-2 border-slate-100 hover:bg-slate-50 text-slate-700 font-bold py-4 rounded-xl flex items-center justify-center gap-3 transition-colors shadow-sm hover:shadow-md"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
