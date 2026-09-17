@@ -38,7 +38,8 @@ export default function LiveControlPage() {
   ];
 
   useEffect(() => {
-    fetch('http://localhost:3001/live-session')
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    fetch(`${baseUrl}/live-session`)
       .then(res => res.json())
       .then(data => {
         if (data.length > 0) {

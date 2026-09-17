@@ -17,8 +17,10 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     // Tải danh sách phiên live từ DB
-    fetch('/api/live-session').then(r => r.json()).catch(() => 
-      fetch('http://localhost:3001/live-session').then(r => r.json())
+    fetch('/api/live-session').then(r => r.json()).catch(() => {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      return fetch(`${baseUrl}/live-session`).then(r => r.json());
+    }
     ).then(apiSessions => {
       if (apiSessions && apiSessions.length > 0) {
         setActiveSession(apiSessions[0].id);
