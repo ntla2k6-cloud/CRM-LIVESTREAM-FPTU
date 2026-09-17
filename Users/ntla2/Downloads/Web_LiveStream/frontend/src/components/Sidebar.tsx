@@ -10,6 +10,8 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
   const pathname = usePathname();
   const [user, setUser] = useState<any>(null);
 
+  if (pathname === '/login') return null;
+
   useEffect(() => {
     fetch('/api/auth/session')
       .then(r => r.json())
