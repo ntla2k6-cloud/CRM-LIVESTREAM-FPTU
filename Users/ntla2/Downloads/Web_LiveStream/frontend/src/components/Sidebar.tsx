@@ -10,7 +10,7 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
   const pathname = usePathname();
   const [user, setUser] = useState<any>(null);
 
-  if (pathname === '/login') return null;
+  if (pathname === '/login' || pathname.startsWith('/tracking')) return null;
 
   useEffect(() => {
     fetch('/api/auth/session')
@@ -60,6 +60,7 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
             { name: 'Nhân Sự Ekip', icon: Briefcase, href: '/staff' },
             { name: 'Lịch phân công', icon: Calendar, href: '/schedule' },
             { name: 'Điều khiển LIVE', icon: Video, badge: 'LIVE', href: '/live' },
+            { name: 'Tra cứu vận đơn', icon: Package, href: '/tracking' },
           ].map((item, idx) => {
             const active = pathname === item.href;
             return (

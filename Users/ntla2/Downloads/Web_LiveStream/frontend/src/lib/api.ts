@@ -44,3 +44,22 @@ export const LeadAPI = {
   update: (id: string, data: any) => fetchApi(`/lead/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   delete: (id: string) => fetchApi(`/lead/${id}`, { method: 'DELETE' }),
 };
+
+export const api = {
+  get: async (endpoint: string) => {
+    const data = await fetchApi(endpoint);
+    return { data };
+  },
+  post: async (endpoint: string, body: any) => {
+    const data = await fetchApi(endpoint, { method: 'POST', body: JSON.stringify(body) });
+    return { data };
+  },
+  patch: async (endpoint: string, body: any) => {
+    const data = await fetchApi(endpoint, { method: 'PATCH', body: JSON.stringify(body) });
+    return { data };
+  },
+  delete: async (endpoint: string) => {
+    const data = await fetchApi(endpoint, { method: 'DELETE' });
+    return { data };
+  }
+};

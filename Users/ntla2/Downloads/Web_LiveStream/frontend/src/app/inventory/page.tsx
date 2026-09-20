@@ -1,8 +1,9 @@
 "use client"
 import React, { useState, useMemo } from 'react';
 import { 
-  Package, Search, Filter, Plus, ArrowUpRight, ArrowDownRight, PackageOpen, Gift, History, Truck, ListChecks, MapPin, CheckCircle2, Clock, Phone, X, Edit3, Save, Trash2, ChevronDown, Download, Calendar
+  Package, Search, Filter, Plus, ArrowUpRight, ArrowDownRight, PackageOpen, Gift, History, Truck, ListChecks, MapPin, CheckCircle2, Clock, Phone, X, Edit3, Save, Trash2, ChevronDown, Download, Calendar, Copy, ExternalLink
 } from "lucide-react";
+import { api } from '@/lib/api';
 
 export default function InventoryPage() {
   const [activeTab, setActiveTab] = useState<'STOCK' | 'FULFILLMENT'>('STOCK');
@@ -11,35 +12,23 @@ export default function InventoryPage() {
   const [monthFilter, setMonthFilter] = useState("Tất cả");
   const [showMonthDropdown, setShowMonthDropdown] = useState(false);
   
-  const initialGifts = [
-    { id: 1, sku: 'Q-BALO-01', name: 'Balo FPT University', stock: 45, sent: 320, price: '350,000đ', status: 'Sẵn sàng', value: "Balo" },
-    { id: 2, sku: 'Q-AOT-03', name: 'Áo thun Cam FPT', stock: 210, sent: 1200, price: '150,000đ', status: 'Sẵn sàng', value: "Ao" },
-    { id: 3, sku: 'Q-BGN-02', name: 'Bình giữ nhiệt', stock: 15, sent: 890, price: '120,000đ', status: 'Sắp hết', value: "Binh" },
-    { id: 4, sku: 'Q-MOK-04', name: 'Móc khóa Ếch xanh Pepe', stock: 850, sent: 150, price: '50,000đ', status: 'Sẵn sàng', value: "MocKhoa" },
-    { id: 5, sku: 'Q-SOT-05', name: 'Sổ tay sinh viên', stock: 0, sent: 120, price: '50,000đ', status: 'Hết hàng', value: "SoTay" },
-  ];
-
-  const initialOrders = [
-    { id: 'DON-001', recipient: 'Thành Đô', phone: '090xxxx123', address: 'Quận 1, TP.HCM', gift: 'Balo FPT University', status: 'Đã đóng gói', date: '10/09/2026 10:15', trackingInfo: '' },
-    { id: 'DON-002', recipient: 'Khánh Vũ', phone: '091xxxx789', address: 'Đồng Nai', gift: 'Bình giữ nhiệt', status: 'Đã chuyển tới đơn vị vận chuyển', date: '10/09/2026 10:20', trackingInfo: '' },
-    { id: 'DON-003', recipient: 'Vũ Yến', phone: '097xxxx333', address: 'Bình Dương', gift: 'Áo thun Cam FPT', status: 'Chưa đóng gói', date: '10/09/2026 10:35', trackingInfo: '' },
-    { id: 'DON-004', recipient: 'Hoài Anh', phone: '098xxxx456', address: 'Hà Nội', gift: 'Balo FPT University', status: 'Đơn vị đang vận chuyển', trackingInfo: 'GHTK - 123456789', date: '12/09/2026 19:10' },
-  ];
-
-  const [gifts, setGifts] = useState<any[]>(initialGifts);
-  const [orders, setOrders] = useState<any[]>(initialOrders);
+  const [gifts, setGifts] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
 
   React.useEffect(() => {
-    const syncData = () => {
-      const savedGifts = localStorage.getItem('inventory_gifts');
-      if (savedGifts) try { setGifts(JSON.parse(savedGifts)); } catch(e){}
-      
-      const savedOrders = localStorage.getItem('inventory_orders');
-      if (savedOrders) try { setOrders(JSON.parse(savedOrders)); } catch(e){}
+    const fetchData = async () => {
+      try {
+        const [giftsRes, ordersRes] = await Promise.all([
+          api.get('/gift'),
+          api.get('/order')
+        ]);
+        setGifts(giftsRes.data);
+        setOrders(ordersRes.data);
+      } catch (err) {
+        console.error("Lỗi lấy dữ liệu:", err);
+      }
     };
-    syncData();
-    window.addEventListener('storage', syncData);
-    return () => window.removeEventListener('storage', syncData);
+    fetchData();
   }, []);
 
   const [selectedGift, setSelectedGift] = useState<any | null>(null);
@@ -49,21 +38,36 @@ export default function InventoryPage() {
   const [drawerGiftOpen, setDrawerGiftOpen] = useState(false);
   const [drawerStatusOpen, setDrawerStatusOpen] = useState(false);
 
-  const handleSaveOrder = () => {
+  const handleSaveOrder = async () => {
     if (!selectedOrder) return;
-    if (selectedOrder.status === 'Đơn vị đang vận chuyển' && !selectedOrder.trackingInfo?.trim()) {
-      alert("Vui lòng điền Mã vận đơn / Link tra cứu trước khi lưu!");
+    if (selectedOrder.status === 'Đang vận chuyển' && (!selectedOrder.trackingCode?.trim() || !selectedOrder.shippingProvider?.trim())) {
+      alert("Vui lòng điền Đơn vị vận chuyển và Mã vận đơn trước khi lưu!");
       return;
     }
-    const updated = orders.map(o => o.id === selectedOrder.id ? selectedOrder : o);
-    setOrders(updated);
-    localStorage.setItem('inventory_orders', JSON.stringify(updated));
-    window.dispatchEvent(new Event('storage'));
-    setSelectedOrder(null);
+    
+    try {
+      await api.patch(`/order/${selectedOrder.id}`, selectedOrder);
+      // Cập nhật lại danh sách sau khi lưu
+      const [giftsRes, ordersRes] = await Promise.all([
+        api.get('/gift'),
+        api.get('/order')
+      ]);
+      setGifts(giftsRes.data);
+      setOrders(ordersRes.data);
+      setSelectedOrder(null);
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi khi cập nhật đơn hàng!");
+    }
   };
 
-  const handleSaveGift = () => {
+  const handleSaveGift = async () => {
     if (!selectedGift) return;
+    if (!selectedGift.name?.trim() || !selectedGift.sku?.trim()) {
+      alert("Vui lòng nhập Tên Quà tặng và Mã SKU!");
+      return;
+    }
+
     let updated;
     if (gifts.find(g => g.id === selectedGift.id)) {
       updated = gifts.map(g => g.id === selectedGift.id ? selectedGift : g);
@@ -71,18 +75,38 @@ export default function InventoryPage() {
       updated = [{ ...selectedGift, id: Date.now(), sent: 0 }, ...gifts];
     }
     setGifts(updated);
-    localStorage.setItem('inventory_gifts', JSON.stringify(updated));
-    window.dispatchEvent(new Event('storage'));
-    setSelectedGift(null);
+    
+    try {
+      if (selectedGift.id) {
+        await api.patch(`/gift/${selectedGift.id}`, selectedGift);
+      } else {
+        await api.post('/gift', selectedGift);
+      }
+      const giftsRes = await api.get('/gift');
+      setGifts(giftsRes.data);
+      setSelectedGift(null);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.response?.data?.message || "Lỗi khi lưu quà tặng! Có thể mã SKU đã tồn tại.");
+      // Revert optimistic update
+      const giftsRes = await api.get('/gift');
+      setGifts(giftsRes.data);
+    }
   };
 
-  const handleDeleteGift = () => {
+  const handleDeleteGift = async () => {
     if (confirm("Bạn có chắc chắn muốn xóa phần quà này khỏi Kho?")) {
-      const updated = gifts.filter(g => g.id !== selectedGift.id);
-      setGifts(updated);
-      localStorage.setItem('inventory_gifts', JSON.stringify(updated));
-      window.dispatchEvent(new Event('storage'));
-      setSelectedGift(null);
+      try {
+        if (selectedGift.id) {
+          await api.delete(`/gift/${selectedGift.id}`);
+        }
+        const giftsRes = await api.get('/gift');
+        setGifts(giftsRes.data);
+        setSelectedGift(null);
+      } catch (err) {
+        console.error(err);
+        alert("Lỗi khi xóa quà tặng!");
+      }
     }
   };
 
@@ -116,9 +140,9 @@ export default function InventoryPage() {
     const label = monthFilter === 'Tất cả' ? 'Tất cả tháng' : monthFilter;
     const statusLabel = orderFilter === 'Tất cả' ? '' : ` - ${orderFilter}`;
     const rows = [
-      ['Mã Đơn', 'Ngày', 'Học sinh', 'SĐT', 'Địa chỉ', 'Quà tặng', 'Trạng thái', 'Mã vận đơn'],
+      ['Mã Đơn', 'Ngày', 'Học sinh', 'SĐT', 'Địa chỉ', 'Quà tặng', 'Trạng thái', 'ĐVVC', 'Mã vận đơn'],
       ...filteredOrders.map(o => [
-        o.id, o.date, o.recipient, o.phone, o.address, o.gift, o.status, (o as any).trackingInfo || ''
+        o.id, o.date, o.recipient, o.phone, o.address, o.gift, o.status, (o as any).shippingProvider || '', (o as any).trackingCode || ''
       ])
     ];
     const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
@@ -182,7 +206,7 @@ export default function InventoryPage() {
           </button>
           {activeTab === 'STOCK' && (
             <button 
-              onClick={() => setSelectedGift({ id: Date.now(), name: '', sku: '', stock: 0, price: '', status: 'Sẵn sàng' })}
+              onClick={() => setSelectedGift({ name: '', sku: '', stock: 0, price: '', status: 'Sẵn sàng' })}
               className="flex items-center gap-2 px-5 py-2.5 bg-[#F58220] hover:bg-[#e07010] rounded-xl text-sm font-bold text-white shadow-md shadow-orange-900/20 transition-all hover:-translate-y-0.5"
             >
               <Plus size={16} /> Nhập kho quà mới
@@ -400,10 +424,33 @@ export default function InventoryPage() {
                             </>
                           )}
                         </div>
-                        {order.trackingInfo && (
-                          <span className="text-[9px] font-bold text-blue-500 truncate max-w-[150px] cursor-pointer hover:underline" title={order.trackingInfo}>
-                            {order.trackingInfo}
-                          </span>
+                        {order.trackingCode && (
+                          <div className="flex flex-col gap-1 mt-1 border-t border-slate-100 pt-1">
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] font-bold text-slate-500">{order.shippingProvider}:</span>
+                              <span className="text-[10px] font-bold text-[#F58220] truncate max-w-[120px]" title={order.trackingCode}>
+                                {order.trackingCode}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button 
+                                onClick={() => navigator.clipboard.writeText(`${window.location.origin}/tracking?code=${order.trackingCode}`)}
+                                className="flex items-center gap-1 px-2 py-1 bg-slate-100 text-slate-600 rounded text-[9px] font-bold hover:bg-[#F58220] hover:text-white transition-colors"
+                                title="Copy link tra cứu"
+                              >
+                                <Copy size={10} /> COPY LINK
+                              </button>
+                              <a 
+                                href={`/tracking?code=${order.trackingCode}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 px-2 py-1 bg-slate-100 text-slate-600 rounded text-[9px] font-bold hover:bg-[#005691] hover:text-white transition-colors"
+                                title="Mở trang tra cứu"
+                              >
+                                <ExternalLink size={10} /> MỞ
+                              </a>
+                            </div>
+                          </div>
                         )}
                       </div>
                       <button onClick={() => setSelectedOrder(order)} className="w-8 h-8 rounded-lg bg-slate-100 text-slate-400 hover:bg-[#005691] hover:text-white flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100 shadow-sm">
@@ -625,7 +672,7 @@ export default function InventoryPage() {
                     <>
                       <div className="fixed inset-0 z-40" onClick={() => setDrawerStatusOpen(false)} />
                       <div className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden py-1 animate-in fade-in slide-in-from-top-2">
-                        {["Chưa đóng gói", "Đã đóng gói", "Đã chuyển tới đơn vị vận chuyển", "Đơn vị đang vận chuyển", "Hoàn tất", "Hoàn hàng"].map(s => (
+                        {["Đã tiếp nhận", "Đã xử lý", "Đang vận chuyển", "Đã giao"].map(s => (
                           <div 
                             key={s}
                             onClick={() => {
@@ -643,16 +690,38 @@ export default function InventoryPage() {
                   )}
                 </div>
 
-                {selectedOrder.status === 'Đơn vị đang vận chuyển' && (
-                  <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2">
-                    <label className="text-[11px] font-bold text-slate-400 uppercase">Mã vận đơn / Link tra cứu</label>
-                    <textarea 
-                      value={selectedOrder.trackingInfo || ''}
-                      onChange={(e) => setSelectedOrder({...selectedOrder, trackingInfo: e.target.value})}
-                      placeholder="VD: GHTK - 123456 (Link: https://ghtk.vn)" 
-                      rows={3}
-                      className="w-full bg-blue-50/50 border border-blue-200 text-slate-900 text-sm font-semibold rounded-xl px-4 py-3 focus:border-[#005691] focus:ring-1 focus:ring-[#005691] outline-none transition-all resize-none"
-                    />
+                {selectedOrder.status === 'Đang vận chuyển' && (
+                  <div className="space-y-3 animate-in fade-in slide-in-from-top-2 mt-4 p-4 border border-[#F58220]/20 bg-orange-50/30 rounded-xl">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-500 uppercase">Đơn vị vận chuyển</label>
+                      <input 
+                        type="text"
+                        value={selectedOrder.shippingProvider || ''}
+                        onChange={(e) => setSelectedOrder({...selectedOrder, shippingProvider: e.target.value})}
+                        placeholder="VD: GHTK, Viettel Post..." 
+                        className="w-full bg-white border border-slate-200 text-slate-900 text-sm font-semibold rounded-lg px-4 py-2.5 focus:border-[#F58220] outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-500 uppercase">Mã vận đơn</label>
+                      <input 
+                        type="text"
+                        value={selectedOrder.trackingCode || ''}
+                        onChange={(e) => setSelectedOrder({...selectedOrder, trackingCode: e.target.value})}
+                        placeholder="VD: GHTK-12345" 
+                        className="w-full bg-white border border-slate-200 text-slate-900 text-sm font-semibold rounded-lg px-4 py-2.5 focus:border-[#F58220] outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-500 uppercase">Link tra cứu</label>
+                      <input 
+                        type="text"
+                        value={selectedOrder.trackingLink || ''}
+                        onChange={(e) => setSelectedOrder({...selectedOrder, trackingLink: e.target.value})}
+                        placeholder="https://..." 
+                        className="w-full bg-white border border-slate-200 text-slate-900 text-sm font-semibold rounded-lg px-4 py-2.5 focus:border-[#F58220] outline-none"
+                      />
+                    </div>
                   </div>
                 )}
               </div>

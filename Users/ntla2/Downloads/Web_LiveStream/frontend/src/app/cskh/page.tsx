@@ -4,6 +4,7 @@ import {
   Phone, MessageSquare, MoreHorizontal, CalendarClock, Search, Filter, 
   ChevronRight, Users, Flame, UserCheck, PhoneCall, CheckCircle2, X, Save, Edit3, Tag, Package, Download, List, LayoutGrid, Plus
 } from "lucide-react";
+import { api } from '@/lib/api';
 
 export default function CSKHBoardPage() {
   const [search, setSearch] = useState("");
@@ -53,32 +54,51 @@ export default function CSKHBoardPage() {
     { id: 'DON-004', recipient: 'Hoài Anh', phone: '098xxxx456', address: 'Hà Nội', gift: 'Balo FPT University', status: 'Đơn vị đang vận chuyển', trackingInfo: 'GHTK - 123456789', date: '12/09/2026 19:10' },
   ];
 
-  const [leads, setLeads] = useState<any[]>(initialLeads);
-  const [gifts, setGifts] = useState<any[]>(initialGifts);
-  const [orders, setOrders] = useState<any[]>(initialOrders);
+  const [leads, setLeads] = useState<any[]>([]);
+  const [gifts, setGifts] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
 
   const [showAddLead, setShowAddLead] = useState(false);
   const [newLeadForm, setNewLeadForm] = useState({ name: '', phone: '', tiktok: '', intent: '', project: 'Khác', note: '', province: '', highSchool: '', grade: '' });
   const [toastMsg, setToastMsg] = useState<{title: string, desc: string} | null>(null);
 
   React.useEffect(() => {
-    const syncData = () => {
-      const savedLeads = localStorage.getItem('cskh_leads');
-      if (savedLeads) try { setLeads(JSON.parse(savedLeads)); } catch (e) {}
-      
-      const savedGifts = localStorage.getItem('inventory_gifts');
-      if (savedGifts) try { setGifts(JSON.parse(savedGifts)); } catch (e) {}
-      
-      const savedOrders = localStorage.getItem('inventory_orders');
-      if (savedOrders) try { setOrders(JSON.parse(savedOrders)); } catch (e) {}
+    const fetchData = async () => {
+      try {
+        const [leadsRes, giftsRes, ordersRes] = await Promise.all([
+          api.get('/lead'),
+          api.get('/gift'),
+          api.get('/order')
+        ]);
+        
+        const apiLeads = leadsRes.data.map((l: any) => ({
+          id: l.id,
+          name: l.customer?.fullName || 'Khách ' + l.id.substring(0,4),
+          phone: l.customer?.phone || '',
+          tiktok: l.customer?.tiktokAccount || '',
+          intent: l.intent || '',
+          source: l.campaignId || '',
+          project: l.campaign?.name || 'Chưa phân loại',
+          score: l.leadScore || 0,
+          isHot: l.leadScore >= 80,
+          col: l.status === 'NEW' ? 0 : l.status === 'CONSULTING' ? 1 : l.status === 'CONSIDERING' ? 2 : 3,
+          avatar: (l.customer?.fullName || 'K H').split(' ').map((w: string) => w[0]).join('').substring(0, 2).toUpperCase(),
+          highSchool: l.customer?.highSchool || '',
+          grade: l.customer?.classGrade || '',
+          province: l.customer?.location || '',
+          cskhStaff: l.assignedCskh?.name || '',
+          note: l.note || '',
+          history: l.history || []
+        }));
+        
+        setLeads(apiLeads);
+        setGifts(giftsRes.data);
+        setOrders(ordersRes.data);
+      } catch (err) {
+        console.error("Lỗi lấy dữ liệu CSKH:", err);
+      }
     };
-
-    // Run once on mount
-    syncData();
-
-    // Sync across tabs
-    window.addEventListener('storage', syncData);
-    return () => window.removeEventListener('storage', syncData);
+    fetchData();
   }, []);
 
   const handleAddLead = () => {

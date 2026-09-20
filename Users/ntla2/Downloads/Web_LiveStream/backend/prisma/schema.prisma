@@ -135,16 +135,21 @@ model Gift {
 }
 
 model Order {
-  id          String   @id // VD: "DON-001"
-  recipient   String
-  phone       String
-  address     String
-  giftId      Int
-  gift        Gift     @relation(fields: [giftId], references: [id])
-  qty         Int      @default(1)
+  id               String   @id // VD: "DON-001"
+  recipient        String
+  phone            String
+  address          String
+  giftId           Int
+  gift             Gift     @relation(fields: [giftId], references: [id])
+  qty              Int      @default(1)
   
-  status      String   @default("Chờ xử lý") // Chờ xử lý, Đã liên hệ, Đang đóng gói...
-  date        String   // "14/09/2026 10:15"
+  status           String   @default("Đã tiếp nhận") // Đã tiếp nhận, Đã xử lý, Đang vận chuyển, Đã giao
+  date             String   // "14/09/2026 10:15"
+  
+  // Tracking fields
+  shippingProvider String?  // VD: GHTK, Viettel Post...
+  trackingCode     String?  // Mã vận đơn để khách tra cứu
+  trackingLink     String?  // Link theo dõi
 }
 
 // -----------------------------------------------------------------------------
@@ -209,6 +214,8 @@ model Lead {
   status          String   @default("NEW") // Thay Enum bằng String để dùng cho SQLite dễ dàng
   leadScore       Int      @default(0)
   intent          String?
+  note            String?
+  history         Json?
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

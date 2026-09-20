@@ -7,9 +7,11 @@ import { StaffModule } from './staff/staff.module.js';
 import { LiveSessionModule } from './live-session/live-session.module.js';
 import { LeadModule } from './lead/lead.module.js';
 import { ShiftModule } from './shift/shift.module.js';
+import { OrderModule } from './order/order.module.js';
+import { GiftModule } from './gift/gift.module.js';
 
 @Module({
-  imports: [PrismaModule, MinigameModule, StaffModule, LiveSessionModule, LeadModule, ShiftModule],
+  imports: [PrismaModule, MinigameModule, StaffModule, LiveSessionModule, LeadModule, ShiftModule, OrderModule, GiftModule],
   controllers: [AppController],
   providers: [AppService],
 })
