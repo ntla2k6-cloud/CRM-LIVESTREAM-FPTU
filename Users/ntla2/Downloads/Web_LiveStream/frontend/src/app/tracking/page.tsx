@@ -18,7 +18,7 @@ export default function TrackingPage() {
     
     try {
       const res = await api.get('/order/tracking/' + code);
-      setOrder(res.data);
+      setOrder(res);
       setTimeout(() => {
         document.getElementById('result-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
