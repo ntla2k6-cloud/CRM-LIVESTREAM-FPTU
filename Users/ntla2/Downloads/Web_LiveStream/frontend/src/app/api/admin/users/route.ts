@@ -38,6 +38,42 @@ export async function PATCH(req: NextRequest) {
         ...(department !== undefined && { department }),
       }
     });
+
+    // --- ĐỒNG BỘ SANG BẢNG STAFF (XẾP LỊCH) ---
+    if (updated.email) {
+      const staffRoleMap: Record<string, string> = {
+        'VJ_HOST': 'VJ',
+        'BIEN_TAP': 'Biên tập',
+        'SAN_XUAT': 'Producer',
+        'KY_THUAT': 'Kỹ thuật',
+        'CSKH': 'CSKH',
+        'THU_KHO': 'Thủ kho',
+        'ADMIN': 'Admin',
+        'MANAGER': 'Manager'
+      };
+      const mappedRole = staffRoleMap[updated.role] || updated.role;
+      
+      const existingStaff = await prisma.staff.findFirst({ where: { email: updated.email } });
+      if (existingStaff) {
+        await prisma.staff.update({
+          where: { id: existingStaff.id },
+          data: { role: mappedRole, phone: updated.phone || existingStaff.phone, name: updated.name || existingStaff.name }
+        });
+      } else if (updated.role !== 'GUEST') {
+        await prisma.staff.create({
+          data: {
+            name: updated.name || 'Người dùng mới',
+            email: updated.email,
+            role: mappedRole,
+            phone: updated.phone || null,
+            rate: 150000,
+            color: 'bg-blue-500',
+            status: 'Sẵn sàng'
+          }
+        });
+      }
+    }
+
     return NextResponse.json(updated);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });
