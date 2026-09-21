@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/Sidebar";
 import AuthProvider from "@/components/AuthProvider";
+import { RoleGuard } from "@/components/RoleGuard";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,10 +21,12 @@ export default function RootLayout({
     <html lang="vi">
       <body className={`antialiased font-sans bg-slate-50 text-slate-800 overflow-hidden flex h-screen selection:bg-[#F58220] selection:text-white ${inter.className}`}>
         <AuthProvider>
-          <Sidebar sidebarOpen={true} />
-          <main className="flex-1 min-w-0 h-screen overflow-hidden pb-16 md:pb-0">
-            {children}
-          </main>
+          <RoleGuard>
+            <Sidebar sidebarOpen={true} />
+            <main className="flex-1 min-w-0 h-screen overflow-hidden pb-16 md:pb-0">
+              {children}
+            </main>
+          </RoleGuard>
         </AuthProvider>
       </body>
     </html>
