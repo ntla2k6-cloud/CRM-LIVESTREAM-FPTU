@@ -6,19 +6,31 @@ export class LeadService {
   constructor(private prisma: PrismaService) {}
 
   create(createLeadDto: any) {
+    const { tiktokAccount, phone, fullName, highSchool, location, classGrade, campaignId, ...leadData } = createLeadDto;
+    
+    // Create a unique identifier for where clause if phone isn't provided
+    const phoneIdentifier = phone || `unknown-${Date.now()}`;
+    
     return this.prisma.lead.create({ 
       data: {
-        ...createLeadDto,
+        ...leadData,
         customer: {
           connectOrCreate: {
-            where: { tiktokAccount: createLeadDto.tiktokAccount || 'unknown' },
-            create: { tiktokAccount: createLeadDto.tiktokAccount || 'unknown', phone: createLeadDto.phone }
+            where: { phone: phoneIdentifier },
+            create: { 
+              tiktokAccount: tiktokAccount || '', 
+              phone: phoneIdentifier,
+              fullName: fullName || 'Khách hàng',
+              highSchool: highSchool || '',
+              location: location || '',
+              classGrade: classGrade || ''
+            }
           }
         },
         campaign: {
           connectOrCreate: {
-            where: { id: 'default-campaign' },
-            create: { id: 'default-campaign', name: 'Default Campaign' }
+            where: { id: campaignId || 'default-campaign' },
+            create: { id: campaignId || 'default-campaign', name: 'Default Campaign' }
           }
         }
       } 

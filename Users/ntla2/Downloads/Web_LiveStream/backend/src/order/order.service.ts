@@ -6,6 +6,12 @@ import { PrismaService } from '../prisma/prisma.service.js';
 export class OrderService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async create(createOrderDto: any) {
+    return this.prisma.order.create({
+      data: createOrderDto,
+    });
+  }
+
   async findAll() {
     return this.prisma.order.findMany({
       include: { gift: true },

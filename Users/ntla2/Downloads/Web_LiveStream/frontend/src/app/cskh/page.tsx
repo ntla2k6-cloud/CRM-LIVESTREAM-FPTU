@@ -101,28 +101,42 @@ export default function CSKHBoardPage() {
     fetchData();
   }, []);
 
-  const handleAddLead = () => {
+  const handleAddLead = async () => {
     if (!newLeadForm.name) return;
-    const avatar = newLeadForm.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || 'LD';
-    const updatedLeads = [
-      {
-        id: Math.random(),
+    
+    try {
+      const payload = {
+        fullName: newLeadForm.name,
+        phone: newLeadForm.phone,
+        tiktokAccount: newLeadForm.tiktok,
+        intent: newLeadForm.intent,
+        note: newLeadForm.note,
+        location: newLeadForm.province,
+        highSchool: newLeadForm.highSchool,
+        classGrade: newLeadForm.grade,
+        status: 'NEW',
+        leadScore: 50
+      };
+      const res = await api.post('/lead', payload);
+      
+      const newLead = {
+        id: res.data?.id || Math.random(),
         ...newLeadForm,
-        avatar,
+        avatar: newLeadForm.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || 'LD',
         score: 50,
         isHot: false,
         col: 0,
         source: 'Thêm thủ công',
         history: []
-      },
-      ...leads
-    ];
-    setLeads(updatedLeads);
-    localStorage.setItem('cskh_leads', JSON.stringify(updatedLeads));
-    window.dispatchEvent(new Event('storage'));
-    
-    setShowAddLead(false);
-    setNewLeadForm({ name: '', phone: '', tiktok: '', intent: '', project: 'Khác', note: '', province: '', highSchool: '', grade: '' });
+      };
+      
+      setLeads([newLead, ...leads]);
+      setShowAddLead(false);
+      setNewLeadForm({ name: '', phone: '', tiktok: '', intent: '', project: 'Khác', note: '', province: '', highSchool: '', grade: '' });
+    } catch (e) {
+      console.error(e);
+      alert("Lỗi khi thêm Lead mới!");
+    }
   };
 
   const filteredLeads = React.useMemo(() => {
@@ -735,14 +749,14 @@ export default function CSKHBoardPage() {
                             const label = `${gift.name} (${gift.stock > 0 ? `Tồn: ${gift.stock}` : 'Hết hàng'})`;
                             return (
                               <div 
-                                key={gift.value}
+                                key={gift.id}
                                 onClick={() => {
                                   if (!disabled) {
-                                    setSelectedLead({ ...selectedLead, selectedGift: gift.value, selectedGiftLabel: label, _rawGiftName: gift.name });
+                                    setSelectedLead({ ...selectedLead, selectedGift: gift.id, selectedGiftLabel: label, _rawGiftName: gift.name });
                                     setActiveDropdown(null);
                                   }
                                 }}
-                                className={`px-3 py-2 text-sm transition-colors ${disabled ? 'text-slate-400 bg-slate-50 cursor-not-allowed' : selectedLead.selectedGift === gift.value ? 'bg-[#005691] text-white font-bold cursor-pointer' : 'text-slate-700 hover:bg-slate-50 cursor-pointer'}`}
+                                className={`px-3 py-2 text-sm transition-colors ${disabled ? 'text-slate-400 bg-slate-50 cursor-not-allowed' : selectedLead.selectedGift === gift.id ? 'bg-[#005691] text-white font-bold cursor-pointer' : 'text-slate-700 hover:bg-slate-50 cursor-pointer'}`}
                               >
                                 {label}
                               </div>
@@ -763,7 +777,7 @@ export default function CSKHBoardPage() {
                     />
                   </div>
                   <button 
-                    onClick={() => {
+                    onClick={async () => {
                       if (!selectedLead.selectedGift || !selectedLead.giftAddress) {
                         setToastMsg({
                           title: "Thiếu thông tin!",
@@ -773,55 +787,48 @@ export default function CSKHBoardPage() {
                         return;
                       }
 
-                      // Decrement gift inventory
-                      const updatedGifts = gifts.map(g => g.value === selectedLead.selectedGift ? { ...g, stock: g.stock - 1, sent: g.sent + 1 } : g);
-                      setGifts(updatedGifts);
-                      localStorage.setItem('inventory_gifts', JSON.stringify(updatedGifts));
-
-                      // Add to lead history
                       const now = new Date();
                       const dateStr = `${now.getDate() < 10 ? '0'+now.getDate() : now.getDate()}/${now.getMonth()+1 < 10 ? '0'+(now.getMonth()+1) : now.getMonth()+1}/${now.getFullYear()}`;
                       const timeStr = `${now.getHours()}:${now.getMinutes() < 10 ? '0'+now.getMinutes() : now.getMinutes()}`;
-                      const newHistoryItem = { text: `Đã lên đơn gửi quà: ${selectedLead._rawGiftName}\nTới địa chỉ: ${selectedLead.giftAddress}`, time: timeStr, type: "Gửi quà (Đã trừ kho)" };
                       
-                      // Push to inventory_orders
-                      const newOrder = {
-                        id: `DON-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
-                        recipient: selectedLead.name,
-                        phone: selectedLead.phone || 'Chưa cập nhật',
-                        address: selectedLead.giftAddress,
-                        gift: selectedLead._rawGiftName,
-                        status: 'Chưa đóng gói',
-                        date: `${dateStr} ${timeStr}`,
-                        trackingInfo: ''
-                      };
-                      const updatedOrders = [newOrder, ...orders];
-                      setOrders(updatedOrders);
-                      localStorage.setItem('inventory_orders', JSON.stringify(updatedOrders));
-                      
-                      // Notify other tabs immediately
-                      window.dispatchEvent(new Event('storage'));
-                      
-                      const updatedLead = {
-                        ...selectedLead, 
-                        selectedGift: "", 
-                        selectedGiftLabel: "", 
-                        giftAddress: "",
-                        history: [newHistoryItem, ...(selectedLead.history || [])]
-                      };
+                      try {
+                        const newOrder = {
+                          id: `DON-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+                          recipient: selectedLead.name,
+                          phone: selectedLead.phone || 'Chưa cập nhật',
+                          address: selectedLead.giftAddress,
+                          giftId: selectedLead.selectedGift,
+                          status: 'Đã tiếp nhận',
+                          date: `${dateStr} ${timeStr}`
+                        };
+                        
+                        await api.post('/order', newOrder);
 
-                      setToastMsg({
-                        title: "🎉 Đã chốt xuất kho thành công!",
-                        desc: `📦 Quà: ${selectedLead._rawGiftName}\n📍 Tới: ${selectedLead.name}\n(Kho đã tự động trừ 1)`
-                      });
-                      setTimeout(() => setToastMsg(null), 4000);
-                      
-                      const updatedLeads = leads.map(l => l.id === selectedLead.id ? updatedLead : l);
-                      setLeads(updatedLeads);
-                      localStorage.setItem('cskh_leads', JSON.stringify(updatedLeads));
-                      window.dispatchEvent(new Event('storage'));
-                      
-                      setSelectedLead(updatedLead);
+                        const newHistoryItem = { text: `Đã lên đơn gửi quà: ${selectedLead._rawGiftName}\nTới địa chỉ: ${selectedLead.giftAddress}`, time: timeStr, type: "Gửi quà" };
+                        const updatedHistory = [newHistoryItem, ...(selectedLead.history || [])];
+
+                        await api.patch(`/lead/${selectedLead.id}`, { history: updatedHistory });
+
+                        const updatedLead = {
+                          ...selectedLead, 
+                          selectedGift: "", 
+                          selectedGiftLabel: "", 
+                          giftAddress: "",
+                          history: updatedHistory
+                        };
+                        
+                        setLeads(leads.map(l => l.id === selectedLead.id ? updatedLead : l));
+                        setSelectedLead(updatedLead);
+                        
+                        setToastMsg({
+                          title: "🎉 Đã chốt đơn thành công!",
+                          desc: `📦 Quà: ${selectedLead._rawGiftName}\n📍 Tới: ${selectedLead.name}`
+                        });
+                        setTimeout(() => setToastMsg(null), 4000);
+                      } catch (e) {
+                        console.error(e);
+                        alert("Có lỗi xảy ra khi tạo đơn hàng!");
+                      }
                     }}
                     className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg text-xs font-bold text-white transition-colors"
                   >
@@ -834,13 +841,15 @@ export default function CSKHBoardPage() {
             
             <div className="p-6 border-t border-slate-200 bg-white flex justify-between gap-3 shrink-0">
               <button 
-                onClick={() => {
+                onClick={async () => {
                   if(confirm("Xóa học sinh này khỏi hệ thống?")) {
-                    const updatedLeads = leads.filter(l => l.id !== selectedLead.id);
-                    setLeads(updatedLeads);
-                    localStorage.setItem('cskh_leads', JSON.stringify(updatedLeads));
-                    window.dispatchEvent(new Event('storage'));
-                    setSelectedLead(null);
+                    try {
+                      await api.delete(`/lead/${selectedLead.id}`);
+                      setLeads(leads.filter(l => l.id !== selectedLead.id));
+                      setSelectedLead(null);
+                    } catch (e) {
+                      alert("Lỗi khi xóa!");
+                    }
                   }
                 }}
                 className="px-4 py-2.5 bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 font-bold rounded-xl transition-colors flex items-center gap-2"
@@ -853,12 +862,20 @@ export default function CSKHBoardPage() {
                   Hủy bỏ
                 </button>
                 <button 
-                  onClick={() => {
-                    const updatedLeads = leads.map(l => l.id === selectedLead.id ? selectedLead : l);
-                    setLeads(updatedLeads);
-                    localStorage.setItem('cskh_leads', JSON.stringify(updatedLeads));
-                    window.dispatchEvent(new Event('storage'));
-                    setSelectedLead(null);
+                  onClick={async () => {
+                    try {
+                      const payload = {
+                        intent: selectedLead.intent,
+                        note: selectedLead.note,
+                        // Note: If customer info changes, we might need a separate API call, but let's assume we just patch the lead object
+                      };
+                      await api.patch(`/lead/${selectedLead.id}`, payload);
+                      const updatedLeads = leads.map(l => l.id === selectedLead.id ? selectedLead : l);
+                      setLeads(updatedLeads);
+                      setSelectedLead(null);
+                    } catch(e) {
+                      alert("Lỗi khi lưu!");
+                    }
                   }}
                   className="px-5 py-2.5 bg-[#005691] text-white hover:bg-[#004a7c] font-bold rounded-xl flex items-center gap-2 shadow-md shadow-blue-900/20 transition-all hover:-translate-y-0.5"
                 >
