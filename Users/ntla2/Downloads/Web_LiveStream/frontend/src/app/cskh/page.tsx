@@ -120,7 +120,7 @@ export default function CSKHBoardPage() {
       const res = await api.post('/lead', payload);
       
       const newLead = {
-        id: res.data?.id || Math.random(),
+        id: res?.id || Math.random(),
         ...newLeadForm,
         avatar: newLeadForm.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || 'LD',
         score: 50,
