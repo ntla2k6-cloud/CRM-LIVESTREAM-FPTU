@@ -7,6 +7,8 @@ import {
   CheckSquare, Square, Shield, UserCheck, ClipboardList, ChevronDown
 } from "lucide-react";
 
+import { ShiftAPI, StaffAPI } from '@/lib/api';
+
 // DỮ LIỆU MẪU
 const STAFF_ROLES = [
   { id: 'vj', name: 'VJ', color: 'bg-pink-100 text-pink-700 border-pink-200' },
@@ -17,9 +19,6 @@ const STAFF_ROLES = [
   { id: 'cskh', name: 'CSKH', color: 'bg-green-100 text-green-700 border-green-200' },
   { id: 'inventory', name: 'Thủ kho', color: 'bg-orange-100 text-orange-700 border-orange-200' },
 ];
-
-const staffList: any[] = [];
-const mockShifts: any[] = [];
 
 const getRoleBadge = (roleName: string) => {
   const role = STAFF_ROLES.find(r => r.name === roleName);
@@ -35,10 +34,36 @@ export default function SchedulePage() {
   const isAdminOrProducer = currentRole === 'admin' || currentRole === 'producer';
   
   // My mock user info
-  const myStaffId = currentRole === 'member' ? 'S08' : null; // member = Hồ Thanh H
+  const myStaffId = currentRole === 'member' ? 8 : null; 
   
-  // STATE: Danh sách ca trực
+  // API STATES
+  const [staffList, setStaffList] = useState<any[]>([]);
   const [shifts, setShifts] = useState<any[]>([]);
+  
+  React.useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [staffRes, shiftRes] = await Promise.all([
+        StaffAPI.getAll(),
+        ShiftAPI.getAll()
+      ]);
+      setStaffList(staffRes);
+      
+      const mappedShifts = shiftRes.map((s: any) => ({
+        ...s,
+        date: s.day,
+        assigned: s.assignments?.map((a: any) => a.staffId) || [],
+        status: s.status || 'Chưa bắt đầu',
+        project: s.type || 'Khác',
+      }));
+      setShifts(mappedShifts);
+    } catch (err) {
+      console.error(err);
+    }
+  };
   
   // STATE: Đội hình đăng ký — { shiftId: [staffId, ...] }
   const [registrations, setRegistrations] = useState<Record<number, string[]>>({});
@@ -51,34 +76,62 @@ export default function SchedulePage() {
   const [selectedShift, setSelectedShift] = useState<any | null>(null);
   const [drawerTab, setDrawerTab] = useState<'OFFICIAL' | 'REGISTRATION'>('OFFICIAL');
 
-  const handleToggleAssign = (staffId: string) => {
+  const handleToggleAssign = (staffId: any) => {
     if (!selectedShift) return;
     const currentAssigned = selectedShift.assigned || [];
     const newAssigned = currentAssigned.includes(staffId)
-      ? currentAssigned.filter((id: string) => id !== staffId)
+      ? currentAssigned.filter((id: any) => id !== staffId)
       : [...currentAssigned, staffId];
     setSelectedShift({ ...selectedShift, assigned: newAssigned });
   };
 
-  const handleSaveShift = () => {
+  const handleSaveShift = async () => {
     if (!selectedShift) return;
-    if (shifts.find(s => s.id === selectedShift.id)) {
-      setShifts(shifts.map(s => s.id === selectedShift.id ? selectedShift : s));
-    } else {
-      setShifts([...shifts, { ...selectedShift, id: Date.now() }]);
+    try {
+      const isExisting = shifts.find(s => s.id === selectedShift.id && typeof selectedShift.id === 'number' && selectedShift.id < 1000000000);
+      
+      const payload = {
+        title: selectedShift.title,
+        time: selectedShift.time,
+        day: selectedShift.date,
+        type: selectedShift.project || 'Khác',
+        color: selectedShift.color || 'blue',
+        assignments: {
+          deleteMany: {},
+          create: (selectedShift.assigned || []).map((staffId: any) => ({ staffId: Number(staffId) }))
+        }
+      };
+
+      if (isExisting) {
+        await ShiftAPI.update(selectedShift.id, payload);
+        // We also need to update assignments, but for now we simplify by just reloading
+      } else {
+        await ShiftAPI.create(payload);
+      }
+      
+      fetchData();
+      setSelectedShift(null);
+    } catch (err) {
+      console.error(err);
+      alert('Có lỗi xảy ra khi lưu ca trực!');
     }
-    setSelectedShift(null);
   };
 
-  const handleDeleteShift = () => {
+  const handleDeleteShift = async () => {
     if (!selectedShift) return;
     if (confirm("Xóa ca trực này?")) {
-      setShifts(shifts.filter(s => s.id !== selectedShift.id));
-      setSelectedShift(null);
+      try {
+        await ShiftAPI.delete(selectedShift.id);
+        fetchData();
+        setSelectedShift(null);
+      } catch (err) {
+        console.error(err);
+        alert('Có lỗi xảy ra khi xóa!');
+      }
     }
   };
 
-  const handleToggleRegistration = (shiftId: number, staffId: string) => {
+  const handleToggleRegistration = (shiftId: number, staffId: any) => {
     setRegistrations(prev => {
       const current = prev[shiftId] || [];
       const updated = current.includes(staffId)
@@ -89,14 +142,14 @@ export default function SchedulePage() {
   };
   
   // Chuyển từ đội hình đăng ký sang đội hình chính thức
-  const handleMoveToOfficial = (staffId: string) => {
+  const handleMoveToOfficial = (staffId: any) => {
     if (!selectedShift) return;
     if (!selectedShift.assigned?.includes(staffId)) {
       setSelectedShift({ ...selectedShift, assigned: [...(selectedShift.assigned || []), staffId] });
     }
   };
 
-  const handlePayrollChange = (staffId: string, field: string, value: any) => {
+  const handlePayrollChange = (staffId: any, field: string, value: any) => {
     setPayrollOverrides((prev: any) => ({
       ...prev,
       [staffId]: {
