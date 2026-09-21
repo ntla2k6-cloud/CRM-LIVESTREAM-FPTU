@@ -71,7 +71,7 @@ export default function CSKHBoardPage() {
           api.get('/order')
         ]);
         
-        const apiLeads = leadsRes.data.map((l: any) => ({
+        const apiLeads = leadsRes.map((l: any) => ({
           id: l.id,
           name: l.customer?.fullName || 'Khách ' + l.id.substring(0,4),
           phone: l.customer?.phone || '',
@@ -92,8 +92,8 @@ export default function CSKHBoardPage() {
         }));
         
         setLeads(apiLeads);
-        setGifts(giftsRes.data);
-        setOrders(ordersRes.data);
+        setGifts(giftsRes);
+        setOrders(ordersRes);
       } catch (err) {
         console.error("Lỗi lấy dữ liệu CSKH:", err);
       }
