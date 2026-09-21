@@ -18,37 +18,8 @@ const STAFF_ROLES = [
   { id: 'inventory', name: 'Thủ kho', color: 'bg-orange-100 text-orange-700 border-orange-200' },
 ];
 
-const staffList = [
-  { id: 'S01', name: 'Bình', role: 'Producer' },
-  { id: 'S02', name: 'Dũng', role: 'Producer' },
-  { id: 'S03', name: 'Thư', role: 'Biên tập' },
-  { id: 'S04', name: 'Trinh', role: 'Biên tập' },
-  { id: 'S05', name: 'Uyên', role: 'Biên tập' },
-  { id: 'S06', name: 'Vy', role: 'Biên tập' },
-  { id: 'S07', name: 'Bảo Duy', role: 'VJ' },
-  { id: 'S08', name: 'Minh Khôi', role: 'VJ' },
-  { id: 'S09', name: 'Thành Đạt', role: 'VJ' },
-  { id: 'S10', name: 'Kim Phát', role: 'VJ' },
-  { id: 'S11', name: 'Lan Anh', role: 'Admin' },
-];
-
-const mockShifts = [
-  {
-    day: 10, time: "19:00 - 21:00", title: "Uống Gì CHƯA Tập 1", type: "Giải trí",
-    color: "orange", project: "Uống Gì CHƯA",
-    assignees: ['S01', 'S03', 'S07', 'S08']
-  },
-  {
-    day: 12, time: "19:00 - 21:00", title: "Hành Trang IT", type: "Học Thuật",
-    color: "green", project: "Học Thuật",
-    assignees: ['S02', 'S04', 'S09', 'S10']
-  },
-  {
-    day: 20, time: "20:00 - 22:30", title: "Tư vấn Xét tuyển K19", type: "Tư vấn",
-    color: "blue", project: "Khác",
-    assignees: ['S01', 'S05', 'S07', 'S09']
-  }
-];
+const staffList: any[] = [];
+const mockShifts: any[] = [];
 
 const getRoleBadge = (roleName: string) => {
   const role = STAFF_ROLES.find(r => r.name === roleName);
@@ -67,18 +38,10 @@ export default function SchedulePage() {
   const myStaffId = currentRole === 'member' ? 'S08' : null; // member = Hồ Thanh H
   
   // STATE: Danh sách ca trực
-  const [shifts, setShifts] = useState([
-    { id: 1, date: 12, title: "Livestream Chuyên Ngành IT", time: "19:00 - 21:00", assigned: ['S01', 'S03', 'S04', 'S06', 'S07', 'S08', 'S10'], location: "Studio A", status: "Hoàn thành", project: "Học Thuật", color: "green" },
-    { id: 2, date: 14, title: "Livestream Tư Vấn Tuyển Sinh", time: "20:00 - 22:30", assigned: ['S02', 'S03', 'S05', 'S06', 'S07', 'S09'], location: "Studio B", status: "Chưa bắt đầu", project: "Uống Gì CHƯA", color: "orange" },
-    { id: 3, date: 18, title: "Talkshow GenZ", time: "18:00 - 20:00", assigned: ['S01', 'S02', 'S04', 'S08'], location: "Studio A", status: "Chưa bắt đầu", project: "Uống Gì CHƯA", color: "pink" }
-  ]);
+  const [shifts, setShifts] = useState<any[]>([]);
   
   // STATE: Đội hình đăng ký — { shiftId: [staffId, ...] }
-  const [registrations, setRegistrations] = useState<Record<number, string[]>>({
-    1: ['S05', 'S09'],
-    2: ['S01', 'S08', 'S10'],
-    3: ['S05', 'S06', 'S09'],
-  });
+  const [registrations, setRegistrations] = useState<Record<number, string[]>>({});
 
   // STATE: Bảng lương override
   const [payrollMonth, setPayrollMonth] = useState('ALL');
@@ -284,7 +247,7 @@ export default function SchedulePage() {
                 {Array.from({length: 30}).map((_, i) => {
                   const day = i + 1;
                   const dayShifts = shifts.filter(s => s.date === day);
-                  const isToday = day === 14;
+                  const isToday = day === new Date().getDate();
                   return (
                     <div 
                       key={i} 

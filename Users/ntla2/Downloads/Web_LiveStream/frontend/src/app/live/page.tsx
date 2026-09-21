@@ -77,10 +77,10 @@ export default function LiveSessionListPage() {
         {/* STATS */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
-            { label: 'Tổng số Phiên', value: '12', icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-50' },
-            { label: 'Tổng Mắt xem', value: '4,487', icon: Users, color: 'text-purple-600', bg: 'bg-purple-50' },
-            { label: 'Lead thu được', value: '342', icon: Phone, color: 'text-red-600', bg: 'bg-red-50' },
-            { label: 'Đang chuẩn bị', value: '3', icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50' },
+            { label: 'Tổng số Phiên', value: sessions.length, icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-50' },
+            { label: 'Tổng Mắt xem', value: sessions.reduce((acc, curr) => acc + (curr.viewers || 0), 0).toLocaleString(), icon: Users, color: 'text-purple-600', bg: 'bg-purple-50' },
+            { label: 'Lead thu được', value: sessions.reduce((acc, curr) => acc + (curr.leads || 0), 0).toLocaleString(), icon: Phone, color: 'text-red-600', bg: 'bg-red-50' },
+            { label: 'Đang chuẩn bị', value: sessions.filter(s => s.status === 'UPCOMING').length, icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50' },
           ].map((stat, i) => (
             <div key={i} className="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4">
               <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 ${stat.bg} ${stat.color}`}>
