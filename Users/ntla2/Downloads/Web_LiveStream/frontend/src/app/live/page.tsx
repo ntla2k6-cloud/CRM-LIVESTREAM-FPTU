@@ -19,13 +19,14 @@ export default function LiveSessionListPage() {
     try {
       const data = await LiveSessionAPI.getAll();
       const safeData = Array.isArray(data) ? data : (data?.data || []);
+      const getSafeNumber = (val: any) => Array.isArray(val) ? val.length : (Number(val) || 0);
       const mappedData = safeData.map((s: any) => ({
         ...s,
         date: s.startTime ? new Date(s.startTime).toLocaleDateString('vi-VN') : 'Chưa xếp lịch',
         time: s.startTime ? new Date(s.startTime).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '',
         host: 'Admin',
-        viewers: 0,
-        leads: 0,
+        viewers: getSafeNumber(s.viewers),
+        leads: getSafeNumber(s.leads),
         // Map đúng status từ backend
         status: s.status === 'SCHEDULED' ? 'UPCOMING' 
               : s.status === 'ONGOING' ? 'LIVE_NOW'
