@@ -18,19 +18,27 @@ export default function LiveSessionListPage() {
   const fetchSessions = async () => {
     try {
       const data = await LiveSessionAPI.getAll();
-      const safeData = Array.isArray(data) ? data : (data?.data || []);
+      const safeData = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
       const getSafeNumber = (val: any) => Array.isArray(val) ? val.length : (Number(val) || 0);
+      
+      const formatDate = (ds: any) => {
+        try { return ds ? new Date(ds).toLocaleDateString('vi-VN') : 'Chưa xếp lịch' } catch(e) { return 'Chưa xếp lịch' }
+      };
+      const formatTime = (ds: any) => {
+        try { return ds ? new Date(ds).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '' } catch(e) { return '' }
+      };
+
       const mappedData = safeData.map((s: any) => ({
         ...s,
-        date: s.startTime ? new Date(s.startTime).toLocaleDateString('vi-VN') : 'Chưa xếp lịch',
-        time: s.startTime ? new Date(s.startTime).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '',
+        date: formatDate(s?.startTime),
+        time: formatTime(s?.startTime),
         host: 'Admin',
-        viewers: getSafeNumber(s.viewers),
-        leads: getSafeNumber(s.leads),
+        viewers: getSafeNumber(s?.viewers),
+        leads: getSafeNumber(s?.leads),
         // Map đúng status từ backend
-        status: s.status === 'SCHEDULED' ? 'UPCOMING' 
-              : s.status === 'ONGOING' ? 'LIVE_NOW'
-              : s.status  // LIVE_NOW, COMPLETED giữ nguyên
+        status: s?.status === 'SCHEDULED' ? 'UPCOMING' 
+              : s?.status === 'ONGOING' ? 'LIVE_NOW'
+              : s?.status  // LIVE_NOW, COMPLETED giữ nguyên
       }));
       setSessions(mappedData);
     } catch (error) {
