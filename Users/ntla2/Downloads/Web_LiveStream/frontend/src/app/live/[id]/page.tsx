@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { 
   Play, Square, MessageSquare, Users, Trash2, Timer, Video, ListTodo, Pin, CheckCircle2, Phone, BellRing, Trophy, Clock, Zap, Target, TrendingUp, AlertTriangle, Gift
 } from 'lucide-react';
+import io from 'socket.io-client';
+
+let socket: any;
 
 export default function LiveControlPage() {
   const [activeTabLeft, setActiveTabLeft] = useState<'SCRIPT' | 'TRIVIA' | 'KEYWORDS'>('SCRIPT');
@@ -66,7 +69,62 @@ export default function LiveControlPage() {
   // ============ ENGINE TỔNG HỢP ============
   const [comments, setComments] = useState<any[]>([]);
 
-  // 1. Timer Engine
+  // 1. Socket.IO & Timer Engine
+  useEffect(() => {
+    // Kết nối Socket
+    socket = io('http://localhost:3001');
+    
+    socket.on('newComment', (newComment: any) => {
+      setComments(prev => [newComment, ...prev].slice(0, 100));
+      
+      const hasPhone = newComment.isPhone;
+      const hasHighIntent = newComment.isHighIntent;
+      
+      if (hasPhone || hasHighIntent) {
+        setLeads(prev => {
+          if (prev.find(l => l.name === newComment.name)) return prev;
+          setNewLeadAlert(true);
+          setTimeout(() => setNewLeadAlert(false), 3000);
+          return [{ 
+            id: newComment.id, 
+            name: newComment.name, 
+            phone: hasPhone ? newComment.text.match(/\d{9,10}/)?.[0] : 'Chưa có', 
+            intent: hasPhone ? 'HOT' : 'WARM',
+            text: newComment.text,
+            time: newComment.time, 
+            status: 'Chưa gọi' 
+          }, ...prev];
+        });
+      }
+      
+      // Chấm điểm Minigame từ Socket
+      setActiveQuestion((currentActiveQ) => {
+        if (currentActiveQ) {
+          const qObj = questions.find(q => q.id === currentActiveQ);
+          if (qObj && qObj.answer) {
+            const isCorrect = newComment.text.toLowerCase().includes(qObj.answer.toLowerCase());
+            setStats(prev => ({ total: prev.total + 1, correct: prev.correct + (isCorrect ? 1 : 0) }));
+            if (isCorrect) {
+              setLeaderboard(prev => {
+                if (prev.find(u => u.name === newComment.name)) return prev;
+                // Tính tốc độ (chỉ tương đối vì ko có startTime chính xác tuyệt đối ở đây, dùng Date.now làm fallback)
+                const speedMs = newComment.timestamp - Date.now() + 10000; 
+                const speedSec = (Math.max(0.1, Math.abs(speedMs) / 1000)).toFixed(1);
+                return [...prev, { name: newComment.name, speed: speedSec, text: newComment.text }].sort((a, b) => parseFloat(a.speed) - parseFloat(b.speed));
+              });
+            }
+          }
+        }
+        return currentActiveQ;
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [questions]);
+
+  // Timer Engine
   useEffect(() => {
     if (!activeQuestion) return;
     const timerInterval = setInterval(() => {
@@ -74,15 +132,17 @@ export default function LiveControlPage() {
         if (prev <= 1) {
           clearInterval(timerInterval);
           setActiveQuestion(null);
+          // Phát sự kiện kết thúc game
+          socket?.emit('endGame', { liveSessionId: params, questionCode: 'Minigame' });
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(timerInterval);
-  }, [activeQuestion]);
+  }, [activeQuestion, params]);
 
-  // 2. Comment, Lead & Keyword Engine
+  // 2. Fake Comment Engine (giữ lại cho demo sinh động)
   useEffect(() => {
     const names = ["@tuan.coder", "@hoaianh", "@minh_fptu", "@linh.cute", "@hoang.vu", "@anh.ngoc", "@vy.le"];
     const randomTexts = [
@@ -226,6 +286,14 @@ export default function LiveControlPage() {
     setLeaderboard([]);
     setStats({ total: 0, correct: 0 });
     setStartTime(Date.now());
+
+    // Bắn sự kiện sang Socket để máy học sinh hiển thị câu hỏi
+    const qObj = questions.find(q => q.id === qId);
+    socket?.emit('startGame', { 
+      liveSessionId: params, 
+      questionCode: qObj?.code || 'Minigame', 
+      timeLimit 
+    });
     setActiveTabRight('WINNERS');
   };
 
