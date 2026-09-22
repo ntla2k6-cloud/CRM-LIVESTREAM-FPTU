@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { WebcastPushConnection } from 'tiktok-live-connector';
+import { TikTokLiveConnection } from 'tiktok-live-connector';
 
 export async function POST(request: Request) {
   try {
@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     const cleanUsername = username.replace('@', '').trim();
     
     // Khởi tạo connection
-    const tiktokLiveConnection = new WebcastPushConnection(cleanUsername);
+    const tiktokLiveConnection = new TikTokLiveConnection(cleanUsername);
     
     // Thử kết nối (Promise)
     const state = await tiktokLiveConnection.connect();
