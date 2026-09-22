@@ -18,7 +18,8 @@ export default function LiveSessionListPage() {
   const fetchSessions = async () => {
     try {
       const data = await LiveSessionAPI.getAll();
-      const mappedData = data.map((s: any) => ({
+      const safeData = Array.isArray(data) ? data : (data?.data || []);
+      const mappedData = safeData.map((s: any) => ({
         ...s,
         date: s.startTime ? new Date(s.startTime).toLocaleDateString('vi-VN') : 'Chưa xếp lịch',
         time: s.startTime ? new Date(s.startTime).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '',
@@ -32,7 +33,7 @@ export default function LiveSessionListPage() {
       }));
       setSessions(mappedData);
     } catch (error) {
-      console.error(error);
+      console.error('Failed to fetch sessions:', error);
     } finally {
       setLoading(false);
     }
@@ -121,8 +122,8 @@ export default function LiveSessionListPage() {
                     </div>
                     <h3 className="text-xl font-black text-slate-900 mb-2 leading-tight">{session.title}</h3>
                     <div className="flex flex-wrap items-center gap-4 text-sm font-bold text-slate-500">
-                      <span className="flex items-center gap-1.5"><Users size={16} className="text-blue-500" /> {session.viewers.toLocaleString()} đang xem</span>
-                      <span className="flex items-center gap-1.5"><MessageSquare size={16} className="text-orange-500" /> {session.leads} Lead SĐT</span>
+                      <span className="flex items-center gap-1.5"><Users size={16} className="text-blue-500" /> {(session.viewers || 0).toLocaleString()} đang xem</span>
+                      <span className="flex items-center gap-1.5"><MessageSquare size={16} className="text-orange-500" /> {session.leads || 0} Lead SĐT</span>
                     </div>
                   </div>
                 </div>
@@ -184,11 +185,11 @@ export default function LiveSessionListPage() {
                     <button className="text-slate-400 hover:text-slate-900"><Download size={16} /></button>
                   </div>
                   <h3 className="text-base font-black text-slate-700 mb-1">{session.title}</h3>
-                  <p className="text-xs font-bold text-slate-400 mb-4">{session.date} • Đạt {session.viewers.toLocaleString()} view</p>
+                  <p className="text-xs font-bold text-slate-400 mb-4">{session.date} • Đạt {(session.viewers || 0).toLocaleString()} view</p>
                   
                   <div className="flex items-center justify-between pt-4 border-t border-slate-200">
                     <span className="text-xs font-bold text-[#00A859] flex items-center gap-1.5">
-                      Thu được {session.leads} Lead
+                      Thu được {session.leads || 0} Lead
                     </span>
                     <Link href={`/live/${session.id}/report`} className="text-xs font-black text-slate-500 hover:text-[#005691] flex items-center gap-1 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm transition-colors">
                       📊 Xem Báo Cáo <ArrowRight size={14} />
