@@ -22,8 +22,8 @@ export default function InventoryPage() {
           api.get('/gift'),
           api.get('/order')
         ]);
-        setGifts(giftsRes);
-        setOrders(ordersRes);
+        setGifts(Array.isArray(giftsRes) ? giftsRes : (giftsRes?.data || []));
+        setOrders(Array.isArray(ordersRes) ? ordersRes : (ordersRes?.data || []));
       } catch (err) {
         console.error("Lỗi lấy dữ liệu:", err);
       }
@@ -52,8 +52,8 @@ export default function InventoryPage() {
         api.get('/gift'),
         api.get('/order')
       ]);
-      setGifts(giftsRes);
-      setOrders(ordersRes);
+      setGifts(Array.isArray(giftsRes) ? giftsRes : (giftsRes?.data || []));
+      setOrders(Array.isArray(ordersRes) ? ordersRes : (ordersRes?.data || []));
       setSelectedOrder(null);
     } catch (err) {
       console.error(err);
@@ -83,14 +83,14 @@ export default function InventoryPage() {
         await api.post('/gift', selectedGift);
       }
       const giftsRes = await api.get('/gift');
-      setGifts(giftsRes);
+      setGifts(Array.isArray(giftsRes) ? giftsRes : (giftsRes?.data || []));
       setSelectedGift(null);
     } catch (err: any) {
       console.error(err);
       alert(err.response?.data?.message || "Lỗi khi lưu quà tặng! Có thể mã SKU đã tồn tại.");
       // Revert optimistic update
       const giftsRes = await api.get('/gift');
-      setGifts(giftsRes);
+      setGifts(Array.isArray(giftsRes) ? giftsRes : (giftsRes?.data || []));
     }
   };
 
@@ -101,7 +101,7 @@ export default function InventoryPage() {
           await api.delete(`/gift/${selectedGift.id}`);
         }
         const giftsRes = await api.get('/gift');
-        setGifts(giftsRes);
+        setGifts(Array.isArray(giftsRes) ? giftsRes : (giftsRes?.data || []));
         setSelectedGift(null);
       } catch (err) {
         console.error(err);
