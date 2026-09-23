@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import React, { useState, useEffect } from 'react';
 import { 
   Play, Square, MessageSquare, Users, Trash2, Timer, Video, ListTodo, Pin, CheckCircle2, Phone, BellRing, Trophy, Clock, Zap, Target, TrendingUp, AlertTriangle, Gift
@@ -11,9 +11,9 @@ export default function LiveControlPage() {
   const [activeTabLeft, setActiveTabLeft] = useState<'SCRIPT' | 'TRIVIA' | 'KEYWORDS'>('SCRIPT');
   const [activeTabRight, setActiveTabRight] = useState<'COMMENTS' | 'LEADS' | 'WINNERS'>('COMMENTS');
   
-  // ============ STATES: KỊCH BẢN & DỮ LIỆU ============
+  // ============ STATES: Ká»CH Báº¢N & Dá»® LIá»†U ============
   const [scriptContent, setScriptContent] = useState(
-    "1. Chào hỏi & Minigame đầu giờ (15p)\n- Kêu gọi thả tim, share livestream\n\n2. Q&A Giải đáp thắc mắc\n- Tập trung trả lời câu hỏi được ghim\n\n3. Trắc nghiệm Minigame\n- Chơi 3 câu nhận Balo FPTU"
+    "1. ChĂ o há»i & Minigame Ä‘áº§u giá» (15p)\n- KĂªu gá»i tháº£ tim, share livestream\n\n2. Q&A Giáº£i Ä‘Ă¡p tháº¯c máº¯c\n- Táº­p trung tráº£ lá»i cĂ¢u há»i Ä‘Æ°á»£c ghim\n\n3. Tráº¯c nghiá»‡m Minigame\n- ChÆ¡i 3 cĂ¢u nháº­n Balo FPTU"
   );
   const [leads, setLeads] = useState<any[]>([]);
   const [newLeadAlert, setNewLeadAlert] = useState(false);
@@ -35,9 +35,9 @@ export default function LiveControlPage() {
   const [editDraft, setEditDraft] = useState<any>(null);
 
   const MOCK_QUESTIONS = [
-    { id: 'q1', code: 'Q1', content: 'Cơ sở vật chất của FPTU HCM có gì đặc biệt?', answer: 'C', timeLimit: 30, options: { A: 'Hồ bơi Olympic', B: 'Sân golf 9 lỗ', C: 'Thư viện 3 tầng, sân bóng tiêu chuẩn FIFA, hồ sen', D: 'Khu vườn ươm cây' } },
-    { id: 'q2', code: 'Q2', content: 'FPTU HCM thuộc hệ thống Đại học nào?', answer: 'A', timeLimit: 30, options: { A: 'FPT University', B: 'Đại học Quốc gia HCM', C: 'Đại học Bách Khoa', D: 'Đại học Khoa học Tự nhiên' } },
-    { id: 'q3', code: 'Q3', content: 'Ngành học hot nhất tại FPTU HCM năm 2026 là gì?', answer: 'B', timeLimit: 30, options: { A: 'Quản trị kinh doanh', B: 'Kỹ thuật phần mềm & AI', C: 'Báo chí đa phương tiện', D: 'Thiết kế đồ họa' } },
+    { id: 'q1', code: 'Q1', content: 'CÆ¡ sá»Ÿ váº­t cháº¥t cá»§a FPTU HCM cĂ³ gĂ¬ Ä‘áº·c biá»‡t?', answer: 'C', timeLimit: 30, options: { A: 'Há»“ bÆ¡i Olympic', B: 'SĂ¢n golf 9 lá»—', C: 'ThÆ° viá»‡n 3 táº§ng, sĂ¢n bĂ³ng tiĂªu chuáº©n FIFA, há»“ sen', D: 'Khu vÆ°á»n Æ°Æ¡m cĂ¢y' } },
+    { id: 'q2', code: 'Q2', content: 'FPTU HCM thuá»™c há»‡ thá»‘ng Äáº¡i há»c nĂ o?', answer: 'A', timeLimit: 30, options: { A: 'FPT University', B: 'Äáº¡i há»c Quá»‘c gia HCM', C: 'Äáº¡i há»c BĂ¡ch Khoa', D: 'Äáº¡i há»c Khoa há»c Tá»± nhiĂªn' } },
+    { id: 'q3', code: 'Q3', content: 'NgĂ nh há»c hot nháº¥t táº¡i FPTU HCM nÄƒm 2026 lĂ  gĂ¬?', answer: 'B', timeLimit: 30, options: { A: 'Quáº£n trá»‹ kinh doanh', B: 'Ká»¹ thuáº­t pháº§n má»m & AI', C: 'BĂ¡o chĂ­ Ä‘a phÆ°Æ¡ng tiá»‡n', D: 'Thiáº¿t káº¿ Ä‘á»“ há»a' } },
   ];
 
   useEffect(() => {
@@ -66,12 +66,12 @@ export default function LiveControlPage() {
 
   const activeQ = questions.find(q => q.id === activeQuestion);
 
-  // ============ ENGINE TỔNG HỢP ============
+  // ============ ENGINE Tá»”NG Há»¢P ============
   const [comments, setComments] = useState<any[]>([]);
 
   // 1. Socket.IO & Timer Engine
   useEffect(() => {
-    // Kết nối Socket
+    // Káº¿t ná»‘i Socket
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
     socket = io(socketUrl);
     
@@ -89,16 +89,16 @@ export default function LiveControlPage() {
           return [{ 
             id: newComment.id, 
             name: newComment.name, 
-            phone: hasPhone ? newComment.text.match(/\d{9,10}/)?.[0] : 'Chưa có', 
+            phone: hasPhone ? newComment.text.match(/\d{9,10}/)?.[0] : 'ChÆ°a cĂ³', 
             intent: hasPhone ? 'HOT' : 'WARM',
             text: newComment.text,
             time: newComment.time, 
-            status: 'Chưa gọi' 
+            status: 'ChÆ°a gá»i' 
           }, ...prev];
         });
       }
       
-      // Chấm điểm Minigame từ Socket
+      // Cháº¥m Ä‘iá»ƒm Minigame tá»« Socket
       setActiveQuestion((currentActiveQ) => {
         if (currentActiveQ) {
           const qObj = questions.find(q => q.id === currentActiveQ);
@@ -108,7 +108,7 @@ export default function LiveControlPage() {
             if (isCorrect) {
               setLeaderboard(prev => {
                 if (prev.find(u => u.name === newComment.name)) return prev;
-                // Tính tốc độ (chỉ tương đối vì ko có startTime chính xác tuyệt đối ở đây, dùng Date.now làm fallback)
+                // TĂ­nh tá»‘c Ä‘á»™ (chá»‰ tÆ°Æ¡ng Ä‘á»‘i vĂ¬ ko cĂ³ startTime chĂ­nh xĂ¡c tuyá»‡t Ä‘á»‘i á»Ÿ Ä‘Ă¢y, dĂ¹ng Date.now lĂ m fallback)
                 const speedMs = newComment.timestamp - Date.now() + 10000; 
                 const speedSec = (Math.max(0.1, Math.abs(speedMs) / 1000)).toFixed(1);
                 return [...prev, { name: newComment.name, speed: speedSec, text: newComment.text }].sort((a, b) => parseFloat(a.speed) - parseFloat(b.speed));
@@ -133,7 +133,7 @@ export default function LiveControlPage() {
         if (prev <= 1) {
           clearInterval(timerInterval);
           setActiveQuestion(null);
-          // Phát sự kiện kết thúc game
+          // PhĂ¡t sá»± kiá»‡n káº¿t thĂºc game
           socket?.emit('endGame', { liveSessionId: params, questionCode: 'Minigame' });
           return 0;
         }
@@ -143,108 +143,9 @@ export default function LiveControlPage() {
     return () => clearInterval(timerInterval);
   }, [activeQuestion, params]);
 
-  // 2. Fake Comment Engine (giữ lại cho demo sinh động)
-  useEffect(() => {
-    const names = ["@tuan.coder", "@hoaianh", "@minh_fptu", "@linh.cute", "@hoang.vu", "@anh.ngoc", "@vy.le"];
-    const randomTexts = [
-      "Cho em hỏi học phí ngành SE ạ?", 
-      "Tư vấn em với 0987123456", 
-      "Điểm chuẩn năm nay bao nhiêu vậy ạ?", 
-      "Em muốn đăng ký 0912999888",
-      "Ký túc xá có bắt buộc không ạ",
-      "Học bổng trường mình ntn ạ",
-      "Inbox em cách nộp hồ sơ nhé", // High intent, no phone
-      "Thư viện 3 tầng", "FPT", "A", "B"
-    ];
-    
-    const TARGET_KEYWORDS = ['học phí', 'điểm chuẩn', 'ký túc xá', 'học bổng', 'ngành'];
-    const HIGH_INTENT_PHRASES = ['tư vấn', 'đăng ký', 'inbox', 'muốn học'];
+    // B? Fake Comment Engine theo yêu c?u c?a user. Comment s? ch? l?y t? Socket.io ? trên.
 
-    const commentInterval = setInterval(() => {
-      const isCorrectTriviaText = activeQ ? Math.random() > 0.6 : false;
-      const text = isCorrectTriviaText ? `1.${activeQ!.answer}` : randomTexts[Math.floor(Math.random() * randomTexts.length)];
-      const name = names[Math.floor(Math.random() * names.length)];
-      const hasPhone = text.match(/\d{9,10}/) !== null;
-      
-      const lowerText = text.toLowerCase();
-      
-      // Auto-extract intent
-      const hasHighIntent = HIGH_INTENT_PHRASES.some(phrase => lowerText.includes(phrase));
-      
-      // Auto-count keywords
-      setKeywordStats(prev => {
-        const next = { ...prev };
-        TARGET_KEYWORDS.forEach(kw => {
-          if (lowerText.includes(kw)) {
-            next[kw] = (next[kw] || 0) + 1;
-          }
-        });
-        return next;
-      });
-
-      const newComment = {
-        id: Math.random().toString(),
-        name,
-        text,
-        time: new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit', second:'2-digit'}),
-        isPhone: hasPhone,
-        isHighIntent: hasHighIntent && !hasPhone, // Mark if it's a lead without phone
-        timestamp: Date.now()
-      };
-
-      setComments(prev => [newComment, ...prev].slice(0, 100));
-
-      // --- LOGIC 1: Bắt Leads (Có SĐT hoặc Intent Cao) ---
-      if (hasPhone || hasHighIntent) {
-        setLeads(prev => {
-          if (prev.find(l => l.name === newComment.name)) return prev; 
-          setNewLeadAlert(true);
-          setTimeout(() => setNewLeadAlert(false), 3000);
-          return [{ 
-            id: newComment.id, 
-            name: newComment.name, 
-            phone: hasPhone ? text.match(/\d{9,10}/)?.[0] : 'Chưa có', 
-            intent: hasPhone ? 'HOT' : 'WARM',
-            text: newComment.text,
-            time: newComment.time, 
-            status: 'Chưa gọi' 
-          }, ...prev];
-        });
-      }
-
-      // --- LOGIC 2: Chấm điểm Minigame ---
-      if (activeQ && activeQ.answer) {
-        const isCorrect = newComment.text.toLowerCase().includes(activeQ.answer.toLowerCase());
-        setStats(prev => ({ total: prev.total + 1, correct: prev.correct + (isCorrect ? 1 : 0) }));
-
-        if (isCorrect) {
-          setLeaderboard(prev => {
-            if (prev.find(u => u.name === newComment.name)) return prev;
-            const speedMs = newComment.timestamp - (startTime || Date.now());
-            const speedSec = (speedMs / 1000).toFixed(1);
-            
-            // Randomly assign previous win count for demo
-            const winCount = Math.random() > 0.7 ? Math.floor(Math.random() * 3) + 1 : 0;
-
-            const newUser = {
-              name: newComment.name,
-              answer: newComment.text,
-              speed: `${speedSec}s`,
-              speedMs,
-              winCount,
-              avatar: newComment.name.charAt(1).toUpperCase()
-            };
-            const newBoard = [...prev, newUser].sort((a, b) => a.speedMs - b.speedMs).slice(0, 20); // Keep top 20
-            return newBoard.map((u, i) => ({ ...u, rank: i + 1 }));
-          });
-        }
-      }
-    }, 2000); 
-
-    return () => clearInterval(commentInterval);
-  }, [activeQ, startTime]);
-
-  // ============ DỒNG BỘ DATA CHO TRANG BÁO CÁO (THỐNG KÊ) ============
+  // ============ Dá»’NG Bá»˜ DATA CHO TRANG BĂO CĂO (THá»NG KĂ) ============
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const reportPayload = {
@@ -255,14 +156,14 @@ export default function LiveControlPage() {
           time: c.time,
           user: c.name,
           content: c.text,
-          intent: c.isPhone ? 'Có SĐT' : c.isHighIntent ? 'Nhu cầu cao' : c.text.match(/^[0-9A-D]\./) ? 'Tham gia Minigame' : c.text.length < 10 ? 'Tương tác' : 'Bình thường'
+          intent: c.isPhone ? 'CĂ³ SÄT' : c.isHighIntent ? 'Nhu cáº§u cao' : c.text.match(/^[0-9A-D]\./) ? 'Tham gia Minigame' : c.text.length < 10 ? 'TÆ°Æ¡ng tĂ¡c' : 'BĂ¬nh thÆ°á»ng'
         })),
         leads: leads.map(l => ({
           id: l.id,
           time: l.time,
           user: l.name,
-          info: l.phone !== 'Chưa có' ? l.phone : 'Inbox',
-          type: l.intent === 'HOT' ? 'SĐT Trực tiếp' : 'Nhu cầu cao',
+          info: l.phone !== 'ChÆ°a cĂ³' ? l.phone : 'Inbox',
+          type: l.intent === 'HOT' ? 'SÄT Trá»±c tiáº¿p' : 'Nhu cáº§u cao',
           status: l.status,
           note: l.text
         })),
@@ -271,7 +172,7 @@ export default function LiveControlPage() {
           user: w.name,
           time: `+${w.speed}`,
           answer: w.answer,
-          type: idx < 3 ? 'Chính thức' : 'Dự bị',
+          type: idx < 3 ? 'ChĂ­nh thá»©c' : 'Dá»± bá»‹',
           gift: idx < 3 ? 'Balo FPTU' : '-'
         })),
         keywordStats: keywordStats
@@ -288,7 +189,7 @@ export default function LiveControlPage() {
     setStats({ total: 0, correct: 0 });
     setStartTime(Date.now());
 
-    // Bắn sự kiện sang Socket để máy học sinh hiển thị câu hỏi
+    // Báº¯n sá»± kiá»‡n sang Socket Ä‘á»ƒ mĂ¡y há»c sinh hiá»ƒn thá»‹ cĂ¢u há»i
     const qObj = questions.find(q => q.id === qId);
     socket?.emit('startGame', { 
       liveSessionId: params, 
@@ -303,7 +204,7 @@ export default function LiveControlPage() {
     setSendingDMs(true);
     setTimeout(() => {
       setSendingDMs(false);
-      setToastMessage(`🎉 Đã gửi kịch bản Auto-DM thành công cho Top 3 Winners và Top 10 Backup Winners!`);
+      setToastMessage(`đŸ‰ ÄĂ£ gá»­i ká»‹ch báº£n Auto-DM thĂ nh cĂ´ng cho Top 3 Winners vĂ  Top 10 Backup Winners!`);
       setTimeout(() => setToastMessage(null), 4000);
     }, 1500);
   };
@@ -313,25 +214,25 @@ export default function LiveControlPage() {
   return (
     <div className="flex h-full bg-slate-50 font-sans text-slate-800">
       
-      {/* LEFT PANEL: KỊCH BẢN, TRIVIA & KEYWORDS */}
+      {/* LEFT PANEL: Ká»CH Báº¢N, TRIVIA & KEYWORDS */}
       <div className="w-[500px] border-r border-slate-200 bg-white flex flex-col h-full shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10 shrink-0">
         <div className="p-6 border-b border-slate-100 bg-white/50 backdrop-blur-sm sticky top-0 z-20">
           <div className="flex items-center gap-2 mb-2">
             <span className="flex items-center gap-1.5 bg-red-50 text-red-600 px-2.5 py-1 rounded-full text-[10px] font-black border border-red-100 shadow-sm uppercase">
-              <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping"></span> ĐANG PHÁT LIVE
+              <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping"></span> ÄANG PHĂT LIVE
             </span>
             <span className="text-[11px] font-bold text-slate-400">#LIVE</span>
           </div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">{sessionData?.title || 'Đang tải...'}</h1>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">{sessionData?.title || 'Äang táº£i...'}</h1>
           <p className="text-[12px] text-slate-500 mt-1 font-medium flex items-center gap-2">
-            <Users size={12} /> Mắt xem: {sessionData ? '1,402' : '...'} • Quản trị viên
+            <Users size={12} /> Máº¯t xem: {sessionData ? '1,402' : '...'} â€¢ Quáº£n trá»‹ viĂªn
           </p>
         </div>
 
         {/* Left Tabs */}
         <div className="flex p-4 pb-0 gap-1 border-b border-slate-100 bg-slate-50">
           <button onClick={() => setActiveTabLeft('SCRIPT')} className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-t-xl text-[11px] font-bold transition-all ${activeTabLeft === 'SCRIPT' ? 'bg-white text-[#F58220] border-t border-l border-r border-slate-200 shadow-[0_-4px_6px_-2px_rgba(0,0,0,0.02)]' : 'text-slate-500 hover:bg-slate-200/50 border border-transparent'}`}>
-            <ListTodo size={16} /> Kịch bản
+            <ListTodo size={16} /> Ká»‹ch báº£n
           </button>
           <button onClick={() => setActiveTabLeft('TRIVIA')} className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-t-xl text-[11px] font-bold transition-all ${activeTabLeft === 'TRIVIA' ? 'bg-white text-[#F58220] border-t border-l border-r border-slate-200 shadow-[0_-4px_6px_-2px_rgba(0,0,0,0.02)]' : 'text-slate-500 hover:bg-slate-200/50 border border-transparent'}`}>
             <Target size={16} /> Minigame
@@ -347,7 +248,7 @@ export default function LiveControlPage() {
           {activeTabLeft === 'SCRIPT' && (
             <div className="h-full flex flex-col">
               <div className="flex items-center justify-between mb-3">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">Trình soạn thảo Kịch bản</label>
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">TrĂ¬nh soáº¡n tháº£o Ká»‹ch báº£n</label>
               </div>
               <textarea 
                 value={scriptContent}
@@ -360,7 +261,7 @@ export default function LiveControlPage() {
           {/* TRIVIA TAB */}
           {activeTabLeft === 'TRIVIA' && (
             <div className="flex flex-col gap-5">
-              {questions.length === 0 ? <p className="text-sm text-slate-400 text-center py-10">Không có câu hỏi nào.</p> : 
+              {questions.length === 0 ? <p className="text-sm text-slate-400 text-center py-10">KhĂ´ng cĂ³ cĂ¢u há»i nĂ o.</p> : 
                 questions.map((q) => (
                 <div key={q.id} className={`rounded-2xl border transition-all duration-300 relative overflow-hidden ${activeQuestion === q.id ? 'border-[#F58220] shadow-[0_8px_30px_rgba(245,130,32,0.12)] bg-white' : editingQuestionId === q.id ? 'border-[#005691] shadow-lg bg-white' : 'border-slate-200 bg-slate-50/50'}`}>
                   {activeQuestion === q.id && <div className="absolute top-0 left-0 h-1 bg-[#F58220] transition-all duration-1000 ease-linear" style={{ width: `${(timeLeft / q.timeLimit) * 100}%` }} />}
@@ -369,7 +270,7 @@ export default function LiveControlPage() {
                     <div className="flex justify-between items-center mb-4">
                       <span className={`text-[10px] font-black px-2.5 py-1 rounded-md ${activeQuestion === q.id ? 'bg-[#F58220] text-white' : editingQuestionId === q.id ? 'bg-[#005691] text-white' : 'bg-slate-200 text-slate-600'}`}>{q.code}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-[#00A859] bg-green-50 px-2 py-1 rounded-md border border-green-100">Đáp án: {editingQuestionId === q.id ? editDraft?.answer : q.answer}</span>
+                        <span className="text-[10px] font-bold text-[#00A859] bg-green-50 px-2 py-1 rounded-md border border-green-100">ÄĂ¡p Ă¡n: {editingQuestionId === q.id ? editDraft?.answer : q.answer}</span>
                         {editingQuestionId !== q.id && activeQuestion !== q.id && (
                           <button 
                             onClick={() => { setEditingQuestionId(q.id); setEditDraft({ ...q }); }}
@@ -385,7 +286,7 @@ export default function LiveControlPage() {
                     {editingQuestionId === q.id && editDraft ? (
                       <div className="space-y-3">
                         <div>
-                          <label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Câu hỏi</label>
+                          <label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">CĂ¢u há»i</label>
                           <textarea
                             value={editDraft.content}
                             onChange={e => setEditDraft({ ...editDraft, content: e.target.value })}
@@ -405,7 +306,7 @@ export default function LiveControlPage() {
                                 type="text" 
                                 value={editDraft.options?.[opt] || ''} 
                                 onChange={e => setEditDraft({ ...editDraft, options: { ...editDraft.options, [opt]: e.target.value } })}
-                                placeholder={`Đáp án ${opt}...`} 
+                                placeholder={`ÄĂ¡p Ă¡n ${opt}...`} 
                                 className="w-full text-xs font-semibold text-slate-700 outline-none bg-transparent" 
                               />
                             </div>
@@ -421,12 +322,12 @@ export default function LiveControlPage() {
                             }}
                             className="flex-1 py-2 bg-[#005691] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1"
                           >
-                            <CheckCircle2 size={13} /> Lưu câu hỏi
+                            <CheckCircle2 size={13} /> LÆ°u cĂ¢u há»i
                           </button>
                           <button 
                             onClick={() => { setEditingQuestionId(null); setEditDraft(null); }}
                             className="px-4 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl"
-                          >Hủy</button>
+                          >Há»§y</button>
                         </div>
                       </div>
                     ) : (
@@ -437,18 +338,18 @@ export default function LiveControlPage() {
                           {(['A', 'B', 'C', 'D'] as const).map(opt => (
                             <div key={opt} className={`flex items-center gap-2 rounded-xl border px-2.5 py-1.5 ${q.answer === opt ? 'bg-green-50 border-green-200' : 'bg-white border-slate-200'}`}>
                               <span className={`text-[10px] font-black w-4 h-4 flex items-center justify-center rounded ${q.answer === opt ? 'bg-[#00A859] text-white' : 'bg-slate-100 text-slate-500'}`}>{opt}</span>
-                              <span className="text-xs font-semibold text-slate-700">{q.options?.[opt] || `Đáp án ${opt}...`}</span>
+                              <span className="text-xs font-semibold text-slate-700">{q.options?.[opt] || `ÄĂ¡p Ă¡n ${opt}...`}</span>
                             </div>
                           ))}
                         </div>
 
                         {activeQuestion === q.id ? (
                           <button onClick={() => setActiveQuestion(null)} className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl text-xs font-bold shadow-lg">
-                            <Square size={14} className="fill-white" /> KẾT THÚC CÂU HỎI
+                            <Square size={14} className="fill-white" /> Káº¾T THĂC CĂ‚U Há»I
                           </button>
                         ) : (
                           <button onClick={() => startGame(q.id, q.timeLimit)} disabled={activeQuestion !== null} className={`w-full flex items-center justify-center gap-2 border-2 py-3 rounded-xl text-xs font-bold transition-all ${activeQuestion !== null ? 'bg-slate-50 border-slate-200 text-slate-400' : 'bg-white border-slate-200 hover:border-[#F58220] hover:text-[#F58220]'}`}>
-                            <Play size={14} /> BẮT ĐẦU ({q.timeLimit}s)
+                            <Play size={14} /> Báº®T Äáº¦U ({q.timeLimit}s)
                           </button>
                         )}
                       </>
@@ -456,7 +357,7 @@ export default function LiveControlPage() {
                   </div>
                   {activeQuestion === q.id && (
                     <div className="bg-orange-50 text-[#F58220] border-t border-orange-100 text-[10px] font-black p-2.5 flex justify-between px-5 uppercase">
-                      <span className="flex items-center gap-2"><Zap size={12} className="animate-pulse fill-[#F58220]" /> CHẤM ĐIỂM TỰ ĐỘNG...</span>
+                      <span className="flex items-center gap-2"><Zap size={12} className="animate-pulse fill-[#F58220]" /> CHáº¤M ÄIá»‚M Tá»° Äá»˜NG...</span>
                       <span className="flex items-center gap-1.5"><Timer size={12} /> {timeLeft}s</span>
                     </div>
                   )}
@@ -470,11 +371,11 @@ export default function LiveControlPage() {
             <div className="space-y-6">
               <div>
                 <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                  <TrendingUp size={14} /> Từ khóa người xem đang hỏi nhiều nhất
+                  <TrendingUp size={14} /> Tá»« khĂ³a ngÆ°á»i xem Ä‘ang há»i nhiá»u nháº¥t
                 </h3>
                 <div className="space-y-3">
                   {topKeywords.length === 0 ? (
-                    <p className="text-sm text-slate-400 text-center py-5">AI đang thu thập dữ liệu...</p>
+                    <p className="text-sm text-slate-400 text-center py-5">AI Ä‘ang thu tháº­p dá»¯ liá»‡u...</p>
                   ) : (
                     topKeywords.map(([kw, count], idx) => (
                       <div key={kw} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50">
@@ -482,7 +383,7 @@ export default function LiveControlPage() {
                           <span className="text-lg font-black text-[#005691]">#{idx + 1}</span>
                           <span className="font-bold text-slate-800 capitalize">{kw}</span>
                         </div>
-                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">{count} lượt hỏi</span>
+                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">{count} lÆ°á»£t há»i</span>
                       </div>
                     ))
                   )}
@@ -498,16 +399,16 @@ export default function LiveControlPage() {
         <div className="h-[72px] bg-white border-b border-slate-200 px-8 flex items-center justify-between shrink-0">
           <div className="flex bg-slate-100 p-1 rounded-xl">
             <button onClick={() => setActiveTabRight('COMMENTS')} className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTabRight === 'COMMENTS' ? 'bg-white text-[#F58220] shadow-sm' : 'text-slate-500 hover:bg-slate-200/50'}`}>
-              <MessageSquare size={16} /> Luồng Comment
+              <MessageSquare size={16} /> Luá»“ng Comment
             </button>
             <button onClick={() => setActiveTabRight('LEADS')} className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all relative ${activeTabRight === 'LEADS' ? 'bg-white text-red-600 shadow-sm' : 'text-slate-500 hover:bg-slate-200/50'}`}>
-              <Phone size={16} /> Bắt Leads (AI)
-              {leads.filter(l => l.status === 'Chưa gọi').length > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 w-4"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-white text-[9px] font-black items-center justify-center">{leads.filter(l => l.status === 'Chưa gọi').length}</span></span>
+              <Phone size={16} /> Báº¯t Leads (AI)
+              {leads.filter(l => l.status === 'ChÆ°a gá»i').length > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-white text-[9px] font-black items-center justify-center">{leads.filter(l => l.status === 'ChÆ°a gá»i').length}</span></span>
               )}
             </button>
             <button onClick={() => setActiveTabRight('WINNERS')} className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTabRight === 'WINNERS' ? 'bg-white text-[#00A859] shadow-sm' : 'text-slate-500 hover:bg-slate-200/50'}`}>
-              <Trophy size={16} /> Bảng Người Trúng
+              <Trophy size={16} /> Báº£ng NgÆ°á»i TrĂºng
             </button>
           </div>
         </div>
@@ -517,7 +418,7 @@ export default function LiveControlPage() {
           {/* TAB: COMMENTS */}
           {activeTabRight === 'COMMENTS' && (
             <div className="absolute inset-0 p-8 flex flex-col">
-              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 mb-4"><MessageSquare size={14} className="text-[#005691]" /> Comment trực tiếp từ TikTok/FB</h3>
+              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 mb-4"><MessageSquare size={14} className="text-[#005691]" /> Comment trá»±c tiáº¿p tá»« TikTok/FB</h3>
               <div className="flex-1 bg-slate-900 rounded-3xl shadow-xl p-6 flex flex-col overflow-hidden relative border border-slate-800">
                 <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-slate-900 to-transparent z-10 pointer-events-none"></div>
                 <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-4 custom-scrollbar">
@@ -526,8 +427,8 @@ export default function LiveControlPage() {
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
                           <span className={`font-bold text-xs ${cmt.isPhone || cmt.isHighIntent ? 'text-red-400' : 'text-blue-300'}`}>{cmt.name}</span>
-                          {cmt.isPhone && <span className="bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase">CÓ SĐT</span>}
-                          {cmt.isHighIntent && <span className="bg-orange-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase">Nhu cầu cao</span>}
+                          {cmt.isPhone && <span className="bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase">CĂ“ SÄT</span>}
+                          {cmt.isHighIntent && <span className="bg-orange-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase">Nhu cáº§u cao</span>}
                         </div>
                         <span className="text-[10px] font-medium text-slate-500">{cmt.time}</span>
                       </div>
@@ -545,29 +446,29 @@ export default function LiveControlPage() {
           {/* TAB: LEADS (CSKH) */}
           {activeTabRight === 'LEADS' && (
             <div className="absolute inset-0 p-8 flex flex-col">
-              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 mb-4"><AlertTriangle size={14} className="text-red-500" /> AI Nhận Diện Học Sinh Tiềm Năng (Leads)</h3>
+              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 mb-4"><AlertTriangle size={14} className="text-red-500" /> AI Nháº­n Diá»‡n Há»c Sinh Tiá»m NÄƒng (Leads)</h3>
               <div className="flex-1 bg-white rounded-3xl border border-slate-200 shadow-sm p-4 overflow-y-auto custom-scrollbar flex flex-col gap-3">
                 {leads.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-20 opacity-50"><Phone size={48} className="text-slate-300 mb-4" /><p className="font-bold text-slate-500">Hệ thống AI đang quét comment...</p></div>
+                  <div className="flex flex-col items-center justify-center py-20 opacity-50"><Phone size={48} className="text-slate-300 mb-4" /><p className="font-bold text-slate-500">Há»‡ thá»‘ng AI Ä‘ang quĂ©t comment...</p></div>
                 ) : (
                   leads.map((lead, idx) => (
-                    <div key={lead.id} className={`flex items-center justify-between p-5 rounded-2xl border ${lead.status === 'Chưa gọi' ? 'bg-red-50/50 border-red-200' : 'bg-slate-50 border-slate-200 opacity-70'}`}>
+                    <div key={lead.id} className={`flex items-center justify-between p-5 rounded-2xl border ${lead.status === 'ChÆ°a gá»i' ? 'bg-red-50/50 border-red-200' : 'bg-slate-50 border-slate-200 opacity-70'}`}>
                       <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black ${lead.status === 'Chưa gọi' ? 'bg-red-100 text-red-600' : 'bg-slate-200 text-slate-500'}`}>{idx + 1}</div>
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center font-black ${lead.status === 'ChÆ°a gá»i' ? 'bg-red-100 text-red-600' : 'bg-slate-200 text-slate-500'}`}>{idx + 1}</div>
                         <div>
                           <div className="flex items-center gap-2 mb-0.5">
                             <p className="text-lg font-black tracking-wide text-slate-900">{lead.phone}</p>
                             {lead.intent === 'HOT' ? (
-                              <span className="bg-red-100 text-red-700 text-[9px] px-1.5 py-0.5 rounded font-black border border-red-200">SĐT TRỰC TIẾP</span>
+                              <span className="bg-red-100 text-red-700 text-[9px] px-1.5 py-0.5 rounded font-black border border-red-200">SÄT TRá»°C TIáº¾P</span>
                             ) : (
-                              <span className="bg-orange-100 text-orange-700 text-[9px] px-1.5 py-0.5 rounded font-black border border-orange-200">AI DETECT: CẦN TƯ VẤN</span>
+                              <span className="bg-orange-100 text-orange-700 text-[9px] px-1.5 py-0.5 rounded font-black border border-orange-200">AI DETECT: Cáº¦N TÆ¯ Váº¤N</span>
                             )}
                           </div>
-                          <p className="text-[11px] font-bold text-slate-500">Tài khoản: <span className="text-blue-600">{lead.name}</span> • Comment: "{lead.text}"</p>
+                          <p className="text-[11px] font-bold text-slate-500">TĂ i khoáº£n: <span className="text-blue-600">{lead.name}</span> â€¢ Comment: "{lead.text}"</p>
                         </div>
                       </div>
-                      <button onClick={() => setLeads(prev => prev.map(l => l.id === lead.id ? {...l, status: l.status === 'Chưa gọi' ? 'Đã tư vấn' : 'Chưa gọi'} : l))} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold shrink-0 ${lead.status === 'Chưa gọi' ? 'bg-[#F58220] hover:bg-[#e07010] text-white' : 'bg-slate-200 text-slate-600'}`}>
-                        <CheckCircle2 size={16} />{lead.status === 'Chưa gọi' ? 'Chốt đơn / Nhận xử lý' : 'Đã xử lý xong'}
+                      <button onClick={() => setLeads(prev => prev.map(l => l.id === lead.id ? {...l, status: l.status === 'ChÆ°a gá»i' ? 'ÄĂ£ tÆ° váº¥n' : 'ChÆ°a gá»i'} : l))} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold shrink-0 ${lead.status === 'ChÆ°a gá»i' ? 'bg-[#F58220] hover:bg-[#e07010] text-white' : 'bg-slate-200 text-slate-600'}`}>
+                        <CheckCircle2 size={16} />{lead.status === 'ChÆ°a gá»i' ? 'Chá»‘t Ä‘Æ¡n / Nháº­n xá»­ lĂ½' : 'ÄĂ£ xá»­ lĂ½ xong'}
                       </button>
                     </div>
                   ))
@@ -581,13 +482,13 @@ export default function LiveControlPage() {
             <div className="absolute inset-0 p-8 flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                  <Trophy size={14} className="text-[#00A859]" /> Người Thắng Cược & Dự Bị (Auto-Ranking)
+                  <Trophy size={14} className="text-[#00A859]" /> NgÆ°á»i Tháº¯ng CÆ°á»£c & Dá»± Bá»‹ (Auto-Ranking)
                 </h3>
                 {activeQuestion && (
                   <div className="flex items-center gap-4 bg-white px-4 py-1.5 rounded-full shadow-sm border border-slate-200">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase">Cmt thu được: <span className="text-slate-900 font-black text-xs">{stats.total}</span></p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase">Cmt thu Ä‘Æ°á»£c: <span className="text-slate-900 font-black text-xs">{stats.total}</span></p>
                     <div className="w-[1px] h-4 bg-slate-200"></div>
-                    <p className="text-[10px] font-bold text-[#00A859] uppercase">Đáp án đúng: <span className="font-black text-xs">{stats.correct}</span></p>
+                    <p className="text-[10px] font-bold text-[#00A859] uppercase">ÄĂ¡p Ă¡n Ä‘Ăºng: <span className="font-black text-xs">{stats.correct}</span></p>
                   </div>
                 )}
               </div>
@@ -595,11 +496,11 @@ export default function LiveControlPage() {
                 {leaderboard.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full py-20 opacity-50">
                     <Trophy size={48} className="text-slate-300 mb-4" />
-                    <p className="font-bold text-slate-500">Chưa có ai trả lời đúng.</p>
+                    <p className="font-bold text-slate-500">ChÆ°a cĂ³ ai tráº£ lá»i Ä‘Ăºng.</p>
                   </div>
                 ) : (
                   <>
-                    <div className="mb-2 text-xs font-black text-slate-400 uppercase tracking-widest pl-2">🏆 TOP 3 - TRÚNG QUÀ CHÍNH THỨC</div>
+                    <div className="mb-2 text-xs font-black text-slate-400 uppercase tracking-widest pl-2">đŸ† TOP 3 - TRĂNG QUĂ€ CHĂNH THá»¨C</div>
                     {leaderboard.slice(0, 3).map((user, idx) => (
                       <div key={user.name} className="flex items-center justify-between p-4 rounded-2xl border bg-orange-50 border-orange-200">
                         <div className="flex items-center gap-4">
@@ -607,20 +508,20 @@ export default function LiveControlPage() {
                           <div>
                             <p className="font-bold text-slate-900 flex items-center gap-2">
                               {user.name} 
-                              {user.winCount > 0 && <span className="bg-purple-100 text-purple-700 border border-purple-200 text-[9px] px-1.5 py-0.5 rounded flex items-center gap-1"><Gift size={10}/> Trúng lần {user.winCount + 1}</span>}
+                              {user.winCount > 0 && <span className="bg-purple-100 text-purple-700 border border-purple-200 text-[9px] px-1.5 py-0.5 rounded flex items-center gap-1"><Gift size={10}/> TrĂºng láº§n {user.winCount + 1}</span>}
                             </p>
-                            <p className="text-[11px] font-bold text-slate-500 flex items-center gap-1"><Clock size={12}/> Tốc độ: {user.speed}</p>
+                            <p className="text-[11px] font-bold text-slate-500 flex items-center gap-1"><Clock size={12}/> Tá»‘c Ä‘á»™: {user.speed}</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-black text-slate-800 mb-0.5">Đáp án: {user.answer}</p>
-                          <span className="text-[9px] font-black text-[#00A859] bg-green-50 px-2 py-0.5 rounded border border-green-100">Hợp Lệ</span>
+                          <p className="text-sm font-black text-slate-800 mb-0.5">ÄĂ¡p Ă¡n: {user.answer}</p>
+                          <span className="text-[9px] font-black text-[#00A859] bg-green-50 px-2 py-0.5 rounded border border-green-100">Há»£p Lá»‡</span>
                         </div>
                       </div>
                     ))}
                     
                     {leaderboard.length > 3 && (
-                      <div className="mt-4 mb-2 text-xs font-black text-slate-400 uppercase tracking-widest pl-2">⚠️ TOP DỰ BỊ (PHÒNG HỜ BOM HÀNG)</div>
+                      <div className="mt-4 mb-2 text-xs font-black text-slate-400 uppercase tracking-widest pl-2">â ï¸ TOP Dá»° Bá» (PHĂ’NG Há»œ BOM HĂ€NG)</div>
                     )}
                     {leaderboard.slice(3).map((user, idx) => (
                       <div key={user.name} className="flex items-center justify-between p-3 rounded-xl border bg-slate-50 border-slate-200 opacity-80">
@@ -628,7 +529,7 @@ export default function LiveControlPage() {
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold bg-slate-200 text-slate-600">{user.rank}</div>
                           <div>
                             <p className="font-bold text-slate-700 text-sm">{user.name}</p>
-                            <p className="text-[10px] font-bold text-slate-400">Tốc độ: {user.speed}</p>
+                            <p className="text-[10px] font-bold text-slate-400">Tá»‘c Ä‘á»™: {user.speed}</p>
                           </div>
                         </div>
                         <span className="text-[10px] font-bold text-slate-500">{user.answer}</span>
@@ -642,9 +543,9 @@ export default function LiveControlPage() {
                         className="mt-4 w-full py-4 rounded-2xl font-bold bg-[#005691] hover:bg-[#004a7c] text-white shadow-lg shadow-blue-900/20 transition-all flex items-center justify-center gap-2"
                       >
                         {sendingDMs ? (
-                          <><Zap size={18} className="animate-pulse" /> Đang gửi kịch bản Auto-DM...</>
+                          <><Zap size={18} className="animate-pulse" /> Äang gá»­i ká»‹ch báº£n Auto-DM...</>
                         ) : (
-                          <><MessageSquare size={18} /> Gửi Tin Nhắn DM Trúng Thưởng (Cả Chính Thức & Dự Bị)</>
+                          <><MessageSquare size={18} /> Gá»­i Tin Nháº¯n DM TrĂºng ThÆ°á»Ÿng (Cáº£ ChĂ­nh Thá»©c & Dá»± Bá»‹)</>
                         )}
                       </button>
                     )}
@@ -662,8 +563,8 @@ export default function LiveControlPage() {
         <div className="fixed bottom-8 right-8 bg-gradient-to-r from-red-500 to-orange-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 animate-in slide-in-from-bottom-10 fade-in z-50 border border-red-400">
           <BellRing size={24} className="animate-bounce" />
           <div>
-            <p className="font-black text-sm uppercase tracking-wide">🚨 AI Detect: Có Lead Tiềm Năng Mới!</p>
-            <p className="text-xs font-medium opacity-90 mt-0.5">Hệ thống vừa bắt được học sinh có nhu cầu tư vấn.</p>
+            <p className="font-black text-sm uppercase tracking-wide">đŸ¨ AI Detect: CĂ³ Lead Tiá»m NÄƒng Má»›i!</p>
+            <p className="text-xs font-medium opacity-90 mt-0.5">Há»‡ thá»‘ng vá»«a báº¯t Ä‘Æ°á»£c há»c sinh cĂ³ nhu cáº§u tÆ° váº¥n.</p>
           </div>
         </div>
       )}
