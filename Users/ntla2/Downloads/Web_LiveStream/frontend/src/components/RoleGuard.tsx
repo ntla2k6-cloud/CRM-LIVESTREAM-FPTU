@@ -17,7 +17,10 @@ export function RoleGuard({ children }: { children: React.ReactNode }) {
   }
 
   if (!session) {
-    return <>{children}</>;
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
+    return <div className="h-screen w-full bg-slate-50"></div>;
   }
 
   const role = (session.user as any)?.role;

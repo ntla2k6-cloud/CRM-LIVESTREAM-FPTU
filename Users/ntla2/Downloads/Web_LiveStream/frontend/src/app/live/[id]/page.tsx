@@ -72,7 +72,8 @@ export default function LiveControlPage() {
   // 1. Socket.IO & Timer Engine
   useEffect(() => {
     // Kết nối Socket
-    socket = io('http://localhost:3001');
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    socket = io(socketUrl);
     
     socket.on('newComment', (newComment: any) => {
       setComments(prev => [newComment, ...prev].slice(0, 100));
