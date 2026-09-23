@@ -109,10 +109,10 @@ export default function FptLightDashboard() {
         {/* METRIC CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
           {[
-            { title: 'TỔNG LƯỢT XEM', value: '4,000', trend: '+15.2%', isUp: true, icon: Eye, color: '#F58220' },
-            { title: 'HỌC SINH TƯ VẤN', value: '12', trend: 'Mới', isUp: true, icon: Users, color: '#005691' },
-            { title: 'ĐƠN QUÀ TẶNG', value: '8', trend: 'Hoàn tất 3', isUp: true, icon: Gift, color: '#00A859' },
-            { title: 'TỶ LỆ CHUYỂN ĐỔI', value: '15%', trend: '+2.1%', isUp: true, icon: Activity, color: '#6366f1' },
+            { title: 'TỔNG LƯỢT XEM', value: '0', trend: '0%', isUp: true, icon: Eye, color: '#F58220' },
+            { title: 'HỌC SINH TƯ VẤN', value: '0', trend: '0', isUp: true, icon: Users, color: '#005691' },
+            { title: 'ĐƠN QUÀ TẶNG', value: '0', trend: '0', isUp: true, icon: Gift, color: '#00A859' },
+            { title: 'TỶ LỆ CHUYỂN ĐỔI', value: '0%', trend: '0%', isUp: true, icon: Activity, color: '#6366f1' },
           ].map((metric, i) => (
             <div key={i} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden cursor-pointer">
               <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full opacity-0 group-hover:opacity-10 transition-opacity blur-xl" style={{ backgroundColor: metric.color }}></div>
@@ -159,10 +159,10 @@ export default function FptLightDashboard() {
             {/* Animated Bar Chart */}
             <div className="flex-1 w-full flex items-end gap-3 h-[250px] mt-auto">
               {[
-                { hot: 35, total: 60, day: 'Thứ 2' }, { hot: 55, total: 85, day: 'Thứ 3' },
-                { hot: 25, total: 50, day: 'Thứ 4' }, { hot: 75, total: 95, day: 'Thứ 5' },
-                { hot: 45, total: 70, day: 'Thứ 6' }, { hot: 85, total: 100, day: 'Thứ 7' },
-                { hot: 65, total: 80, day: 'CN' }
+                { hot: 0, total: 0, day: 'Thứ 2' }, { hot: 0, total: 0, day: 'Thứ 3' },
+                { hot: 0, total: 0, day: 'Thứ 4' }, { hot: 0, total: 0, day: 'Thứ 5' },
+                { hot: 0, total: 0, day: 'Thứ 6' }, { hot: 0, total: 0, day: 'Thứ 7' },
+                { hot: 0, total: 0, day: 'CN' }
               ].map((data, i) => (
                 <div key={i} className="flex-1 flex flex-col justify-end group h-full relative cursor-pointer">
                   <div className="w-full flex justify-center items-end h-full">
@@ -188,25 +188,11 @@ export default function FptLightDashboard() {
             </div>
             
             <div className="flex flex-col gap-5 flex-1">
-              {[
-                { user: "@alice.w", action: "Trả lời chính xác Q001", time: "2 phút trước", color: "bg-[#00A859]" },
-                { user: "@bob.smith", action: "Đã để lại SĐT", time: "15 phút trước", color: "bg-[#F58220]" },
-                { user: "Hệ thống Auto-DM", action: "Gửi 45 tin nhắn trúng thưởng", time: "1 giờ trước", color: "bg-[#005691]" },
-                { user: "@charlie.d", action: "Đã tham gia Livestream", time: "2 giờ trước", color: "bg-slate-300" },
-                { user: "@marketing.team", action: "Tạo Chiến dịch #024", time: "4 giờ trước", color: "bg-slate-300" },
-              ].map((item, i) => (
-                <div key={i} className="flex gap-4 items-start group">
-                  <div className="relative mt-1">
-                    <div className={`w-3 h-3 rounded-full shadow-sm ${item.color} ${i === 0 && 'animate-pulse ring-4 ring-green-100'}`} />
-                    {i !== 4 && <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[2px] h-10 bg-slate-100 group-hover:bg-slate-200 transition-colors" />}
-                  </div>
-                  <div className="flex-1 min-w-0 bg-white p-1 rounded-xl cursor-pointer">
-                    <p className="text-sm font-bold text-slate-800">{item.user}</p>
-                    <p className="text-xs font-medium text-slate-500 mt-0.5 truncate">{item.action}</p>
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-400 shrink-0 mt-1">{item.time}</span>
-                </div>
-              ))}
+              {/* Empty State */}
+              <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-70">
+                <p className="text-sm font-bold">Chưa có hoạt động nào</p>
+                <p className="text-xs mt-1 text-center">Hệ thống sẽ cập nhật ngay khi có sự kiện mới.</p>
+              </div>
             </div>
           </div>
 
