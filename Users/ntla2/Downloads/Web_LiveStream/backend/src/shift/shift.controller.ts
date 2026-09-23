@@ -6,37 +6,23 @@ export class ShiftController {
   constructor(private readonly shiftService: ShiftService) {}
 
   @Post()
-  create(@Body() createShiftDto: any) {
-    return this.shiftService.create(createShiftDto);
-  }
+  create(@Body() createShiftDto: any) { return null; }
 
   @Get()
-  findAll() {
-    return this.shiftService.findAll();
-  }
+  findAll() { return []; }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.shiftService.findOne(+id);
-  }
+  findOne(@Param('id') id: string) { return null; }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateShiftDto: any) {
-    return this.shiftService.update(+id, updateShiftDto);
-  }
+  update(@Param('id') id: string, @Body() updateShiftDto: any) { return null; }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.shiftService.remove(+id);
-  }
+  remove(@Param('id') id: string) { return null; }
 
   @Post(':id/assign')
-  assignStaff(@Param('id') id: string, @Body('staffId') staffId: number) {
-    return this.shiftService.assignStaff(+id, staffId);
-  }
+  assignStaff(@Param('id') id: string, @Body('staffId') staffId: number) { return null; }
 
   @Delete('assignment/:assignmentId')
-  removeStaff(@Param('assignmentId') assignmentId: string) {
-    return this.shiftService.removeStaff(+assignmentId);
-  }
+  removeStaff(@Param('assignmentId') assignmentId: string) { return null; }
 }
