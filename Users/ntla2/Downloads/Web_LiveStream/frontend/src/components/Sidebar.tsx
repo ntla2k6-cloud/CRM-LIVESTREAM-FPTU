@@ -10,8 +10,6 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
   const pathname = usePathname();
   const [user, setUser] = useState<any>(null);
 
-  if (pathname === '/login' || pathname.startsWith('/tracking')) return null;
-
   useEffect(() => {
     fetch('/api/auth/session')
       .then(r => r.json())
@@ -20,6 +18,8 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
       })
       .catch(() => {});
   }, []);
+
+  if (pathname === '/login' || pathname.startsWith('/tracking')) return null;
 
   const userName = user?.name || 'Lan Anh';
   const userRole = user?.role === 'ADMIN' ? 'Quản trị viên' : (user?.role || 'Quản trị viên');
