@@ -372,7 +372,7 @@ export default function SettingsPage() {
                       </div>
                     ))}
                     {connectionLogs.length === 0 && (
-                      <div className="text-slate-500">> Nhập ID kênh TikTok đang LIVE và nhấn Test Kết Nối...</div>
+                      <div className="text-slate-500">&gt; Nhập ID kênh TikTok đang LIVE và nhấn Test Kết Nối...</div>
                     )}
                   </div>
                 </div>
