@@ -9,6 +9,11 @@ export function RoleGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   
   if (pathname === '/login' || pathname.startsWith('/tracking')) {
+    // Nếu đang ở trang login mà ĐÃ đăng nhập, và không phải GUEST (nếu là GUEST thì RoleGuard sẽ render trang chờ duyệt bên dưới)
+    if (pathname === '/login' && session && (session.user as any)?.role !== 'GUEST') {
+      if (typeof window !== 'undefined') window.location.href = '/';
+      return <div className="h-screen w-full bg-slate-50"></div>;
+    }
     return <>{children}</>;
   }
 
