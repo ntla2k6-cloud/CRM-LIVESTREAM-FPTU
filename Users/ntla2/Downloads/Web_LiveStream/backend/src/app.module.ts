@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './auth/roles.guard.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { PrismaModule } from './prisma/prisma.module.js';
@@ -15,6 +17,6 @@ import { LiveEngineModule } from './live-engine/live-engine.module.js';
 @Module({
   imports: [PrismaModule, MinigameModule, StaffModule, LiveSessionModule, LeadModule, ShiftModule, OrderModule, GiftModule, DashboardModule, LiveEngineModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_GUARD, useClass: RolesGuard }],
 })
 export class AppModule {}
