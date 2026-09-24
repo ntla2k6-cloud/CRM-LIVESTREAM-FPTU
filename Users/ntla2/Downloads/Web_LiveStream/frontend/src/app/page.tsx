@@ -5,22 +5,60 @@ import {
   Eye, Activity, MessageCircle, MoreVertical, Briefcase, Users, Gift, Calendar
 } from 'lucide-react';
 
+import { api } from '@/lib/api';
+
 export default function FptLightDashboard() {
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [showNotifs, setShowNotifs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [currentDate, setCurrentDate] = useState('');
+  
+  const [stats, setStats] = useState({
+    sessions: 0,
+    leads: 0,
+    orders: 0,
+    conversionRate: 0
+  });
+  
+  const [chart, setChart] = useState([
+    { hot: 0, total: 0, day: 'Thứ 2', date: 'T2', hotRaw: 0, totalRaw: 0 }, { hot: 0, total: 0, day: 'Thứ 3', date: 'T3', hotRaw: 0, totalRaw: 0 },
+    { hot: 0, total: 0, day: 'Thứ 4', date: 'T4', hotRaw: 0, totalRaw: 0 }, { hot: 0, total: 0, day: 'Thứ 5', date: 'T5', hotRaw: 0, totalRaw: 0 },
+    { hot: 0, total: 0, day: 'Thứ 6', date: 'T6', hotRaw: 0, totalRaw: 0 }, { hot: 0, total: 0, day: 'Thứ 7', date: 'T7', hotRaw: 0, totalRaw: 0 },
+    { hot: 0, total: 0, day: 'CN', date: 'CN', hotRaw: 0, totalRaw: 0 }
+  ]);
 
   useEffect(() => {
     setMounted(true);
     setCurrentDate(new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+    
+    // Auth
     fetch('/api/auth/session')
       .then(r => r.json())
       .then(s => { 
         if (s?.user) setUser(s.user); 
       })
       .catch(() => {});
+      
+    // Dashboard Stats
+    api.get('/dashboard')
+      .then(res => {
+        if (res?.data) {
+          if (res.data.metrics) setStats(res.data.metrics);
+          if (res.data.chartData && res.data.chartData.length > 0) {
+            const mappedChart = res.data.chartData.map((c: any) => ({
+              hot: c.hot > 0 ? (c.hot / Math.max(c.total, 1)) * 100 : 0,
+              total: c.total > 0 ? (c.total / Math.max(c.total, 10)) * 100 : 0,
+              day: c.date,
+              date: c.date,
+              hotRaw: c.hot,
+              totalRaw: c.total
+            }));
+            setChart(mappedChart);
+          }
+        }
+      })
+      .catch(console.error);
   }, []);
 
   const userName = user?.name || 'Lan Anh';
@@ -109,10 +147,10 @@ export default function FptLightDashboard() {
         {/* METRIC CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
           {[
-            { title: 'TỔNG LƯỢT XEM', value: '0', trend: '0%', isUp: true, icon: Eye, color: '#F58220' },
-            { title: 'HỌC SINH TƯ VẤN', value: '0', trend: '0', isUp: true, icon: Users, color: '#005691' },
-            { title: 'ĐƠN QUÀ TẶNG', value: '0', trend: '0', isUp: true, icon: Gift, color: '#00A859' },
-            { title: 'TỶ LỆ CHUYỂN ĐỔI', value: '0%', trend: '0%', isUp: true, icon: Activity, color: '#6366f1' },
+            { title: 'TỔNG SỐ PHIÊN LIVE', value: stats.sessions, trend: 'Tăng', isUp: true, icon: Eye, color: '#F58220' },
+            { title: 'TỔNG SỐ LEADS', value: stats.leads, trend: 'Mới', isUp: true, icon: Users, color: '#005691' },
+            { title: 'ĐƠN QUÀ TẶNG', value: stats.orders, trend: 'Thực tế', isUp: true, icon: Gift, color: '#00A859' },
+            { title: 'TỶ LỆ CHUYỂN ĐỔI', value: `${stats.conversionRate}%`, trend: 'Mới', isUp: true, icon: Activity, color: '#6366f1' },
           ].map((metric, i) => (
             <div key={i} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden cursor-pointer">
               <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full opacity-0 group-hover:opacity-10 transition-opacity blur-xl" style={{ backgroundColor: metric.color }}></div>
@@ -158,17 +196,12 @@ export default function FptLightDashboard() {
             
             {/* Animated Bar Chart */}
             <div className="flex-1 w-full flex items-end gap-3 h-[250px] mt-auto">
-              {[
-                { hot: 0, total: 0, day: 'Thứ 2' }, { hot: 0, total: 0, day: 'Thứ 3' },
-                { hot: 0, total: 0, day: 'Thứ 4' }, { hot: 0, total: 0, day: 'Thứ 5' },
-                { hot: 0, total: 0, day: 'Thứ 6' }, { hot: 0, total: 0, day: 'Thứ 7' },
-                { hot: 0, total: 0, day: 'CN' }
-              ].map((data, i) => (
-                <div key={i} className="flex-1 flex flex-col justify-end group h-full relative cursor-pointer">
+              {chart.map((data: any, i: number) => (
+                <div key={i} className="flex-1 flex flex-col justify-end group h-full relative cursor-pointer" title={`Tổng: ${data.totalRaw || 0}, HOT: ${data.hotRaw || 0}`}>
                   <div className="w-full flex justify-center items-end h-full">
                     <div className="w-full max-w-[40px] relative h-full flex items-end opacity-90 group-hover:opacity-100 transition-opacity">
                       {/* Background Bar */}
-                      <div className="absolute bottom-0 w-full bg-slate-100 rounded-t-xl transition-all duration-1000 ease-out group-hover:bg-blue-50" style={{ height: mounted ? `${data.total}%` : '0%' }}></div>
+                      <div className="absolute bottom-0 w-full bg-slate-100 rounded-t-xl transition-all duration-1000 ease-out group-hover:bg-blue-50" style={{ height: mounted ? `${Math.max(data.total, 5)}%` : '0%' }}></div>
                       {/* Foreground Bar */}
                       <div className="absolute bottom-0 w-full bg-[#F58220] rounded-t-xl transition-all duration-1000 ease-out shadow-sm group-hover:shadow-[0_0_15px_rgba(245,130,32,0.4)]" style={{ height: mounted ? `${data.hot}%` : '0%', transitionDelay: `${i * 100}ms` }}></div>
                     </div>
@@ -177,7 +210,7 @@ export default function FptLightDashboard() {
               ))}
             </div>
             <div className="flex justify-between mt-4 text-[11px] font-bold text-slate-400 border-t border-slate-100 pt-4 px-2">
-              <span>Thứ 2</span><span>Thứ 3</span><span>Thứ 4</span><span>Thứ 5</span><span>Thứ 6</span><span>Thứ 7</span><span>CN</span>
+              {chart.map((data: any, i: number) => <span key={i}>{data.date}</span>)}
             </div>
           </div>
 

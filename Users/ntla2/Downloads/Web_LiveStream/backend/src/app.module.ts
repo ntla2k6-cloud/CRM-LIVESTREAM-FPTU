@@ -9,9 +9,10 @@ import { LeadModule } from './lead/lead.module.js';
 import { ShiftModule } from './shift/shift.module.js';
 import { OrderModule } from './order/order.module.js';
 import { GiftModule } from './gift/gift.module.js';
+import { DashboardModule } from './dashboard/dashboard.module.js';
 
 @Module({
-  imports: [PrismaModule, MinigameModule, StaffModule, LiveSessionModule, LeadModule, ShiftModule, OrderModule, GiftModule],
+  imports: [PrismaModule, MinigameModule, StaffModule, LiveSessionModule, LeadModule, ShiftModule, OrderModule, GiftModule, DashboardModule],
   controllers: [AppController],
   providers: [AppService],
 })
