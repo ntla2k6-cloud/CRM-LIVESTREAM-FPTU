@@ -5,35 +5,44 @@ import { PrismaService } from '../prisma/prisma.service.js';
 export class LeadService {
   constructor(private prisma: PrismaService) {}
 
-  create(createLeadDto: any) {
+  async create(createLeadDto: any) {
     const { tiktokAccount, phone, fullName, highSchool, location, classGrade, campaignId, ...leadData } = createLeadDto;
     
-    // Create a unique identifier for where clause if phone isn't provided
-    const phoneIdentifier = phone || `unknown-${Date.now()}`;
-    
-    return this.prisma.lead.create({ 
+    let customer = null;
+    if (phone) {
+      customer = await this.prisma.customer.findFirst({ where: { phone } });
+    } else if (tiktokAccount) {
+      customer = await this.prisma.customer.findFirst({ where: { tiktokAccount } });
+    }
+
+    if (!customer) {
+      // Prisma throws error if multiple unique fields are "" so we use undefined or null
+      customer = await this.prisma.customer.create({
+        data: {
+          tiktokAccount: tiktokAccount || null,
+          phone: phone || null,
+          fullName: fullName || 'Khách hàng',
+          highSchool: highSchool || '',
+          location: location || '',
+          classGrade: classGrade || ''
+        }
+      });
+    }
+
+    const campId = campaignId || 'default-campaign';
+    let campaign = await this.prisma.campaign.findUnique({ where: { id: campId } });
+    if (!campaign) {
+      campaign = await this.prisma.campaign.create({
+        data: { id: campId, name: 'Default Campaign' }
+      });
+    }
+
+    return this.prisma.lead.create({
       data: {
         ...leadData,
-        customer: {
-          connectOrCreate: {
-            where: { phone: phoneIdentifier },
-            create: { 
-              tiktokAccount: tiktokAccount || '', 
-              phone: phoneIdentifier,
-              fullName: fullName || 'Khách hàng',
-              highSchool: highSchool || '',
-              location: location || '',
-              classGrade: classGrade || ''
-            }
-          }
-        },
-        campaign: {
-          connectOrCreate: {
-            where: { id: campaignId || 'default-campaign' },
-            create: { id: campaignId || 'default-campaign', name: 'Default Campaign' }
-          }
-        }
-      } 
+        customerId: customer.id,
+        campaignId: campaign.id
+      }
     });
   }
 

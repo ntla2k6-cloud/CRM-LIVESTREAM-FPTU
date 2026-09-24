@@ -28,6 +28,10 @@ export default function LiveControlPage() {
   const [sendingDMs, setSendingDMs] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // ============ STATES: TIKTOK CONNECTOR ============
+  const [tiktokUsername, setTiktokUsername] = useState('');
+  const [tiktokStatus, setTiktokStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
+
   const params = typeof window !== 'undefined' ? window.location.pathname.split('/').pop() : 'demo';
   const [sessionData, setSessionData] = useState<any>(null);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -74,14 +78,37 @@ export default function LiveControlPage() {
     // Kết nối Socket
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
     socket = io(socketUrl);
+
+    socket.emit('joinLiveSession', params);
+
+    socket.on('tiktokStatus', (data: any) => {
+      setTiktokStatus(data.status);
+      if (data.status === 'error') {
+        alert("Lỗi kết nối TikTok: " + data.message);
+      }
+    });
+
+    socket.on('tiktokEvent', (data: any) => {
+      setToastMessage(`TikTok: ${data.text}`);
+      setTimeout(() => setToastMessage(null), 3000);
+    });
     
-    socket.on('newComment', (newComment: any) => {
+    socket.on('newComment', (dbComment: any) => {
+      const hasPhone = /\d{9,11}/.test(dbComment.content);
+      const isHighIntent = dbComment.aiIntent !== 'NEUTRAL' || /(tư vấn|quan tâm|muốn học)/i.test(dbComment.content);
+      
+      const newComment = {
+        id: dbComment.id,
+        name: dbComment.username,
+        text: dbComment.content,
+        time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        isPhone: hasPhone,
+        isHighIntent: isHighIntent
+      };
+
       setComments(prev => [newComment, ...prev].slice(0, 100));
       
-      const hasPhone = newComment.isPhone;
-      const hasHighIntent = newComment.isHighIntent;
-      
-      if (hasPhone || hasHighIntent) {
+      if (hasPhone || isHighIntent) {
         setLeads(prev => {
           if (prev.find(l => l.name === newComment.name)) return prev;
           setNewLeadAlert(true);
@@ -89,7 +116,7 @@ export default function LiveControlPage() {
           return [{ 
             id: newComment.id, 
             name: newComment.name, 
-            phone: hasPhone ? newComment.text.match(/\d{9,10}/)?.[0] : 'Chưa có', 
+            phone: hasPhone ? newComment.text.match(/\d{9,11}/)?.[0] : 'Chưa có', 
             intent: hasPhone ? 'HOT' : 'WARM',
             text: newComment.text,
             time: newComment.time, 
@@ -418,7 +445,30 @@ export default function LiveControlPage() {
           {/* TAB: COMMENTS */}
           {activeTabRight === 'COMMENTS' && (
             <div className="absolute inset-0 p-8 flex flex-col">
-              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-2 mb-4"><MessageSquare size={14} className="text-[#005691]" /> Comment trực tiếp từ TikTok/FB</h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-2"><MessageSquare size={14} className="text-[#005691]" /> Comment trực tiếp từ TikTok/FB</h3>
+                
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="@tiktok_id" 
+                    value={tiktokUsername}
+                    onChange={(e) => setTiktokUsername(e.target.value)}
+                    disabled={tiktokStatus === 'connected' || tiktokStatus === 'connecting'}
+                    className="px-3 py-1.5 rounded-lg text-xs border border-slate-300 focus:outline-none focus:border-[#F58220]"
+                  />
+                  {tiktokStatus === 'connected' ? (
+                    <button onClick={() => { setTiktokStatus('disconnected'); socket.emit('stopTiktokConnection', params); }} className="bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-600 transition-colors">
+                      Ngắt kết nối
+                    </button>
+                  ) : (
+                    <button onClick={() => { setTiktokStatus('connecting'); socket.emit('startTiktokConnection', { liveSessionId: params, tiktokUsername }); }} className="bg-[#00A859] text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors">
+                      {tiktokStatus === 'connecting' ? 'Đang kết nối...' : 'Bắt Live TikTok'}
+                    </button>
+                  )}
+                </div>
+              </div>
+              
               <div className="flex-1 bg-slate-900 rounded-3xl shadow-xl p-6 flex flex-col overflow-hidden relative border border-slate-800">
                 <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-slate-900 to-transparent z-10 pointer-events-none"></div>
                 <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-4 custom-scrollbar">

@@ -3,14 +3,21 @@ export declare class LiveSessionService {
     private prisma;
     constructor(prisma: PrismaService);
     create(createLiveSessionDto: any): Promise<{
+        description: string | null;
         id: string;
         status: string;
         createdAt: Date;
+        color: string | null;
         liveId: string | null;
         title: string;
+        project: string | null;
+        day: number | null;
+        time: string | null;
+        registered: string | null;
+        scheduledAt: Date | null;
         startTime: Date | null;
         endTime: Date | null;
-        campaignId: string;
+        campaignId: string | null;
     }>;
     findAll(): import(".prisma/client").Prisma.PrismaPromise<({
         questions: {
@@ -19,19 +26,27 @@ export declare class LiveSessionService {
             liveSessionId: string;
             code: string;
             correctAnswer: string;
+            timeLimit: number;
             status: string;
             startedAt: Date | null;
             closedAt: Date | null;
         }[];
     } & {
+        description: string | null;
         id: string;
         status: string;
         createdAt: Date;
+        color: string | null;
         liveId: string | null;
         title: string;
+        project: string | null;
+        day: number | null;
+        time: string | null;
+        registered: string | null;
+        scheduledAt: Date | null;
         startTime: Date | null;
         endTime: Date | null;
-        campaignId: string;
+        campaignId: string | null;
     })[]>;
     findOne(id: string): import(".prisma/client").Prisma.Prisma__LiveSessionClient<({
         leads: {
@@ -41,10 +56,11 @@ export declare class LiveSessionService {
             status: string;
             createdAt: Date;
             updatedAt: Date;
-            campaignId: string;
+            campaignId: string | null;
+            assignedCskhId: string | null;
+            source: string;
             leadScore: number;
             intent: string | null;
-            assignedCskhId: string | null;
         }[];
         comments: {
             id: string;
@@ -52,38 +68,59 @@ export declare class LiveSessionService {
             username: string;
             content: string;
             aiIntent: string | null;
-            timestamp: Date;
+            serverTimestamp: Date;
             liveSessionId: string;
             customerId: string | null;
         }[];
     } & {
+        description: string | null;
         id: string;
         status: string;
         createdAt: Date;
+        color: string | null;
         liveId: string | null;
         title: string;
+        project: string | null;
+        day: number | null;
+        time: string | null;
+        registered: string | null;
+        scheduledAt: Date | null;
         startTime: Date | null;
         endTime: Date | null;
-        campaignId: string;
+        campaignId: string | null;
     }) | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
     update(id: string, updateLiveSessionDto: any): import(".prisma/client").Prisma.Prisma__LiveSessionClient<{
+        description: string | null;
         id: string;
         status: string;
         createdAt: Date;
+        color: string | null;
         liveId: string | null;
         title: string;
+        project: string | null;
+        day: number | null;
+        time: string | null;
+        registered: string | null;
+        scheduledAt: Date | null;
         startTime: Date | null;
         endTime: Date | null;
-        campaignId: string;
+        campaignId: string | null;
     }, never, import("@prisma/client/runtime/library").DefaultArgs>;
     remove(id: string): import(".prisma/client").Prisma.Prisma__LiveSessionClient<{
+        description: string | null;
         id: string;
         status: string;
         createdAt: Date;
+        color: string | null;
         liveId: string | null;
         title: string;
+        project: string | null;
+        day: number | null;
+        time: string | null;
+        registered: string | null;
+        scheduledAt: Date | null;
         startTime: Date | null;
         endTime: Date | null;
-        campaignId: string;
+        campaignId: string | null;
     }, never, import("@prisma/client/runtime/library").DefaultArgs>;
 }

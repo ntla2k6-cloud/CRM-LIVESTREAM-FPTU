@@ -5,6 +5,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './auth/roles.guard.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { PrismaModule } from './prisma/prisma.module.js';
@@ -13,13 +15,17 @@ import { StaffModule } from './staff/staff.module.js';
 import { LiveSessionModule } from './live-session/live-session.module.js';
 import { LeadModule } from './lead/lead.module.js';
 import { ShiftModule } from './shift/shift.module.js';
+import { OrderModule } from './order/order.module.js';
+import { GiftModule } from './gift/gift.module.js';
+import { DashboardModule } from './dashboard/dashboard.module.js';
+import { LiveEngineModule } from './live-engine/live-engine.module.js';
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
     Module({
-        imports: [PrismaModule, MinigameModule, StaffModule, LiveSessionModule, LeadModule, ShiftModule],
+        imports: [PrismaModule, MinigameModule, StaffModule, LiveSessionModule, LeadModule, ShiftModule, OrderModule, GiftModule, DashboardModule, LiveEngineModule],
         controllers: [AppController],
-        providers: [AppService],
+        providers: [AppService, { provide: APP_GUARD, useClass: RolesGuard }],
     })
 ], AppModule);
 export { AppModule };

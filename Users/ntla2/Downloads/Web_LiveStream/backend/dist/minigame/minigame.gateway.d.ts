@@ -17,6 +17,15 @@ export declare class MinigameGateway {
     }, client: Socket): Promise<{
         status: string;
     }>;
+    handleSubmitAnswer(data: {
+        name: string;
+        phone: string;
+        answer: string;
+        time: string;
+        timestamp: number;
+    }, client: Socket): Promise<{
+        status: string;
+    }>;
     broadcastNewComment(comment: any): void;
     broadcastLeaderboardUpdate(leaderboard: any[]): void;
 }

@@ -81,4 +81,53 @@ export class LiveEngineService {
       }
     });
   }
+
+  // --- TIKTOK LIVE CONNECTOR ---
+  private activeConnections = new Map<string, any>(); // liveSessionId -> connection
+
+  async connectToTiktok(liveSessionId: string, tiktokUsername: string, server: any) {
+    // Disconnect if already exists
+    this.disconnectFromTiktok(liveSessionId);
+
+    // Import dynamically or use require (commonjs)
+    const { WebcastPushConnection } = require('tiktok-live-connector');
+    const connection = new WebcastPushConnection(tiktokUsername);
+
+    connection.on('chat', async (data: any) => {
+      console.log(`[TikTok ${tiktokUsername}] ${data.uniqueId}: ${data.comment}`);
+      try {
+        const savedComment = await this.processComment(liveSessionId, data.uniqueId, data.comment);
+        // Broadcast the saved comment to the specific live session room
+        server.to(liveSessionId).emit('newComment', savedComment);
+      } catch (err: any) {
+        console.error('Lỗi khi xử lý comment TikTok:', err.message);
+      }
+    });
+
+    connection.on('gift', (data: any) => {
+      if (data.giftType === 1 && !data.repeatEnd) {
+        // Streak in progress => wait
+      } else {
+        server.to(liveSessionId).emit('tiktokEvent', { type: 'gift', text: `${data.uniqueId} đã tặng ${data.giftName}` });
+      }
+    });
+
+    try {
+      await connection.connect();
+      console.log(`Connected to TikTok Live: ${tiktokUsername}`);
+      this.activeConnections.set(liveSessionId, connection);
+    } catch (err: any) {
+      console.error(`Lỗi kết nối TikTok Live:`, err);
+      throw err;
+    }
+  }
+
+  disconnectFromTiktok(liveSessionId: string) {
+    const connection = this.activeConnections.get(liveSessionId);
+    if (connection) {
+      connection.disconnect();
+      this.activeConnections.delete(liveSessionId);
+      console.log(`Disconnected TikTok for session ${liveSessionId}`);
+    }
+  }
 }

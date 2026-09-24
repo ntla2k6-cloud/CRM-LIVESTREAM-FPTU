@@ -14,41 +14,70 @@ let ShiftService = class ShiftService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    create(createShiftDto) {
-        return this.prisma.shift.create({ data: createShiftDto });
-    }
-    findAll() {
-        return this.prisma.shift.findMany({
-            include: {
+    async create(data) {
+        const assignments = data.assignments?.create || [];
+        const registeredIds = JSON.stringify(data.registered || []);
+        return this.prisma.liveSession.create({
+            data: {
+                title: data.title,
+                day: data.day,
+                time: data.time,
+                project: data.type || data.project,
+                color: data.color,
+                registered: registeredIds,
                 assignments: {
-                    include: { staff: true }
+                    create: assignments
                 }
             }
         });
     }
-    findOne(id) {
-        return this.prisma.shift.findUnique({
+    async findAll() {
+        const sessions = await this.prisma.liveSession.findMany({
+            include: {
+                assignments: true
+            }
+        });
+        return sessions.map(s => ({
+            id: s.id,
+            title: s.title,
+            day: s.day,
+            time: s.time,
+            type: s.project,
+            project: s.project,
+            color: s.color,
+            status: s.status,
+            assignments: s.assignments,
+            registered: s.registered ? JSON.parse(s.registered) : []
+        }));
+    }
+    async findOne(id) {
+        return this.prisma.liveSession.findUnique({ where: { id } });
+    }
+    async update(id, data) {
+        if (data.registered) {
+            data.registered = JSON.stringify(data.registered);
+        }
+        const { assignments, type, ...rest } = data;
+        if (type)
+            rest.project = type;
+        if (assignments && assignments.create) {
+            await this.prisma.liveSessionAssignment.deleteMany({ where: { liveSessionId: id } });
+            rest.assignments = { create: assignments.create.map((a) => ({ staffId: Number(a.staffId) })) };
+        }
+        return this.prisma.liveSession.update({
             where: { id },
-            include: { assignments: { include: { staff: true } } }
+            data: rest
         });
     }
-    update(id, updateShiftDto) {
-        return this.prisma.shift.update({
-            where: { id },
-            data: updateShiftDto,
-        });
+    async remove(id) {
+        return this.prisma.liveSession.delete({ where: { id } });
     }
-    remove(id) {
-        return this.prisma.shift.delete({ where: { id } });
-    }
-    async assignStaff(shiftId, staffId) {
-        return this.prisma.shiftAssignment.create({
-            data: { shiftId, staffId }
-        });
-    }
-    async removeStaff(assignmentId) {
-        return this.prisma.shiftAssignment.delete({
-            where: { id: assignmentId }
+    async assignStaff(shiftId, data) {
+        return this.prisma.liveSessionAssignment.create({
+            data: {
+                liveSessionId: shiftId,
+                staffId: Number(data.staffId)
+            }
         });
     }
 };

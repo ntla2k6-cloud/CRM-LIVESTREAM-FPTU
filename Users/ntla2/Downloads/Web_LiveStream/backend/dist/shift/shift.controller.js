@@ -17,27 +17,13 @@ let ShiftController = class ShiftController {
     constructor(shiftService) {
         this.shiftService = shiftService;
     }
-    create(createShiftDto) {
-        return this.shiftService.create(createShiftDto);
-    }
-    findAll() {
-        return this.shiftService.findAll();
-    }
-    findOne(id) {
-        return this.shiftService.findOne(+id);
-    }
-    update(id, updateShiftDto) {
-        return this.shiftService.update(+id, updateShiftDto);
-    }
-    remove(id) {
-        return this.shiftService.remove(+id);
-    }
-    assignStaff(id, staffId) {
-        return this.shiftService.assignStaff(+id, staffId);
-    }
-    removeStaff(assignmentId) {
-        return this.shiftService.removeStaff(+assignmentId);
-    }
+    create(createShiftDto) { return null; }
+    findAll() { return []; }
+    findOne(id) { return null; }
+    update(id, updateShiftDto) { return null; }
+    remove(id) { return null; }
+    assignStaff(id, staffId) { return null; }
+    removeStaff(assignmentId) { return null; }
 };
 __decorate([
     Post(),

@@ -1,101 +1,98 @@
 import { PrismaService } from '../prisma/prisma.service.js';
 export declare class ShiftService {
-    private prisma;
+    private readonly prisma;
     constructor(prisma: PrismaService);
-    create(createShiftDto: any): import(".prisma/client").Prisma.Prisma__ShiftClient<{
-        id: number;
-        color: string;
+    create(data: any): Promise<{
+        description: string | null;
+        id: string;
+        status: string;
+        createdAt: Date;
+        color: string | null;
+        liveId: string | null;
         title: string;
-        day: number;
-        time: string;
-        type: string;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs>;
-    findAll(): import(".prisma/client").Prisma.PrismaPromise<({
-        assignments: ({
-            staff: {
-                id: number;
-                name: string;
-                status: string;
-                phone: string | null;
-                role: string;
-                email: string | null;
-                rate: number;
-                avatar: string | null;
-                color: string | null;
-                joinDate: string | null;
-            };
-        } & {
-            id: number;
-            bonus: number;
-            rateOverride: number | null;
-            shiftId: number;
-            staffId: number;
-        })[];
-    } & {
-        id: number;
-        color: string;
-        title: string;
-        day: number;
-        time: string;
-        type: string;
-    })[]>;
-    findOne(id: number): import(".prisma/client").Prisma.Prisma__ShiftClient<({
-        assignments: ({
-            staff: {
-                id: number;
-                name: string;
-                status: string;
-                phone: string | null;
-                role: string;
-                email: string | null;
-                rate: number;
-                avatar: string | null;
-                color: string | null;
-                joinDate: string | null;
-            };
-        } & {
-            id: number;
-            bonus: number;
-            rateOverride: number | null;
-            shiftId: number;
-            staffId: number;
-        })[];
-    } & {
-        id: number;
-        color: string;
-        title: string;
-        day: number;
-        time: string;
-        type: string;
-    }) | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
-    update(id: number, updateShiftDto: any): import(".prisma/client").Prisma.Prisma__ShiftClient<{
-        id: number;
-        color: string;
-        title: string;
-        day: number;
-        time: string;
-        type: string;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs>;
-    remove(id: number): import(".prisma/client").Prisma.Prisma__ShiftClient<{
-        id: number;
-        color: string;
-        title: string;
-        day: number;
-        time: string;
-        type: string;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs>;
-    assignStaff(shiftId: number, staffId: number): Promise<{
-        id: number;
-        bonus: number;
-        rateOverride: number | null;
-        shiftId: number;
-        staffId: number;
+        project: string | null;
+        day: number | null;
+        time: string | null;
+        registered: string | null;
+        scheduledAt: Date | null;
+        startTime: Date | null;
+        endTime: Date | null;
+        campaignId: string | null;
     }>;
-    removeStaff(assignmentId: number): Promise<{
+    findAll(): Promise<{
+        id: string;
+        title: string;
+        day: number | null;
+        time: string | null;
+        type: string | null;
+        project: string | null;
+        color: string | null;
+        status: string;
+        assignments: {
+            id: number;
+            liveSessionId: string;
+            bonus: number;
+            rateOverride: number | null;
+            staffId: number;
+        }[];
+        registered: any;
+    }[]>;
+    findOne(id: string): Promise<{
+        description: string | null;
+        id: string;
+        status: string;
+        createdAt: Date;
+        color: string | null;
+        liveId: string | null;
+        title: string;
+        project: string | null;
+        day: number | null;
+        time: string | null;
+        registered: string | null;
+        scheduledAt: Date | null;
+        startTime: Date | null;
+        endTime: Date | null;
+        campaignId: string | null;
+    } | null>;
+    update(id: string, data: any): Promise<{
+        description: string | null;
+        id: string;
+        status: string;
+        createdAt: Date;
+        color: string | null;
+        liveId: string | null;
+        title: string;
+        project: string | null;
+        day: number | null;
+        time: string | null;
+        registered: string | null;
+        scheduledAt: Date | null;
+        startTime: Date | null;
+        endTime: Date | null;
+        campaignId: string | null;
+    }>;
+    remove(id: string): Promise<{
+        description: string | null;
+        id: string;
+        status: string;
+        createdAt: Date;
+        color: string | null;
+        liveId: string | null;
+        title: string;
+        project: string | null;
+        day: number | null;
+        time: string | null;
+        registered: string | null;
+        scheduledAt: Date | null;
+        startTime: Date | null;
+        endTime: Date | null;
+        campaignId: string | null;
+    }>;
+    assignStaff(shiftId: string, data: any): Promise<{
         id: number;
+        liveSessionId: string;
         bonus: number;
         rateOverride: number | null;
-        shiftId: number;
         staffId: number;
     }>;
 }

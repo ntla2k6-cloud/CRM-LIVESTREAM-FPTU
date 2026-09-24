@@ -14,22 +14,39 @@ let LeadService = class LeadService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    create(createLeadDto) {
+    async create(createLeadDto) {
+        const { tiktokAccount, phone, fullName, highSchool, location, classGrade, campaignId, ...leadData } = createLeadDto;
+        let customer = null;
+        if (phone) {
+            customer = await this.prisma.customer.findFirst({ where: { phone } });
+        }
+        else if (tiktokAccount) {
+            customer = await this.prisma.customer.findFirst({ where: { tiktokAccount } });
+        }
+        if (!customer) {
+            customer = await this.prisma.customer.create({
+                data: {
+                    tiktokAccount: tiktokAccount || null,
+                    phone: phone || null,
+                    fullName: fullName || 'Khách hàng',
+                    highSchool: highSchool || '',
+                    location: location || '',
+                    classGrade: classGrade || ''
+                }
+            });
+        }
+        const campId = campaignId || 'default-campaign';
+        let campaign = await this.prisma.campaign.findUnique({ where: { id: campId } });
+        if (!campaign) {
+            campaign = await this.prisma.campaign.create({
+                data: { id: campId, name: 'Default Campaign' }
+            });
+        }
         return this.prisma.lead.create({
             data: {
-                ...createLeadDto,
-                customer: {
-                    connectOrCreate: {
-                        where: { tiktokAccount: createLeadDto.tiktokAccount || 'unknown' },
-                        create: { tiktokAccount: createLeadDto.tiktokAccount || 'unknown', phone: createLeadDto.phone }
-                    }
-                },
-                campaign: {
-                    connectOrCreate: {
-                        where: { id: 'default-campaign' },
-                        create: { id: 'default-campaign', name: 'Default Campaign' }
-                    }
-                }
+                ...leadData,
+                customerId: customer.id,
+                campaignId: campaign.id
             }
         });
     }

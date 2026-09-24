@@ -35,6 +35,19 @@ let MinigameGateway = class MinigameGateway {
         });
         return { status: 'success' };
     }
+    async handleSubmitAnswer(data, client) {
+        console.log('Student submitted answer:', data);
+        this.server.emit('newComment', {
+            id: Math.random().toString(36).substr(2, 9),
+            name: data.name,
+            text: data.answer,
+            time: data.time,
+            isPhone: true,
+            isHighIntent: true,
+            timestamp: data.timestamp
+        });
+        return { status: 'success' };
+    }
     broadcastNewComment(comment) {
         this.server.emit('newComment', comment);
     }
@@ -62,6 +75,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, Socket]),
     __metadata("design:returntype", Promise)
 ], MinigameGateway.prototype, "handleEndGame", null);
+__decorate([
+    SubscribeMessage('submitAnswer'),
+    __param(0, MessageBody()),
+    __param(1, ConnectedSocket()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Socket]),
+    __metadata("design:returntype", Promise)
+], MinigameGateway.prototype, "handleSubmitAnswer", null);
 MinigameGateway = __decorate([
     WebSocketGateway({ cors: true }),
     __metadata("design:paramtypes", [PrismaService])
