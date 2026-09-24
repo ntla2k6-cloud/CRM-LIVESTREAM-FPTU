@@ -71,12 +71,13 @@ export class LiveEngineService {
     }
 
     // 2. Add to Comment pipeline
-    return await this.prisma.answer.create({
+    return await this.prisma.liveComment.create({
       data: {
         liveSessionId,
         customerId,
+        username: tiktokUsername,
         content: comment,
-        isCorrect: false // To be evaluated by Quiz logic
+        aiIntent: 'NEUTRAL' // Can be classified later
       }
     });
   }
