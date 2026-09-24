@@ -48,6 +48,11 @@ model User {
   emailVerified DateTime?
   image         String?
   role          String    @default("GUEST")
+  status        String    @default("ACTIVE")
+  phone         String?
+  department    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   accounts      Account[]
   sessions      Session[]
