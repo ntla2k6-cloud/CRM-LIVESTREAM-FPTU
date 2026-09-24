@@ -23,7 +23,7 @@ export default function RootLayout({
         <AuthProvider>
           <RoleGuard>
             <Sidebar sidebarOpen={true} />
-            <main className="flex-1 min-w-0 h-screen overflow-hidden pb-16 md:pb-0">
+            <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden pb-16 md:pb-0">
               {children}
             </main>
           </RoleGuard>

@@ -15,6 +15,8 @@ export async function GET() {
         image: true,
         role: true,
         status: true,
+        phone: true,
+        department: true,
         createdAt: true,
       }
     });
