@@ -415,9 +415,14 @@ export default function InventoryPage() {
                                 {["Chưa đóng gói", "Đã đóng gói", "Đã chuyển tới đơn vị vận chuyển", "Đơn vị đang vận chuyển", "Hoàn tất", "Hoàn hàng"].map(s => (
                                   <div 
                                     key={s}
-                                    onClick={() => {
+                                    onClick={async () => {
                                       setOrders(orders.map(o => o.id === order.id ? { ...o, status: s } : o));
                                       setOpenDropdownId(null);
+                                      try {
+                                        await api.patch(`/order/${order.id}`, { status: s });
+                                      } catch (e) {
+                                        console.error("Lỗi", e);
+                                      }
                                       if (s === 'Đơn vị đang vận chuyển' || s === 'Hoàn hàng') {
                                         setSelectedOrder({ ...order, status: s });
                                       }

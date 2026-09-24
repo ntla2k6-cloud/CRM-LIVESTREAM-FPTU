@@ -102,7 +102,10 @@ export default function CSKHBoardPage() {
   }, []);
 
   const handleAddLead = async () => {
-    if (!newLeadForm.name) return;
+    if (!newLeadForm.name || !newLeadForm.phone || !newLeadForm.province) {
+      alert("Vui lòng điền đầy đủ Họ Tên, Số điện thoại và Tỉnh/Thành (Địa bàn)!");
+      return;
+    }
     
     try {
       const payload = {
@@ -895,15 +898,15 @@ export default function CSKHBoardPage() {
       {/* MODAL THÊM LEAD */}
       {showAddLead && (
         <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center animate-in fade-in">
-          <div className="bg-white w-[500px] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-            <div className="px-6 py-4 bg-[#005691] text-white flex justify-between items-center">
+          <div className="bg-white w-[500px] max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            <div className="px-6 py-4 bg-[#005691] text-white flex justify-between items-center shrink-0">
               <h2 className="font-black text-lg">Thêm Lead Mới</h2>
               <button onClick={() => setShowAddLead(false)} className="text-white/70 hover:text-white transition-colors">
                 <X size={20} />
               </button>
             </div>
             
-            <div className="p-6 flex flex-col gap-4">
+            <div className="p-6 flex flex-col gap-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Họ và tên *</label>
                 <input type="text" value={newLeadForm.name} onChange={e => setNewLeadForm({...newLeadForm, name: e.target.value})} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-[#F58220] focus:ring-1 focus:ring-[#F58220] outline-none" placeholder="Nguyễn Văn A" />
@@ -1055,7 +1058,7 @@ export default function CSKHBoardPage() {
               </div>
             </div>
             
-            <div className="px-6 py-4 border-t border-slate-200 flex justify-end gap-3 bg-slate-50">
+            <div className="px-6 py-4 border-t border-slate-200 flex justify-end gap-3 bg-slate-50 shrink-0">
               <button onClick={() => setShowAddLead(false)} className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-100 transition-colors">Hủy</button>
               <button onClick={handleAddLead} className="px-4 py-2 bg-[#F58220] text-white rounded-xl font-bold text-sm hover:bg-[#d9731c] transition-colors flex items-center gap-2">
                 <Save size={16} /> Lưu Lead Mới
