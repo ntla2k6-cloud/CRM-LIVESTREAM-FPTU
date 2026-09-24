@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,39 +12,20 @@ datasource db {
 }
 
 // -----------------------------------------------------------------------------
-// NEXTAUTH & USER (Auth & Internal Management)
+// AUTHENTICATION (NextAuth)
 // -----------------------------------------------------------------------------
-model User {
-  id            String    @id @default(uuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  role          String    @default("GUEST") // ADMIN, MANAGER, CSKH, VJ_HOST, GUEST
-  status        String    @default("ACTIVE")
-  phone         String?
-  department    String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  accounts      Account[]
-  sessions      Session[]
-  leads         Lead[]
-  followUps     FollowUp[]
-}
-
 model Account {
   id                 String  @id @default(cuid())
   userId             String
   type               String
   provider           String
   providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
+  refresh_token      String?
+  access_token       String?
   expires_at         Int?
   token_type         String?
   scope              String?
-  id_token           String?  @db.Text
+  id_token           String?
   session_state      String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -57,6 +41,21 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("GUEST")
+
+  accounts      Account[]
+  sessions      Session[]
+  
+  assignedLeads Lead[]    @relation("CskhLeads")
+  leadHistories LeadHistory[] // Lịch sử chăm sóc do CSKH này tạo
+}
+
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -65,6 +64,9 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+// -----------------------------------------------------------------------------
+// STAFF & TEAM
+// -----------------------------------------------------------------------------
 model Staff {
   id          Int      @id @default(autoincrement())
   name        String
@@ -77,83 +79,11 @@ model Staff {
   joinDate    String?
   status      String   @default("Sẵn sàng") // Sẵn sàng, Đang nghỉ phép...
   
-  assignments ShiftAssignment[]
+  assignments LiveSessionAssignment[]
 }
 
 // -----------------------------------------------------------------------------
-// SCHEDULE & EDITORIAL (Lịch phân công & Kịch bản)
-// -----------------------------------------------------------------------------
-model Shift {
-  id          Int      @id @default(autoincrement())
-  day         Int      // Ngày trong tháng
-  time        String   // VD: "19:00"
-  title       String   // Tên chương trình LIVE
-  type        String   // Tuyển sinh, Q&A, Tư vấn...
-  color       String   // Màu sắc hiển thị
-  
-  assignments ShiftAssignment[]
-  script      Script?
-}
-
-model ShiftAssignment {
-  id          Int      @id @default(autoincrement())
-  shiftId     Int
-  shift       Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
-  staffId     Int
-  staff       Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
-  
-  bonus       Int      @default(0) // Thưởng thêm cho ca này (VND)
-  rateOverride Int?    // Có thể lưu mức rate riêng nếu muốn (tùy chọn)
-
-  @@unique([shiftId, staffId])
-}
-
-model Script {
-  id          Int      @id @default(autoincrement())
-  shiftId     Int      @unique
-  shift       Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
-  
-  content     String?  // Nội dung kịch bản (Text/HTML)
-  questions   String?  // Danh sách câu hỏi định dạng JSON string (chờ xử lý dạng mảng)
-  
-  updatedAt   DateTime @updatedAt
-}
-
-// -----------------------------------------------------------------------------
-// INVENTORY & FULFILLMENT (Kho quà tặng)
-// -----------------------------------------------------------------------------
-model Gift {
-  id          Int      @id @default(autoincrement())
-  name        String
-  sku         String   @unique
-  stock       Int      @default(0)
-  sent        Int      @default(0)
-  price       String   // VD: "350,000đ"
-  status      String   // Sẵn sàng, Sắp hết, Hết hàng
-  
-  orders      Order[]
-}
-
-model Order {
-  id               String   @id // VD: "DON-001"
-  recipient        String
-  phone            String
-  address          String
-  giftId           Int
-  gift             Gift     @relation(fields: [giftId], references: [id])
-  qty              Int      @default(1)
-  
-  status           String   @default("Đã tiếp nhận") // Đã tiếp nhận, Đã xử lý, Đang vận chuyển, Đã giao
-  date             String   // "14/09/2026 10:15"
-  
-  // Tracking fields
-  shippingProvider String?  // VD: GHTK, Viettel Post...
-  trackingCode     String?  // Mã vận đơn để khách tra cứu
-  trackingLink     String?  // Link theo dõi
-}
-
-// -----------------------------------------------------------------------------
-// CRM & MINIGAME (Kế thừa từ phiên bản trước)
+// CAMPAIGN & LIVESESSION (Schedule + Live Pipeline)
 // -----------------------------------------------------------------------------
 model Campaign {
   id          String   @id @default(uuid())
@@ -169,20 +99,60 @@ model Campaign {
 
 model LiveSession {
   id          String   @id @default(uuid())
-  campaignId  String
-  campaign    Campaign @relation(fields: [campaignId], references: [id])
+  campaignId  String?
+  campaign    Campaign? @relation(fields: [campaignId], references: [id])
+  
+  // Thông tin lịch (tích hợp từ bảng Shift cũ)
   liveId      String?  @unique
   title       String
-  startTime   DateTime?
-  endTime     DateTime?
-  status      String   @default("SCHEDULED")
+  description String?
+  color       String?  @default("#F58220")
+    project     String?  @default("Khác")
+    day         Int?
+    time        String?
+    registered  String?
+  scheduledAt DateTime? // Ngày giờ dự kiến diễn ra
+  startTime   DateTime? // Giờ thực tế bắt đầu
+  endTime     DateTime? // Giờ thực tế kết thúc
+  status      String   @default("SCHEDULED") // SCHEDULED, LIVE_NOW, COMPLETED, CANCELLED
+  
   createdAt   DateTime @default(now())
 
+  // Relations
+  assignments LiveSessionAssignment[]
+  script      Script?
   comments    LiveComment[]
   leads       Lead[]
   questions   Question[]
+  winners     Winner[]
 }
 
+model LiveSessionAssignment {
+  id             Int         @id @default(autoincrement())
+  liveSessionId  String
+  liveSession    LiveSession @relation(fields: [liveSessionId], references: [id], onDelete: Cascade)
+  staffId        Int
+  staff          Staff       @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  
+  bonus          Int         @default(0) // Thưởng thêm cho ca này (VND)
+  rateOverride   Int?        // Mức rate riêng biệt nếu có
+
+  @@unique([liveSessionId, staffId])
+}
+
+model Script {
+  id             Int         @id @default(autoincrement())
+  liveSessionId  String      @unique
+  liveSession    LiveSession @relation(fields: [liveSessionId], references: [id], onDelete: Cascade)
+  
+  content        String?     // Nội dung kịch bản (Text/HTML)
+  
+  updatedAt      DateTime    @updatedAt
+}
+
+// -----------------------------------------------------------------------------
+// TIKTOK COMMENT ENGINE & MINIGAME
+// -----------------------------------------------------------------------------
 model Customer {
   id              String   @id @default(uuid())
   fullName        String?
@@ -192,35 +162,14 @@ model Customer {
   classGrade      String?
   location        String?
   interestedMajor String?
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   leads           Lead[]
   comments        LiveComment[]
   answers         Answer[]
-}
-
-model Lead {
-  id              String   @id @default(uuid())
-  customerId      String
-  customer        Customer @relation(fields: [customerId], references: [id])
-  campaignId      String
-  campaign        Campaign @relation(fields: [campaignId], references: [id])
-  liveSessionId   String?
-  liveSession     LiveSession? @relation(fields: [liveSessionId], references: [id])
-  assignedCskhId  String?
-  assignedCskh    User?    @relation(fields: [assignedCskhId], references: [id])
-  
-  status          String   @default("NEW") // Thay Enum bằng String để dùng cho SQLite dễ dàng
-  leadScore       Int      @default(0)
-  intent          String?
-  note            String?
-  history         Json?
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  followUps       FollowUp[]
+  winners         Winner[]
 }
 
 model LiveComment {
@@ -233,9 +182,10 @@ model LiveComment {
   tiktokUserId  String?
   username      String
   content       String
-  aiIntent      String?
+  aiIntent      String? // Dùng để AI đánh dấu là "HOT LEAD", "QUESTION", v.v.
   
-  timestamp     DateTime @default(now())
+  // Dập timestamp chuẩn xác tại Server Queue để chống race condition
+  serverTimestamp DateTime @default(now())
 
   answers       Answer[]
 }
@@ -248,12 +198,14 @@ model Question {
   code          String   // VD: Q001, Q002
   content       String?  // Nội dung câu hỏi
   correctAnswer String   // VD: "A", "B", "1.A"
+  timeLimit     Int      @default(30) // Thời gian trả lời (giây)
   
   status        String   @default("PENDING") // PENDING, ACTIVE, CLOSED
   startedAt     DateTime?
   closedAt      DateTime?
   
   answers       Answer[]
+  winners       Winner[]
 }
 
 model Answer {
@@ -266,22 +218,104 @@ model Answer {
   comment       LiveComment @relation(fields: [commentId], references: [id])
   
   userAnswer    String
-  isCorrect     Boolean
-  responseSpeed Int      // Tính bằng mili-giây từ lúc Question ACTIVE
   
+  // Các trạng thái của một câu trả lời để loại trừ Duplicate, Sai
+  status        String   @default("PENDING") // CORRECT, INCORRECT, DUPLICATE, INVALID
+  isWinner      Boolean  @default(false)
+  
+  responseSpeed Int      // Tính bằng mili-giây từ lúc Question ACTIVE
   createdAt     DateTime @default(now())
 }
 
-model FollowUp {
+// -----------------------------------------------------------------------------
+// FULFILLMENT: WINNER -> GIFT -> SHIPMENT -> TRACKING
+// -----------------------------------------------------------------------------
+model Gift {
+  id          Int      @id @default(autoincrement())
+  name        String
+  sku         String   @unique
+  stock       Int      @default(0)
+  price       String   // VD: "350,000đ"
+  status      String   // Sẵn sàng, Sắp hết, Hết hàng
+  
+  winners     Winner[]
+}
+
+model Winner {
+  id            String       @id @default(uuid())
+  liveSessionId String
+  liveSession   LiveSession  @relation(fields: [liveSessionId], references: [id])
+  questionId    String?
+  question      Question?    @relation(fields: [questionId], references: [id])
+  customerId    String
+  customer      Customer     @relation(fields: [customerId], references: [id])
+  giftId        Int
+  gift          Gift         @relation(fields: [giftId], references: [id])
+  
+  // Trạng thái nhận quà
+  status        String       @default("PENDING_INFO") // PENDING_INFO, INFO_RECEIVED, CONFIRMED
+  createdAt     DateTime     @default(now())
+  
+  shipment      Shipment?
+}
+
+model Shipment {
+  id               String   @id // VD: "DON-001"
+  winnerId         String?  @unique
+  winner           Winner?  @relation(fields: [winnerId], references: [id])
+  
+  recipientName    String
+  phone            String
+  address          String
+  
+  // Trạng thái vận chuyển
+  status           String   @default("PACKING") // PACKING, SHIPPED, DELIVERED, RETURNED
+  
+  shippingProvider String?  // VD: GHTK, Viettel Post...
+  trackingCode     String?  // Mã vận đơn để khách tra cứu
+  trackingLink     String?  // Link theo dõi
+    giftName         String?
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// -----------------------------------------------------------------------------
+// CRM LEAD PIPELINE
+// -----------------------------------------------------------------------------
+model Lead {
+  id              String   @id @default(uuid())
+  customerId      String
+  customer        Customer @relation(fields: [customerId], references: [id])
+  campaignId      String?
+  campaign        Campaign? @relation(fields: [campaignId], references: [id])
+  liveSessionId   String?
+  liveSession     LiveSession? @relation(fields: [liveSessionId], references: [id])
+  
+  assignedCskhId  String?
+  assignedCskh    User?    @relation("CskhLeads", fields: [assignedCskhId], references: [id])
+  
+  // CRM Pipeline Status
+  status          String   @default("NEW") // NEW, CONTACTED, CONSULTING, REGISTERED, NOT_INTERESTED, UNREACHABLE
+  source          String   @default("LIVESTREAM")
+  leadScore       Int      @default(0)
+  intent          String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  histories       LeadHistory[]
+}
+
+model LeadHistory {
   id          String   @id @default(uuid())
   leadId      String
-  lead        Lead     @relation(fields: [leadId], references: [id])
-  cskhId      String
-  cskh        User     @relation(fields: [cskhId], references: [id])
+  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  cskhId      String?
+  cskh        User?    @relation(fields: [cskhId], references: [id])
   
-  note        String?
-  scheduledAt DateTime
-  status      String   @default("PENDING")
+  action      String   // CALL, ZALO, SMS, NOTE, SYSTEM
+  note        String?  // Nội dung ghi chú chi tiết
   
-  createdAt   DateTime @default(now())
+  timestamp   DateTime @default(now())
 }
