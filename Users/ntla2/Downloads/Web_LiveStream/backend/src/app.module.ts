@@ -10,9 +10,10 @@ import { ShiftModule } from './shift/shift.module.js';
 import { OrderModule } from './order/order.module.js';
 import { GiftModule } from './gift/gift.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
+import { LiveEngineModule } from './live-engine/live-engine.module.js';
 
 @Module({
-  imports: [PrismaModule, MinigameModule, StaffModule, LiveSessionModule, LeadModule, ShiftModule, OrderModule, GiftModule, DashboardModule],
+  imports: [PrismaModule, MinigameModule, StaffModule, LiveSessionModule, LeadModule, ShiftModule, OrderModule, GiftModule, DashboardModule, LiveEngineModule],
   controllers: [AppController],
   providers: [AppService],
 })
