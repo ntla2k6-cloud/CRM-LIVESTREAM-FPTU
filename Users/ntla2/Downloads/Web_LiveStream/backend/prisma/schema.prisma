@@ -107,6 +107,10 @@ model LiveSession {
   title       String
   description String?
   color       String?  @default("#F58220")
+    project     String?  @default("Khác")
+    day         Int?
+    time        String?
+    registered  String?
   scheduledAt DateTime? // Ngày giờ dự kiến diễn ra
   startTime   DateTime? // Giờ thực tế bắt đầu
   endTime     DateTime? // Giờ thực tế kết thúc
@@ -257,8 +261,8 @@ model Winner {
 
 model Shipment {
   id               String   @id // VD: "DON-001"
-  winnerId         String   @unique
-  winner           Winner   @relation(fields: [winnerId], references: [id])
+  winnerId         String?  @unique
+  winner           Winner?  @relation(fields: [winnerId], references: [id])
   
   recipientName    String
   phone            String
@@ -270,6 +274,7 @@ model Shipment {
   shippingProvider String?  // VD: GHTK, Viettel Post...
   trackingCode     String?  // Mã vận đơn để khách tra cứu
   trackingLink     String?  // Link theo dõi
+    giftName         String?
   
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

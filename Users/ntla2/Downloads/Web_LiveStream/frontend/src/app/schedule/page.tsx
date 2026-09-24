@@ -60,6 +60,14 @@ export default function SchedulePage() {
         project: s.type || 'Khác',
       }));
       setShifts(mappedShifts);
+      
+      const regs: Record<number, string[]> = {};
+      shiftRes.forEach((s: any) => {
+        if (s.registered) {
+          regs[s.id] = s.registered.map(Number);
+        }
+      });
+      setRegistrations(regs);
     } catch (err) {
       console.error(err);
     }
@@ -131,14 +139,23 @@ export default function SchedulePage() {
     }
   };
 
-  const handleToggleRegistration = (shiftId: number, staffId: any) => {
+  const handleToggleRegistration = async (shiftId: any, staffId: any) => {
+    let newUpdated: any[] = [];
     setRegistrations(prev => {
       const current = prev[shiftId] || [];
       const updated = current.includes(staffId)
         ? current.filter(id => id !== staffId)
         : [...current, staffId];
+      newUpdated = updated;
       return { ...prev, [shiftId]: updated };
     });
+    
+    try {
+      await ShiftAPI.update(shiftId, { registered: newUpdated });
+    } catch (e) {
+      console.error(e);
+      alert('Có lỗi khi lưu đăng ký ca trực!');
+    }
   };
   
   // Chuyển từ đội hình đăng ký sang đội hình chính thức
