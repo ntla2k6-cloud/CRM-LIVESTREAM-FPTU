@@ -1,17 +1,37 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// Luôn dùng Next.js API proxy route để tránh CORS và biến môi trường
+// Proxy route: /api/backend/[...slug] → NestJS backend
+const API_BASE = '/api/backend';
+
+// Fallback nếu chạy local (dev mode không qua proxy)
+const DIRECT_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+export const API_BASE_URL = typeof window !== 'undefined' ? API_BASE : DIRECT_BASE;
 
 export const fetchApi = async (endpoint: string, options?: RequestInit) => {
   const url = `${API_BASE_URL}${endpoint}`;
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    throw new Error(`API Error: ${res.statusText}`);
+  
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers,
+      },
+    });
+  } catch (networkError: any) {
+    throw new Error(`Không thể kết nối máy chủ: ${networkError.message}`);
   }
+
+  if (!res.ok) {
+    let errMsg = `Lỗi ${res.status}`;
+    try { 
+      const errData = await res.json();
+      errMsg = errData?.message || errMsg;
+    } catch {}
+    throw new Error(errMsg);
+  }
+
   if (res.status === 204) return null;
   return res.json();
 };
@@ -45,6 +65,7 @@ export const LeadAPI = {
   delete: (id: string) => fetchApi(`/lead/${id}`, { method: 'DELETE' }),
 };
 
+// api.get/post/patch/delete trả về { data } để tương thích ngược với code cũ
 export const api = {
   get: async (endpoint: string) => {
     const data = await fetchApi(endpoint);
