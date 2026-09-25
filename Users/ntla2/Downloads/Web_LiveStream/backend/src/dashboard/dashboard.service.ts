@@ -7,21 +7,21 @@ export class DashboardService {
 
   async getStats() {
     const totalSessions = await this.prisma.liveSession.count();
-    const totalLeads = await this.prisma.customer.count();
+    const totalLeads = await this.prisma.lead.count();
     const totalOrders = await this.prisma.shipment.count();
+    const totalCustomers = await this.prisma.customer.count();
     
     // Get last 7 days leads for the chart
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     
-    // Group leads by day
-    const leadsData = await this.prisma.customer.findMany({
+    const leadsData = await this.prisma.lead.findMany({
       where: {
         createdAt: { gte: sevenDaysAgo }
       },
       select: {
         createdAt: true,
-        aiIntent: true
+        leadScore: true
       }
     });
 
@@ -35,7 +35,7 @@ export class DashboardService {
       chartData.push({
         date: dateStr,
         total: dayLeads.length,
-        hot: dayLeads.filter(l => l.aiIntent === 'HOT_LEAD').length
+        hot: dayLeads.filter(l => (l.leadScore || 0) >= 80).length
       });
     }
 
@@ -43,8 +43,9 @@ export class DashboardService {
       metrics: {
         sessions: totalSessions,
         leads: totalLeads,
+        customers: totalCustomers,
         orders: totalOrders,
-        conversionRate: totalLeads > 0 ? Math.round((totalOrders / totalLeads) * 100) : 0
+        conversionRate: totalCustomers > 0 ? Math.round((totalOrders / totalCustomers) * 100) : 0
       },
       chartData
     };

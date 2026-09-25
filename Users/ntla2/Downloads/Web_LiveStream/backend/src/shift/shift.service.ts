@@ -9,17 +9,25 @@ export class ShiftService {
     const assignments = data.assignments?.create || [];
     const registeredIds = JSON.stringify(data.registered || []);
     
+    // day có thể là số (weekday) hoặc string ngày => chuyển về số hoặc null
+    let dayVal: number | null = null;
+    if (data.day !== undefined && data.day !== null) {
+      const parsed = parseInt(String(data.day));
+      dayVal = isNaN(parsed) ? null : parsed;
+    }
+    
     return this.prisma.liveSession.create({
       data: {
-        title: data.title,
-        day: data.day,
+        title: data.title || 'Ca trực mới',
+        day: dayVal,
         time: data.time,
-        project: data.type || data.project,
-        color: data.color,
+        project: data.type || data.project || 'Khác',
+        color: data.color || '#005691',
         registered: registeredIds,
-        assignments: {
-          create: assignments
-        }
+        status: 'SCHEDULED',
+        assignments: assignments.length > 0 ? {
+          create: assignments.map((a: any) => ({ staffId: Number(a.staffId) }))
+        } : undefined
       }
     });
   }
@@ -27,7 +35,9 @@ export class ShiftService {
   async findAll() {
     const sessions = await this.prisma.liveSession.findMany({
       include: {
-        assignments: true
+        assignments: {
+          include: { staff: true }
+        }
       }
     });
     
@@ -46,20 +56,22 @@ export class ShiftService {
   }
 
   async findOne(id: string) {
-    return this.prisma.liveSession.findUnique({ where: { id } });
+    return this.prisma.liveSession.findUnique({
+      where: { id },
+      include: { assignments: { include: { staff: true } } }
+    });
   }
 
   async update(id: string, data: any) {
-    if (data.registered) {
-      data.registered = JSON.stringify(data.registered);
-    }
-    
-    const { assignments, type, ...rest } = data;
+    const { assignments, type, registered, ...rest } = data;
     if (type) rest.project = type;
+    if (registered !== undefined) rest.registered = JSON.stringify(registered);
     
     if (assignments && assignments.create) {
       await this.prisma.liveSessionAssignment.deleteMany({ where: { liveSessionId: id } });
-      rest.assignments = { create: assignments.create.map((a: any) => ({ staffId: Number(a.staffId) })) };
+      await this.prisma.liveSessionAssignment.createMany({
+        data: assignments.create.map((a: any) => ({ liveSessionId: id, staffId: Number(a.staffId) }))
+      });
     }
     
     return this.prisma.liveSession.update({
