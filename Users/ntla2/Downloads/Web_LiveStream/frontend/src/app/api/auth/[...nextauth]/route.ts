@@ -24,14 +24,14 @@ const handler = NextAuth({
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
-        session.user.role = (user as any).role || "GUEST";
+        (session.user as any).role = (user as any).role || "GUEST";
         
         // Force ADMIN role for ntla2k6@gmail.com
         if (session.user.email === 'ntla2k6@gmail.com') {
-          session.user.role = 'ADMIN';
+          (session.user as any).role = 'ADMIN';
         }
         
-        session.user.id = user.id;
+        (session.user as any).id = user.id;
       }
       return session;
     },

@@ -685,7 +685,7 @@ export default function InventoryPage() {
                     <>
                       <div className="fixed inset-0 z-40" onClick={() => setDrawerStatusOpen(false)} />
                       <div className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden py-1 animate-in fade-in slide-in-from-top-2">
-                        {["Đã tiếp nhận", "Đã xử lý", "Đang vận chuyển", "Đã giao"].map(s => (
+                        {["Chưa đóng gói", "Đã đóng gói", "Đã chuyển tới đơn vị vận chuyển", "Đơn vị đang vận chuyển", "Hoàn tất", "Hoàn hàng"].map(s => (
                           <div 
                             key={s}
                             onClick={() => {
@@ -703,7 +703,7 @@ export default function InventoryPage() {
                   )}
                 </div>
 
-                {selectedOrder.status === 'Đang vận chuyển' && (
+                {(selectedOrder.status === 'Đơn vị đang vận chuyển' || selectedOrder.status === 'Hoàn hàng') && (
                   <div className="space-y-3 animate-in fade-in slide-in-from-top-2 mt-4 p-4 border border-[#F58220]/20 bg-orange-50/30 rounded-xl">
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold text-slate-500 uppercase">Đơn vị vận chuyển</label>

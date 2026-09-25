@@ -34,7 +34,7 @@ export default function SchedulePage() {
   const isAdminOrProducer = currentRole === 'admin' || currentRole === 'producer';
   
   // My mock user info
-  const myStaffId = currentRole === 'member' ? 8 : null; 
+  const myStaffId = currentRole === 'member' ? '8' : null; 
   
   // API STATES
   const [staffList, setStaffList] = useState<any[]>([]);
@@ -216,6 +216,32 @@ export default function SchedulePage() {
   const totalBudget = payrollData.reduce((sum, p) => sum + p.totalEarned, 0);
   const totalPaid = payrollData.reduce((sum, p) => sum + p.paid, 0);
 
+  const handleExportPayroll = () => {
+    if (payrollData.length === 0) return;
+    const header = ['Tên nhân sự', 'Vai trò', 'Giờ làm', 'Lương/Giờ', 'Thưởng', 'Tổng thu nhập', 'Đã thanh toán', 'Trạng thái'];
+    const csvContent = "\uFEFF" + [
+      header.join(','),
+      ...payrollData.map(p => [
+        `"${p.name}"`, 
+        `"${p.role}"`, 
+        p.hours, 
+        p.rate, 
+        p.bonus, 
+        p.totalEarned, 
+        p.paid, 
+        `"${p.status}"`
+      ].join(','))
+    ].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Bang_Luong_${payrollMonth}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="flex h-full flex-col bg-slate-50 font-sans relative overflow-hidden">
       
@@ -285,7 +311,7 @@ export default function SchedulePage() {
           )}
           
           {activeTab === 'PAYROLL' && (
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-[#00A859] hover:bg-[#00904c] rounded-xl text-sm font-bold text-white shadow-md shadow-green-900/20 transition-all hover:-translate-y-0.5">
+            <button onClick={handleExportPayroll} className="flex items-center gap-2 px-5 py-2.5 bg-[#00A859] hover:bg-[#00904c] rounded-xl text-sm font-bold text-white shadow-md shadow-green-900/20 transition-all hover:-translate-y-0.5">
               <Download size={16} /> Xuất Excel Lương
             </button>
           )}
