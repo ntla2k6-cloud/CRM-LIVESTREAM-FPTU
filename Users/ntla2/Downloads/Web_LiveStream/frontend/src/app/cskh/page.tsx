@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { 
   Phone, MessageSquare, MoreHorizontal, CalendarClock, Search, Filter, 
-  ChevronRight, Users, Flame, UserCheck, PhoneCall, CheckCircle2, X, Save, Edit3, Tag, Package, Download, List, LayoutGrid, Plus
+  ChevronRight, Users, Flame, UserCheck, PhoneCall, CheckCircle2, X, Save, Edit3, Tag, Package, Download, List, LayoutGrid, Plus, Trash2
 } from "lucide-react";
 import { api } from '@/lib/api';
 
