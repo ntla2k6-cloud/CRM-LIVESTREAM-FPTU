@@ -103,7 +103,8 @@ export default function CSKHBoardPage() {
 
   const handleAddLead = async () => {
     if (!newLeadForm.name || !newLeadForm.phone || !newLeadForm.province) {
-      alert("Vui lòng điền đầy đủ Họ Tên, Số điện thoại và Tỉnh/Thành (Địa bàn)!");
+      setToastMsg({ title: '⚠️ Thiếu thông tin!', desc: 'Vui lòng điền đầy đủ Họ Tên, Số điện thoại và Tỉnh/Thành!', type: 'error' });
+      setTimeout(() => setToastMsg(null), 3500);
       return;
     }
     
@@ -121,11 +122,21 @@ export default function CSKHBoardPage() {
         leadScore: 50
       };
       const res = await api.post('/lead', payload);
+      // api.post wraps result in { data }, so extract correctly
+      const created = res?.data || res;
       
       const newLead = {
-        id: res?.id || Math.random(),
-        ...newLeadForm,
-        avatar: newLeadForm.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || 'LD',
+        id: created?.id || String(Math.random()),
+        name: newLeadForm.name,
+        phone: newLeadForm.phone,
+        tiktok: newLeadForm.tiktok,
+        intent: newLeadForm.intent,
+        note: newLeadForm.note,
+        province: newLeadForm.province,
+        highSchool: newLeadForm.highSchool,
+        grade: newLeadForm.grade,
+        project: newLeadForm.project,
+        avatar: newLeadForm.name.trim().split(' ').map((w: string) => w[0]).join('').substring(0, 2).toUpperCase() || 'LD',
         score: 50,
         isHot: false,
         col: 0,
@@ -136,9 +147,12 @@ export default function CSKHBoardPage() {
       setLeads([newLead, ...leads]);
       setShowAddLead(false);
       setNewLeadForm({ name: '', phone: '', tiktok: '', intent: '', project: 'Khác', note: '', province: '', highSchool: '', grade: '' });
+      setToastMsg({ title: '🎉 Thêm Lead thành công!', desc: `Đã thêm ${newLeadForm.name} vào danh sách. Chúc chốt deal ngon! 💪`, type: 'success' });
+      setTimeout(() => setToastMsg(null), 4000);
     } catch (e) {
       console.error(e);
-      alert("Lỗi khi thêm Lead mới!");
+      setToastMsg({ title: '❌ Lỗi khi thêm Lead!', desc: 'Không thể kết nối tới máy chủ. Vui lòng thử lại!', type: 'error' });
+      setTimeout(() => setToastMsg(null), 4000);
     }
   };
 
@@ -1079,17 +1093,25 @@ export default function CSKHBoardPage() {
 
       {/* CUSTOM TOAST NOTIFICATION */}
       {toastMsg && (
-        <div className="fixed bottom-6 right-6 z-[200] animate-in slide-in-from-bottom-5 fade-in duration-300">
-          <div className="bg-[#1e293b] text-white p-5 rounded-2xl shadow-2xl border border-slate-700/50 min-w-[320px] max-w-[400px]">
-            <div className="flex justify-between items-start gap-4">
-              <div>
-                <h4 className="font-bold text-[15px] text-white mb-2">{toastMsg.title}</h4>
-                <p className="text-[13px] text-slate-300 whitespace-pre-line leading-relaxed">{toastMsg.desc}</p>
-              </div>
-              <button onClick={() => setToastMsg(null)} className="text-slate-400 hover:text-white transition-colors shrink-0">
-                <X size={18} />
-              </button>
+        <div className="fixed bottom-6 right-6 z-[300] animate-in slide-in-from-bottom-5 fade-in duration-300">
+          <div className={`relative flex items-start gap-4 p-5 rounded-2xl shadow-2xl min-w-[340px] max-w-[420px] border-l-4 bg-white
+            ${toastMsg.type === 'error' ? 'border-l-red-500' : toastMsg.type === 'success' ? 'border-l-emerald-500' : 'border-l-orange-500'}
+          `} style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
+            {/* Icon */}
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0 font-black
+              ${toastMsg.type === 'error' ? 'bg-red-50 text-red-600' : toastMsg.type === 'success' ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'}
+            `}>
+              {toastMsg.type === 'error' ? '✕' : toastMsg.type === 'success' ? '✓' : '!'}
             </div>
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <h4 className="font-black text-[15px] text-slate-900 mb-1">{toastMsg.title}</h4>
+              {toastMsg.desc && <p className="text-[13px] text-slate-500 leading-relaxed whitespace-pre-line">{toastMsg.desc}</p>}
+            </div>
+            {/* Close */}
+            <button onClick={() => setToastMsg(null)} className="text-slate-300 hover:text-slate-600 transition-colors shrink-0 mt-0.5">
+              <X size={16} />
+            </button>
           </div>
         </div>
       )}
