@@ -6,7 +6,7 @@ export class LeadService {
   constructor(private prisma: PrismaService) {}
 
   async create(createLeadDto: any) {
-    const { tiktokAccount, phone, fullName, highSchool, location, classGrade, campaignId, ...leadData } = createLeadDto;
+    const { tiktokAccount, phone, fullName, highSchool, location, classGrade, campaignId, note, ...leadData } = createLeadDto;
     
     let customer = null;
     if (phone) {
@@ -37,13 +37,25 @@ export class LeadService {
       });
     }
 
-    return this.prisma.lead.create({
+    const lead = await this.prisma.lead.create({
       data: {
         ...leadData,
         customerId: customer.id,
         campaignId: campaign.id
       }
     });
+
+    if (note) {
+      await this.prisma.leadHistory.create({
+        data: {
+          leadId: lead.id,
+          action: 'NOTE',
+          note: note
+        }
+      });
+    }
+
+    return lead;
   }
 
   findAll() {
