@@ -57,6 +57,7 @@ export default function CSKHBoardPage() {
   const [leads, setLeads] = useState<any[]>([]);
   const [gifts, setGifts] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
+  const [leadToDelete, setLeadToDelete] = useState<any | null>(null);
 
   const [showAddLead, setShowAddLead] = useState(false);
   const [newLeadForm, setNewLeadForm] = useState({ name: '', phone: '', tiktok: '', intent: '', project: 'Khác', note: '', province: '', highSchool: '', grade: '' });
@@ -865,17 +866,7 @@ export default function CSKHBoardPage() {
             
             <div className="p-6 border-t border-slate-200 bg-white flex justify-between gap-3 shrink-0">
               <button 
-                onClick={async () => {
-                  if(confirm("Xóa học sinh này khỏi hệ thống?")) {
-                    try {
-                      await api.delete(`/lead/${selectedLead.id}`);
-                      setLeads(leads.filter(l => l.id !== selectedLead.id));
-                      setSelectedLead(null);
-                    } catch (e) {
-                      alert("Lỗi khi xóa!");
-                    }
-                  }
-                }}
+                onClick={() => setLeadToDelete(selectedLead)}
                 className="px-4 py-2.5 bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 font-bold rounded-xl transition-colors flex items-center gap-2"
               >
                 Xóa Lead
@@ -1085,6 +1076,50 @@ export default function CSKHBoardPage() {
               <button onClick={() => setShowAddLead(false)} className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-100 transition-colors">Hủy</button>
               <button onClick={handleAddLead} className="px-4 py-2 bg-[#F58220] text-white rounded-xl font-bold text-sm hover:bg-[#d9731c] transition-colors flex items-center gap-2">
                 <Save size={16} /> Lưu Lead Mới
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {leadToDelete && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 size={32} strokeWidth={1.5} />
+              </div>
+              <h3 className="text-xl font-black text-slate-900 mb-2">Xóa học sinh này?</h3>
+              <p className="text-sm text-slate-500">
+                Bạn có chắc chắn muốn xóa <b>{leadToDelete.name}</b> khỏi hệ thống? Dữ liệu đã xóa không thể khôi phục lại.
+              </p>
+            </div>
+            <div className="px-6 py-4 bg-slate-50 flex gap-3 border-t border-slate-200">
+              <button 
+                onClick={() => setLeadToDelete(null)}
+                className="flex-1 px-4 py-2.5 bg-white border border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors"
+              >
+                Hủy bỏ
+              </button>
+              <button 
+                onClick={async () => {
+                  try {
+                    await api.delete(`/lead/${leadToDelete.id}`);
+                    setLeads(leads.filter(l => l.id !== leadToDelete.id));
+                    setSelectedLead(null);
+                    setLeadToDelete(null);
+                    setToastMsg({ title: '✅ Đã xóa thành công', desc: `Đã xóa học sinh ${leadToDelete.name}`, type: 'success' });
+                    setTimeout(() => setToastMsg(null), 3500);
+                  } catch (e) {
+                    setLeadToDelete(null);
+                    setToastMsg({ title: '❌ Lỗi khi xóa', desc: 'Không thể xóa học sinh này', type: 'error' });
+                    setTimeout(() => setToastMsg(null), 3500);
+                  }
+                }}
+                className="flex-1 px-4 py-2.5 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-colors"
+              >
+                Xóa ngay
               </button>
             </div>
           </div>
