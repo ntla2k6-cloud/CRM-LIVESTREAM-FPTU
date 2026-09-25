@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Search, Package, CheckCircle2, Truck, Box, Phone, Calendar, ArrowRight, X, Clock, MapPin, Heart, ArrowLeft } from 'lucide-react';
 import { api } from '@/lib/api';
+import Link from 'next/link';
 
 export default function TrackingPage() {
   const router = useRouter();
