@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useState, useEffect } from "react";
 import { TaskAPI } from "@/lib/api";
 
@@ -16,6 +16,7 @@ const STATUSES = ["TODO", "IN_PROGRESS", "DONE"];
 export default function TasklyKanban() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadTasks = async () => {
     try {
@@ -65,6 +66,8 @@ export default function TasklyKanban() {
       loadTasks();
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -74,6 +77,8 @@ export default function TasklyKanban() {
       loadTasks();
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -127,3 +132,4 @@ export default function TasklyKanban() {
     </div>
   );
 }
+

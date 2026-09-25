@@ -8,6 +8,7 @@ import { api } from '@/lib/api';
 export default function InventoryPage() {
   const [activeTab, setActiveTab] = useState<'STOCK' | 'FULFILLMENT'>('STOCK');
   const [search, setSearch] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderFilter, setOrderFilter] = useState("Tất cả");
   const [monthFilter, setMonthFilter] = useState("Tất cả");
   const [showMonthDropdown, setShowMonthDropdown] = useState(false);
@@ -45,6 +46,7 @@ export default function InventoryPage() {
       return;
     }
     
+    setIsSubmitting(true);
     try {
       if (selectedOrder.id) { await api.patch(`/order/${selectedOrder.id}`, selectedOrder); } else { await api.post(`/order`, { ...selectedOrder, id: `DON-${Date.now().toString().slice(-6)}` }); }
       // Cập nhật lại danh sách sau khi lưu
@@ -58,6 +60,8 @@ export default function InventoryPage() {
     } catch (err) {
       console.error(err);
       alert("Lỗi khi cập nhật đơn hàng!");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -76,6 +80,7 @@ export default function InventoryPage() {
     }
     setGifts(updated);
     
+    setIsSubmitting(true);
     try {
       if (selectedGift.id) {
         await api.patch(`/gift/${selectedGift.id}`, selectedGift);
@@ -91,11 +96,14 @@ export default function InventoryPage() {
       // Revert optimistic update
       const giftsRes = await api.get('/gift');
       setGifts(Array.isArray(giftsRes) ? giftsRes : (giftsRes?.data || []));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDeleteGift = async () => {
     if (confirm("Bạn có chắc chắn muốn xóa phần quà này khỏi Kho?")) {
+      setIsSubmitting(true);
       try {
         if (selectedGift.id) {
           await api.delete(`/gift/${selectedGift.id}`);
@@ -106,6 +114,8 @@ export default function InventoryPage() {
       } catch (err) {
         console.error(err);
         alert("Lỗi khi xóa quà tặng!");
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -416,12 +426,16 @@ export default function InventoryPage() {
                                   <div 
                                     key={s}
                                     onClick={async () => {
+                                      if (isSubmitting) return;
                                       setOrders(orders.map(o => o.id === order.id ? { ...o, status: s } : o));
                                       setOpenDropdownId(null);
+                                      setIsSubmitting(true);
                                       try {
                                         await api.patch(`/order/${order.id}`, { status: s });
                                       } catch (e) {
                                         console.error("Lỗi", e);
+                                      } finally {
+                                        setIsSubmitting(false);
                                       }
                                       if (s === 'Đơn vị đang vận chuyển' || s === 'Hoàn hàng') {
                                         setSelectedOrder({ ...order, status: s });
@@ -573,15 +587,17 @@ export default function InventoryPage() {
             <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-3 shrink-0">
               <button 
                 onClick={handleDeleteGift}
-                className="px-4 py-3 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition-colors flex items-center justify-center shrink-0"
+                disabled={isSubmitting}
+                className="px-4 py-3 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition-colors flex items-center justify-center shrink-0 disabled:opacity-50"
               >
                 <Trash2 size={18} />
               </button>
               <button 
                 onClick={handleSaveGift}
-                className="flex-1 px-4 py-3 bg-[#F58220] text-white font-black rounded-xl hover:bg-[#e07010] shadow-md transition-all flex items-center justify-center gap-2"
+                disabled={isSubmitting}
+                className="flex-1 px-4 py-3 bg-[#F58220] text-white font-black rounded-xl hover:bg-[#e07010] shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                <Save size={18} /> Lưu thông tin Quà tặng
+                <Save size={18} /> {isSubmitting ? "Đang xử lý..." : "Lưu thông tin Quà tặng"}
               </button>
             </div>
           </>
@@ -743,9 +759,10 @@ export default function InventoryPage() {
             <div className="p-6 bg-slate-50 border-t border-slate-100 shrink-0">
               <button 
                 onClick={handleSaveOrder}
-                className="w-full px-4 py-3 bg-[#F58220] text-white font-black rounded-xl hover:bg-[#e07010] shadow-md transition-all flex items-center justify-center gap-2"
+                disabled={isSubmitting}
+                className="w-full px-4 py-3 bg-[#F58220] text-white font-black rounded-xl hover:bg-[#e07010] shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                <Save size={18} /> Cập nhật Tiến độ
+                <Save size={18} /> {isSubmitting ? "Đang xử lý..." : "Cập nhật Tiến độ"}
               </button>
             </div>
           </>

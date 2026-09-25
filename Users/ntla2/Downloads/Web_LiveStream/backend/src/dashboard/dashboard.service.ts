@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+﻿import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
@@ -62,4 +62,19 @@ export class DashboardService {
       recentActivities
     };
   }
+
+  async getAnalytics(sessionId: string) {
+    const session = await this.prisma.liveSession.findUnique({ where: { id: sessionId }, include: { comments: true } });
+    if (!session) return null;
+    return {
+      id: session.id,
+      name: session.title,
+      date: session.createdAt.toLocaleDateString(),
+      comments: session.comments.length,
+      rawData: {
+        comments: session.comments.map(c => ({ user: c.username, content: c.content, intent: c.aiIntent || 'General', time: c.serverTimestamp.toISOString() }))
+      }
+    };
+  }
 }
+

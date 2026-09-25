@@ -743,7 +743,7 @@ export default function CSKHBoardPage() {
                   <Package size={16} className="text-[#00A859]" /> QUÀ TẶNG & XUẤT KHO
                 </h3>
                 
-                {/* Lịch sử và Tiến độ gửi quà */}
+                {/* Lịch sử và Tiến độ gói quà */}
                 {orders.filter(o => o.recipient === selectedLead.name && (o.phone === selectedLead.phone || o.phone === 'Chưa cập nhật')).length > 0 && (
                   <div className="mb-4 space-y-2">
                     <label className="text-[11px] font-bold text-slate-500 uppercase">Tiến độ giao quà</label>
@@ -860,7 +860,7 @@ export default function CSKHBoardPage() {
                         const now2 = new Date();
                         const timeStr2 = `${now2.getHours()}:${now2.getMinutes() < 10 ? '0'+now2.getMinutes() : now2.getMinutes()}`;
                         // Ghi lịch sử vào LeadHistory
-                        await api.post(`/lead/${selectedLead.id}/history`, { action: 'NOTE', note: `Đã lên đơn gửi quà: ${selectedLead._rawGiftName}\nTới địa chỉ: ${selectedLead.giftAddress}` }).catch(() => {});
+                        await api.post(`/lead/${selectedLead.id}/history`, { action: 'NOTE', note: `Đã lên đơn gói quà: ${selectedLead._rawGiftName}\nTới địa chỉ: ${selectedLead.giftAddress}` }).catch(() => {});
                         
                         const updatedLead = {
                           ...selectedLead, 
@@ -884,7 +884,7 @@ export default function CSKHBoardPage() {
                     }}
                     className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg text-xs font-bold text-white transition-colors"
                   >
-                    <CheckCircle2 size={14} /> Chốt gửi quà & Trừ Kho
+                    <CheckCircle2 size={14} /> Chốt gói quà & Trừ Kho
                   </button>
                 </div>
               </div>

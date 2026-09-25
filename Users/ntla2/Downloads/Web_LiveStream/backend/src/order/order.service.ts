@@ -69,19 +69,35 @@ export class OrderService {
   }
 
   async findByTracking(trackingCode: string) {
-    const s = await this.prisma.shipment.findFirst({ where: { trackingCode } });
-    if (!s) return null;
+    // Search by trackingCode, order ID, or phone number
+    let s = await this.prisma.shipment.findFirst({ where: { trackingCode } });
+    
+    if (!s) {
+      // Try searching by order ID (DON-xxx)
+      s = await this.prisma.shipment.findFirst({ where: { id: trackingCode } });
+    }
+    
+    if (!s) {
+      // Try searching by phone number (last match)
+      s = await this.prisma.shipment.findFirst({
+        where: { phone: trackingCode },
+        orderBy: { createdAt: 'desc' }
+      });
+    }
+    
+    if (!s) throw new NotFoundException('Không tìm thấy đơn hàng');
+    
     return {
       id: s.id,
       date: s.createdAt.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-      recipient: s.recipientName,
-      phone: s.phone,
-      address: s.address,
+      recipient: s.recipientName || '',
+      phone: s.phone || '',
+      address: s.address || '',
       gift: s.giftName || 'Quà tặng',
-      status: s.status,
-      shippingProvider: s.shippingProvider,
-      trackingCode: s.trackingCode,
-      trackingLink: s.trackingLink
+      status: s.status || 'Đã tạo đơn',
+      shippingProvider: s.shippingProvider || null,
+      trackingCode: s.trackingCode || null,
+      trackingLink: s.trackingLink || null
     };
   }
 

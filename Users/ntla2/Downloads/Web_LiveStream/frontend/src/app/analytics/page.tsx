@@ -23,23 +23,14 @@ export default function AnalyticsPage() {
           setActiveSession(apiSessions[0].id);
           
           // Đọc data từ localStorage cho từng phiên
-          const liveSessions = apiSessions.map((s: any) => {
-            let rawData = null;
-          try {
-            const lsData = localStorage.getItem(`live_report_${s.id}`);
-            if (lsData) rawData = JSON.parse(lsData);
-          } catch (e) {}
-
-          return {
+          const liveSessions = apiSessions.map((s: any) => ({
             id: s.id,
             name: s.title,
             date: s.date || "Hôm nay",
             duration: "1h 30m",
-            views: rawData ? "1,402" : "0", // Demo value
-            comments: rawData?.totalComments || 0,
-            rawData
-          };
-        });
+            views: "0", 
+            comments: 0
+          }));
 
         setSessions(prev => {
           // Merge avoiding duplicates by id
@@ -54,43 +45,32 @@ export default function AnalyticsPage() {
     });
   }, []);
 
-  // Update mock data when active session changes
+  // Update data when active session changes
   useEffect(() => {
-    const active = sessions.find(s => s.id === activeSession);
+    if (!activeSession) return;
     
-    if (active?.rawData) {
-      // Parse từ localStorage
-      const allComments = active.rawData.comments || [];
-      const mg = allComments.filter((c: any) => c.intent === 'Tham gia Minigame').map((c: any) => ({
-        user: c.user,
-        question: "Minigame",
-        answer: c.content,
-        isCorrect: c.content.includes("1.C") || c.content.includes("A") || c.content.includes("B"), // Demo correct logic
-        time: c.time
-      }));
-      
-      const gen = allComments.filter((c: any) => c.intent !== 'Tham gia Minigame').map((c: any) => ({
-        user: c.user,
-        text: c.content,
-        intent: c.intent,
-        time: c.time
-      }));
+    import('@/lib/api').then(({ api }) => {
+      api.get('/dashboard/analytics/' + activeSession).then((res: any) => {
+        const allComments = res?.data?.rawData?.comments || [];
+        const mg = allComments.filter((c: any) => c.intent === 'Tham gia Minigame').map((c: any) => ({
+          user: c.user,
+          question: "Minigame",
+          answer: c.content,
+          isCorrect: c.content.includes("1.C") || c.content.includes("A") || c.content.includes("B"),
+          time: c.time
+        }));
+        
+        const gen = allComments.filter((c: any) => c.intent !== 'Tham gia Minigame').map((c: any) => ({
+          user: c.user,
+          text: c.content,
+          intent: c.intent,
+          time: c.time
+        }));
 
-      setMinigameComments(mg);
-      setGeneralComments(gen);
-    } else {
-      // Fallback mock
-      setMinigameComments([
-        { user: "@thanhdo.2k6", question: "Q001", answer: "1.C", isCorrect: true, time: "10:05:12" },
-        { user: "@hoaianh_05", question: "Q001", answer: "1.A", isCorrect: false, time: "10:05:15" },
-        { user: "@khanhvu.media", question: "Q001", answer: "C", isCorrect: true, time: "10:05:18" },
-      ]);
-      setGeneralComments([
-        { user: "@thanhdo.2k6", text: "Trường mình xét học bạ ngành Kỹ thuật phần mềm môn gì ạ?", intent: "Hỏi Phương thức Xét tuyển", time: "10:01:00" },
-        { user: "@hoaianh_05", text: "Làm sao để lấy học bổng 100% của trường ạ?", intent: "Hỏi Học bổng", time: "10:15:30" },
-        { user: "@tuan.pham.design", text: "Em muốn đăng ký Đồ họa", intent: "Đăng ký Nhập học", time: "10:20:00" },
-      ]);
-    }
+        setMinigameComments(mg);
+        setGeneralComments(gen);
+      });
+    });
   }, [activeSession, sessions]);
 
   return (
