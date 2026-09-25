@@ -69,6 +69,7 @@ export default function CSKHBoardPage() {
   const [leads, setLeads] = useState<any[]>([]);
   const [gifts, setGifts] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [leadToDelete, setLeadToDelete] = useState<any | null>(null);
 
   const [showAddLead, setShowAddLead] = useState(false);
@@ -819,7 +820,9 @@ export default function CSKHBoardPage() {
                     />
                   </div>
                   <button 
+                    disabled={isSubmitting}
                     onClick={async () => {
+                      if (isSubmitting) return;
                       if (!selectedLead.selectedGift || !selectedLead.giftAddress) {
                         setToastMsg({
                           title: "Thiếu thông tin!",
@@ -1178,3 +1181,5 @@ export default function CSKHBoardPage() {
     </div>
   );
 }
+
+

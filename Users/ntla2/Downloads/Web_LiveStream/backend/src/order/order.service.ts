@@ -6,6 +6,19 @@ export class OrderService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: any) {
+    if (data.phone) {
+      const giftName = data.gift || data.giftName || '';
+      const existing = await this.prisma.shipment.findFirst({
+        where: {
+          phone: data.phone,
+          giftName: giftName
+        }
+      });
+      if (existing) {
+        return existing;
+      }
+    }
+
     return this.prisma.shipment.create({
       data: {
         id: data.id || `DON-${Date.now().toString().slice(-6)}`,
