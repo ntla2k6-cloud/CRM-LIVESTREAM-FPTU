@@ -52,11 +52,37 @@ export class OrderService {
   }
 
   async findOne(id: string) {
-    return this.prisma.shipment.findUnique({ where: { id } });
+    const s = await this.prisma.shipment.findUnique({ where: { id } });
+    if (!s) return null;
+    return {
+      id: s.id,
+      date: s.createdAt.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+      recipient: s.recipientName,
+      phone: s.phone,
+      address: s.address,
+      gift: s.giftName || 'Quà tặng',
+      status: s.status,
+      shippingProvider: s.shippingProvider,
+      trackingCode: s.trackingCode,
+      trackingLink: s.trackingLink
+    };
   }
 
   async findByTracking(trackingCode: string) {
-    return this.prisma.shipment.findFirst({ where: { trackingCode } });
+    const s = await this.prisma.shipment.findFirst({ where: { trackingCode } });
+    if (!s) return null;
+    return {
+      id: s.id,
+      date: s.createdAt.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+      recipient: s.recipientName,
+      phone: s.phone,
+      address: s.address,
+      gift: s.giftName || 'Quà tặng',
+      status: s.status,
+      shippingProvider: s.shippingProvider,
+      trackingCode: s.trackingCode,
+      trackingLink: s.trackingLink
+    };
   }
 
   async update(id: string, data: any) {
