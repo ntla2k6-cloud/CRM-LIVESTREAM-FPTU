@@ -3,13 +3,11 @@ export declare class ShiftService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     create(data: any): Promise<{
-        description: string | null;
         id: string;
-        status: string;
-        createdAt: Date;
-        color: string | null;
         liveId: string | null;
         title: string;
+        description: string | null;
+        color: string | null;
         project: string | null;
         day: number | null;
         time: string | null;
@@ -17,6 +15,8 @@ export declare class ShiftService {
         scheduledAt: Date | null;
         startTime: Date | null;
         endTime: Date | null;
+        status: string;
+        createdAt: Date;
         campaignId: string | null;
     }>;
     findAll(): Promise<{
@@ -30,21 +30,19 @@ export declare class ShiftService {
         status: string;
         assignments: {
             id: number;
-            liveSessionId: string;
             bonus: number;
             rateOverride: number | null;
             staffId: number;
+            liveSessionId: string;
         }[];
         registered: any;
     }[]>;
     findOne(id: string): Promise<{
-        description: string | null;
         id: string;
-        status: string;
-        createdAt: Date;
-        color: string | null;
         liveId: string | null;
         title: string;
+        description: string | null;
+        color: string | null;
         project: string | null;
         day: number | null;
         time: string | null;
@@ -52,16 +50,16 @@ export declare class ShiftService {
         scheduledAt: Date | null;
         startTime: Date | null;
         endTime: Date | null;
+        status: string;
+        createdAt: Date;
         campaignId: string | null;
     } | null>;
     update(id: string, data: any): Promise<{
-        description: string | null;
         id: string;
-        status: string;
-        createdAt: Date;
-        color: string | null;
         liveId: string | null;
         title: string;
+        description: string | null;
+        color: string | null;
         project: string | null;
         day: number | null;
         time: string | null;
@@ -69,16 +67,16 @@ export declare class ShiftService {
         scheduledAt: Date | null;
         startTime: Date | null;
         endTime: Date | null;
+        status: string;
+        createdAt: Date;
         campaignId: string | null;
     }>;
     remove(id: string): Promise<{
-        description: string | null;
         id: string;
-        status: string;
-        createdAt: Date;
-        color: string | null;
         liveId: string | null;
         title: string;
+        description: string | null;
+        color: string | null;
         project: string | null;
         day: number | null;
         time: string | null;
@@ -86,13 +84,22 @@ export declare class ShiftService {
         scheduledAt: Date | null;
         startTime: Date | null;
         endTime: Date | null;
+        status: string;
+        createdAt: Date;
         campaignId: string | null;
     }>;
-    assignStaff(shiftId: string, data: any): Promise<{
+    removeAssignment(assignmentId: string): Promise<{
         id: number;
-        liveSessionId: string;
         bonus: number;
         rateOverride: number | null;
         staffId: number;
+        liveSessionId: string;
+    }>;
+    assignStaff(shiftId: string, data: any): Promise<{
+        id: number;
+        bonus: number;
+        rateOverride: number | null;
+        staffId: number;
+        liveSessionId: string;
     }>;
 }

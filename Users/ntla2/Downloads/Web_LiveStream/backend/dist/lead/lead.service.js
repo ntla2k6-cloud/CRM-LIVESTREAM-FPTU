@@ -15,7 +15,7 @@ let LeadService = class LeadService {
         this.prisma = prisma;
     }
     async create(createLeadDto) {
-        const { tiktokAccount, phone, fullName, highSchool, location, classGrade, campaignId, ...leadData } = createLeadDto;
+        const { tiktokAccount, phone, fullName, highSchool, location, classGrade, campaignId, note, ...leadData } = createLeadDto;
         let customer = null;
         if (phone) {
             customer = await this.prisma.customer.findFirst({ where: { phone } });
@@ -42,13 +42,23 @@ let LeadService = class LeadService {
                 data: { id: campId, name: 'Default Campaign' }
             });
         }
-        return this.prisma.lead.create({
+        const lead = await this.prisma.lead.create({
             data: {
                 ...leadData,
                 customerId: customer.id,
                 campaignId: campaign.id
             }
         });
+        if (note) {
+            await this.prisma.leadHistory.create({
+                data: {
+                    leadId: lead.id,
+                    action: 'NOTE',
+                    note: note
+                }
+            });
+        }
+        return lead;
     }
     findAll() {
         return this.prisma.lead.findMany({

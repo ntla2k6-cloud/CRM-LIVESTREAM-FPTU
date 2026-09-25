@@ -800,24 +800,31 @@ export default function CSKHBoardPage() {
                           recipient: selectedLead.name,
                           phone: selectedLead.phone || 'Chưa cập nhật',
                           address: selectedLead.giftAddress,
-                          giftId: selectedLead.selectedGift,
-                          status: 'Đã tiếp nhận',
-                          date: `${dateStr} ${timeStr}`
+                          gift: selectedLead._rawGiftName || 'Quà tặng',
+                          status: 'Đã tạo đơn',
                         };
                         
                         await api.post('/order', newOrder);
 
-                        const newHistoryItem = { text: `Đã lên đơn gửi quà: ${selectedLead._rawGiftName}\nTới địa chỉ: ${selectedLead.giftAddress}`, time: timeStr, type: "Gửi quà" };
-                        const updatedHistory = [newHistoryItem, ...(selectedLead.history || [])];
+                        // Trừ kho quà
+                        if (selectedLead.selectedGift) {
+                          const giftToUpdate = gifts.find((g: any) => String(g.id) === String(selectedLead.selectedGift));
+                          if (giftToUpdate && giftToUpdate.stock > 0) {
+                            await api.patch(`/gift/${giftToUpdate.id}`, { stock: giftToUpdate.stock - 1 });
+                            setGifts((prev: any[]) => prev.map((g: any) => g.id === giftToUpdate.id ? { ...g, stock: g.stock - 1 } : g));
+                          }
+                        }
 
-                        await api.patch(`/lead/${selectedLead.id}`, { history: updatedHistory });
-
+                        const now2 = new Date();
+                        const timeStr2 = `${now2.getHours()}:${now2.getMinutes() < 10 ? '0'+now2.getMinutes() : now2.getMinutes()}`;
+                        // Ghi lịch sử vào LeadHistory
+                        await api.post(`/lead/${selectedLead.id}/history`, { action: 'NOTE', note: `Đã lên đơn gửi quà: ${selectedLead._rawGiftName}\nTới địa chỉ: ${selectedLead.giftAddress}` }).catch(() => {});
+                        
                         const updatedLead = {
                           ...selectedLead, 
                           selectedGift: "", 
                           selectedGiftLabel: "", 
                           giftAddress: "",
-                          history: updatedHistory
                         };
                         
                         setLeads(leads.map(l => l.id === selectedLead.id ? updatedLead : l));
@@ -869,8 +876,10 @@ export default function CSKHBoardPage() {
                     try {
                       const payload = {
                         intent: selectedLead.intent,
-                        note: selectedLead.note,
-                        // Note: If customer info changes, we might need a separate API call, but let's assume we just patch the lead object
+                        status: selectedLead.status || 'NEW',
+                        leadScore: selectedLead.score ?? 50,
+                        source: selectedLead.source,
+                        assignedCskhId: selectedLead.cskhStaffId || undefined,
                       };
                       await api.patch(`/lead/${selectedLead.id}`, payload);
                       const updatedLeads = leads.map(l => l.id === selectedLead.id ? selectedLead : l);

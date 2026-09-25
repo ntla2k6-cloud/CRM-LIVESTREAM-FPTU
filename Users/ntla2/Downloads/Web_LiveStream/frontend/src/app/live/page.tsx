@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Video, Calendar, Clock, Users, ArrowRight, MoreVertical, Plus, 
-  CheckCircle2, AlertCircle, FileText, Download, Play, MessageSquare, Phone
+  CheckCircle2, AlertCircle, FileText, Download, Play, MessageSquare, Phone, Trash2, Edit3
 } from 'lucide-react';
 import Link from 'next/link';
 import { LiveSessionAPI } from '@/lib/api';
@@ -10,6 +10,7 @@ import { LiveSessionAPI } from '@/lib/api';
 export default function LiveSessionListPage() {
   const [sessions, setSessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSessions();
@@ -35,10 +36,9 @@ export default function LiveSessionListPage() {
         host: 'Admin',
         viewers: getSafeNumber(s?.viewers),
         leads: getSafeNumber(s?.leads),
-        // Map đúng status từ backend
         status: s?.status === 'SCHEDULED' ? 'UPCOMING' 
               : s?.status === 'ONGOING' ? 'LIVE_NOW'
-              : s?.status  // LIVE_NOW, COMPLETED giữ nguyên
+              : s?.status
       }));
       setSessions(mappedData);
     } catch (error) {
@@ -60,6 +60,34 @@ export default function LiveSessionListPage() {
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const handleDeleteSession = async (id: string) => {
+    if (!confirm('Bạn có chắc muốn xóa phiên Live này?')) return;
+    try {
+      await LiveSessionAPI.update(id, { status: 'CANCELLED' });
+      fetchSessions();
+    } catch (e) {
+      alert('Lỗi khi xóa phiên!');
+    }
+  };
+
+  const handleDownloadReport = (session: any) => {
+    const rows = [
+      ['Phiên Live', session.title],
+      ['Ngày', session.date],
+      ['Lượt xem', session.viewers],
+      ['Lead thu được', session.leads],
+      ['Trạng thái', session.status],
+    ];
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bao-cao-${session.title}-${session.date}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -160,7 +188,15 @@ export default function LiveSessionListPage() {
                     <span className="bg-orange-50 text-[#F58220] text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded border border-orange-100">
                       Chuẩn bị kịch bản
                     </span>
-                    <button className="text-slate-400 hover:text-slate-900"><MoreVertical size={16} /></button>
+                    <div className="relative">
+                      <button onClick={() => setMenuOpenId(menuOpenId === session.id ? null : session.id)} className="text-slate-400 hover:text-slate-900"><MoreVertical size={16} /></button>
+                      {menuOpenId === session.id && (
+                        <div className="absolute right-0 top-6 bg-white border border-slate-200 rounded-xl shadow-lg z-10 w-40 py-1">
+                          <Link href={`/live/${session.id}`} onClick={() => setMenuOpenId(null)} className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-slate-50 text-slate-700"><Edit3 size={14}/> Chỉnh sửa</Link>
+                          <button onClick={() => { setMenuOpenId(null); handleDeleteSession(session.id); }} className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-red-50 text-red-600 w-full text-left"><Trash2 size={14}/> Xóa phiên</button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <h3 className="text-base font-black text-slate-900 mb-1">{session.title}</h3>
                   <p className="text-xs font-bold text-slate-500 mb-4">{session.date} • {session.time}</p>
@@ -191,7 +227,7 @@ export default function LiveSessionListPage() {
                     <span className="bg-slate-200 text-slate-500 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded border border-slate-300">
                       Đã Kết Thúc
                     </span>
-                    <button className="text-slate-400 hover:text-slate-900"><Download size={16} /></button>
+                    <button onClick={() => handleDownloadReport(session)} title="Tải báo cáo CSV" className="text-slate-400 hover:text-[#005691] transition-colors"><Download size={16} /></button>
                   </div>
                   <h3 className="text-base font-black text-slate-700 mb-1">{session.title}</h3>
                   <p className="text-xs font-bold text-slate-400 mb-4">{session.date} • Đạt {(session.viewers || 0).toLocaleString()} view</p>

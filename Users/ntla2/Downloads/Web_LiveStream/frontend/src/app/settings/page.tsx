@@ -155,9 +155,30 @@ export default function SettingsPage() {
     { key: 'settings', name: 'Cài đặt Hệ thống', perms: [{ id: 'set_profile', label: 'Cập nhật hồ sơ cá nhân' }, { id: 'set_rbac', label: 'Cấu hình Quyền (RBAC)' }, { id: 'set_api', label: 'Cấu hình API & Backup' }] },
   ];
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const handleSave = async () => {
+    try {
+      const sessionRes = await fetch('/api/auth/session').then(r => r.json());
+      const name = (document.getElementById('profile-name') as HTMLInputElement)?.value;
+      const phone = (document.getElementById('profile-phone') as HTMLInputElement)?.value;
+      const department = (document.getElementById('profile-dept') as HTMLInputElement)?.value;
+      if (sessionRes?.user?.email) {
+        await fetch('/api/admin/users', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: sessionRes.user.id,
+            phone: phone || undefined,
+            department: department || undefined
+          })
+        });
+      }
+      setSaved(true);
+      setToastMsg({ title: "✅ Đã lưu thay đổi!", desc: "Hồ sơ của bạn đã được cập nhật.", type: 'success' });
+      setTimeout(() => { setSaved(false); setToastMsg(null); }, 2000);
+    } catch (e) {
+      setToastMsg({ title: "❌ Lỗi lưu hồ sơ", desc: "Vui lòng thử lại!", type: 'error' });
+      setTimeout(() => setToastMsg(null), 3000);
+    }
   };
 
   const togglePermission = (permId: string) => {

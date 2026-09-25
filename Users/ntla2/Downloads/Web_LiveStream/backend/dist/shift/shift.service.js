@@ -72,6 +72,9 @@ let ShiftService = class ShiftService {
     async remove(id) {
         return this.prisma.liveSession.delete({ where: { id } });
     }
+    async removeAssignment(assignmentId) {
+        return this.prisma.liveSessionAssignment.delete({ where: { id: Number(assignmentId) } });
+    }
     async assignStaff(shiftId, data) {
         return this.prisma.liveSessionAssignment.create({
             data: {

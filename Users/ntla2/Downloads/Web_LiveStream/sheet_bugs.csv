@@ -1,0 +1,41 @@
+STT,Người test,Ngày test,Tài khoản / Role,Module,Loại,Mức độ,Bước 1, Bước 2,Bước 3,Bước 4,Bước 5,Kết quả mong muốn,Kết quả thật,Ảnh chụp màn hình (link/ghi chú),Mô tả lỗi / vấn đề,Đề xuất cần sửa / cải thiện,Trạng thái xử lý
+"Case 1  Đăng nhập Google & phê duyệt thành viên
+
+",Lê Phương Bình,2026-09-13,Pending,CTV,Góp ý cải thiện,low,Mở link hệ thống bằng tài khoản Google chưa từng được duyệt.,"Login with Google.
+",Kiểm tra user có bị chuyển sang trạng thái chờ phê duyệt không.,,,Login user mới; trạng thái Pending; Admin Approve/Reject/Khóa; cấp Member/Team Lead/Admin,User mới chờ duyệt; Admin quản lý được trạng thái và role.,,,,Đã xử lí
+"Case 1  Đăng nhập Google & phê duyệt thành viên
+
+",Lê Phương Bình,2026-09-13,Admin,CTV,Góp ý cải thiện,low,Mở link hệ thống bằng tài khoản Google chưa từng được duyệt.,"Login with Google.
+",Kiểm tra user có bị chuyển sang trạng thái chờ phê duyệt không.,Admin vào menu Thành viên và Approve.,Login lại và kiểm tra quyền sau khi được duyệt.,Login user mới; trạng thái Pending; Admin Approve/Reject/Khóa; cấp Member/Team Lead/Admin, Admin quản lý được trạng thái và role.,,,,Đã xử lí
+"Case 2  Chỉnh sửa nội dung trong hồ sợ
+
+",Lê Phương Bình,2026-09-14,Admin,CTV,Bug,High,,"Login with Google.
+",Kiểm tra user có bị chuyển sang trạng thái chờ phê duyệt không.,Admin vào menu Thành viên và Approve.,Login lại và kiểm tra quyền sau khi được duyệt.,Đổi được tên - tải được hình ảnh  - đổi số điện thoại,Không tải được ảnh không lưu được thay đổi,Case 2  Chỉnh sửa nội dung trong hồ sơ,,,Chưa xử lí
+"Case 3  Phần giao hàng
+
+",Lê Phương Bình,2026-09-14,Admin,CTV,Bug,High,Mở link hệ thống bằng tài khoản Google chưa từng được duyệt.,"Login with Google.
+",Kiểm tra user có bị chuyển sang trạng thái chờ phê duyệt không.,Admin vào menu Thành viên và Approve.,Login lại và kiểm tra quyền sau khi được duyệt.,Cập nhật tồn kho ,Làm được thêm tồn,,,,Đã xử lí
+,Lê Phương Bình,2026-09-15,Admin,CTV,Bug,High,Mở link hệ thống bằng tài khoản Google chưa từng được duyệt.,"Login with Google.
+",Kiểm tra user có bị chuyển sang trạng thái chờ phê duyệt không.,Admin vào menu Thành viên và Approve.,Login lại và kiểm tra quyền sau khi được duyệt.,Thêm trạng thái giao hàng cập  nhật giao hàng,Lỗi không làm được,Case 3  Phần giao hàng,,,Chưa xử lí
+"Case 4: nhân sự ekip chỉnh sửa thông tin
+",Lê Phương Bình,2026-09-15,Admin,CTV,Góp ý cải thiện,low,Mở link hệ thống bằng tài khoản Google chưa từng được duyệt.,"Login with Google.
+",Kiểm tra user có bị chuyển sang trạng thái chờ phê duyệt không.,Admin vào menu Thành viên và Approve.,Login lại và kiểm tra quyền sau khi được duyệt.,Tìm kiếm thông tin bằng email - số điện thoại - tên,làm được ,,,,Đã xử lí
+"Case 4: nhân sự ekip chỉnh sửa thông tin
+",Lê Phương Bình,2026-09-16,Admin,CTV,Bug,High,Mở link hệ thống bằng tài khoản Google chưa từng được duyệt.,"Login with Google.
+",Kiểm tra user có bị chuyển sang trạng thái chờ phê duyệt không.,Admin vào menu Thành viên và Approve.,Login lại và kiểm tra quyền sau khi được duyệt.,Làm được chỉnh sửa thông tin - luu thông tin,Không lưu thông tin thay đổi - nhưng hiển thị đã lưu,Case 4: nhân sự ekip chỉnh sửa thông tin,,,Chưa xử lí
+"Case 5  Thêm lịch phân công 
+
+",Lê Phương Bình,2026-09-17,Admin,CTV,Bug,High,Mở link hệ thống bằng tài khoản Google chưa từng được duyệt.,"Login with Google.
+",Kiểm tra user có bị chuyển sang trạng thái chờ phê duyệt không.,Admin vào menu Thành viên và Approve.,Login lại và kiểm tra quyền sau khi được duyệt.,Thêm tạo lịch phân công - chỉnh sửa nội dung ,Có thể chỉnh sửa nhưng không lưu thông tin chỉnh sửa,Case 5  Thêm lịch phân công ,,,Chưa xử lí
+Case 6: Tạo phiên live,Lê Phương Bình,2026-09-18,Admin,CTV,Góp ý cải thiện,low,Mở link hệ thống bằng tài khoản Google chưa từng được duyệt.,"Login with Google.
+",Kiểm tra user có bị chuyển sang trạng thái chờ phê duyệt không.,Admin vào menu Thành viên và Approve.,Login lại và kiểm tra quyền sau khi được duyệt.,Tạo được phiên live,có thể tạo được phiên live nhưng bị lỗi phông chữ khi vào màn hình biên tập,Case 6: Tạo phiên live_lỗi phông,,,Chưa xử lí
+,Lê Phương Bình,2026-09-19,Admin,CTV,Góp ý cải thiện,low,Mở link hệ thống bằng tài khoản Google chưa từng được duyệt.,"Login with Google.
+",Kiểm tra user có bị chuyển sang trạng thái chờ phê duyệt không.,Admin vào menu Thành viên và Approve.,Login lại và kiểm tra quyền sau khi được duyệt.,tính năng thao tác được,Không thể kéo xuống xem phiên live cũ,Case 6: Tạo phiên live_lỗi kéo,,Muốn thêm tên của người tạo phiên live,Chưa xử lí
+Case 7: Tra cứu vận đơn ,Lê Phương Bình,2026-09-19,Admin,CTV,Góp ý cải thiện,low,Mở link hệ thống bằng tài khoản Google chưa từng được duyệt.,"Login with Google.
+",Kiểm tra user có bị chuyển sang trạng thái chờ phê duyệt không.,Admin vào menu Thành viên và Approve.,Login lại và kiểm tra quyền sau khi được duyệt.,Tra cứu vận  đơn,Có thể tra cứu vận đơn khi bấm nhưng không có đơn thật nên chưa  xác nhận được,,,Nên có nút trở lại màn hình chính khi vào phần tra cứu vận đơn,Chưa xử lí
+Case 8: phần  cài đặt chung - phân quyền nhân sự,Lê Phương Bình,2026-09-20,Admin,CTV,Góp ý cải thiện,low,Mở link hệ thống bằng tài khoản Google chưa từng được duyệt.,"Login with Google.
+",Kiểm tra user có bị chuyển sang trạng thái chờ phê duyệt không.,Admin vào menu Thành viên và Approve.,Login lại và kiểm tra quyền sau khi được duyệt.,Có thể thay đổi và mất khi bấm thẻ khác,Có thể thay đổi nhưng khi bấm thẻ  khác phần đó vẫn hiển thị,Case 8: phần  cài đặt chung - phân quyền nhân sự,,,Đã xử lí
+Case 9: CRM,Lê Phương Bình,2026-09-21,Admin,CTV,Bug,critical,Mở link hệ thống bằng tài khoản Google chưa từng được duyệt.,"Login with Google.
+",Kiểm tra user có bị chuyển sang trạng thái chờ phê duyệt không.,Admin vào menu Thành viên và Approve.,Login lại và kiểm tra quyền sau khi được duyệt.,Có thể thêm lead mới - và thông tin,Không thể làm được,Case 9: CRM,,Các thông tin điền vô nên là bắt buộc khi trở thành 1 lead ví dụ như số điện thoại - email - địa bàn,Chưa xử lí
+Case 10: Phân tích phiên live,Lê Phương Bình,2026-09-22,Admin,CTV,Bug,critical,Mở link hệ thống bằng tài khoản Google chưa từng được duyệt.,"Login with Google.
+",Kiểm tra user có bị chuyển sang trạng thái chờ phê duyệt không.,Admin vào menu Thành viên và Approve.,Login lại và kiểm tra quyền sau khi được duyệt.,Nhận thông tin từ phiên live chính xác ,Không thể làm được - không có live nhưng vẫn đưa ra số liệu ảo,Case 10: Phân tích phiên live,,,Chưa xử lí

@@ -17,13 +17,27 @@ let ShiftController = class ShiftController {
     constructor(shiftService) {
         this.shiftService = shiftService;
     }
-    create(createShiftDto) { return null; }
-    findAll() { return []; }
-    findOne(id) { return null; }
-    update(id, updateShiftDto) { return null; }
-    remove(id) { return null; }
-    assignStaff(id, staffId) { return null; }
-    removeStaff(assignmentId) { return null; }
+    create(createShiftDto) {
+        return this.shiftService.create(createShiftDto);
+    }
+    findAll() {
+        return this.shiftService.findAll();
+    }
+    findOne(id) {
+        return this.shiftService.findOne(id);
+    }
+    update(id, updateShiftDto) {
+        return this.shiftService.update(id, updateShiftDto);
+    }
+    remove(id) {
+        return this.shiftService.remove(id);
+    }
+    assignStaff(id, body) {
+        return this.shiftService.assignStaff(id, body);
+    }
+    removeStaff(assignmentId) {
+        return this.shiftService.removeAssignment(assignmentId);
+    }
 };
 __decorate([
     Post(),
@@ -63,9 +77,9 @@ __decorate([
 __decorate([
     Post(':id/assign'),
     __param(0, Param('id')),
-    __param(1, Body('staffId')),
+    __param(1, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Number]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], ShiftController.prototype, "assignStaff", null);
 __decorate([
