@@ -73,7 +73,7 @@ export default function CSKHBoardPage() {
 
   const [showAddLead, setShowAddLead] = useState(false);
   const [newLeadForm, setNewLeadForm] = useState({ name: '', phone: '', tiktok: '', intent: '', project: 'Khác', note: '', province: '', highSchool: '', grade: '' });
-  const [toastMsg, setToastMsg] = useState<{title: string, desc: string} | null>(null);
+  const [toastMsg, setToastMsg] = useState<{title: string, desc: string, type?: 'success' | 'error' | 'warning'} | null>(null);
 
   React.useEffect(() => {
     const fetchData = async () => {

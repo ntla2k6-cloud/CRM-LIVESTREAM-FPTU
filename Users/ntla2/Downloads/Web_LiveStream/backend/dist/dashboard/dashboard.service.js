@@ -16,17 +16,18 @@ let DashboardService = class DashboardService {
     }
     async getStats() {
         const totalSessions = await this.prisma.liveSession.count();
-        const totalLeads = await this.prisma.customer.count();
+        const totalLeads = await this.prisma.lead.count();
         const totalOrders = await this.prisma.shipment.count();
+        const totalCustomers = await this.prisma.customer.count();
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        const leadsData = await this.prisma.customer.findMany({
+        const leadsData = await this.prisma.lead.findMany({
             where: {
                 createdAt: { gte: sevenDaysAgo }
             },
             select: {
                 createdAt: true,
-                aiIntent: true
+                leadScore: true
             }
         });
         const chartData = [];
@@ -38,17 +39,29 @@ let DashboardService = class DashboardService {
             chartData.push({
                 date: dateStr,
                 total: dayLeads.length,
-                hot: dayLeads.filter(l => l.aiIntent === 'HOT_LEAD').length
+                hot: dayLeads.filter(l => (l.leadScore || 0) >= 80).length
             });
         }
+        const recentActivities = await this.prisma.lead.findMany({
+            take: 5,
+            orderBy: { createdAt: 'desc' },
+            select: {
+                id: true,
+                createdAt: true,
+                status: true,
+                customer: { select: { fullName: true } }
+            }
+        });
         return {
             metrics: {
                 sessions: totalSessions,
                 leads: totalLeads,
+                customers: totalCustomers,
                 orders: totalOrders,
-                conversionRate: totalLeads > 0 ? Math.round((totalOrders / totalLeads) * 100) : 0
+                conversionRate: totalCustomers > 0 ? Math.round((totalOrders / totalCustomers) * 100) : 0
             },
-            chartData
+            chartData,
+            recentActivities
         };
     }
 };

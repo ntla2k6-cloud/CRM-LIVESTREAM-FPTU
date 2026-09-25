@@ -57,10 +57,10 @@ export declare class LiveSessionService {
             createdAt: Date;
             updatedAt: Date;
             campaignId: string | null;
+            assignedCskhId: string | null;
             source: string;
             leadScore: number;
             intent: string | null;
-            assignedCskhId: string | null;
         }[];
         comments: {
             id: string;

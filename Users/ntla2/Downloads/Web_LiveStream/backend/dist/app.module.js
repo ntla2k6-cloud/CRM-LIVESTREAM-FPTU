@@ -19,11 +19,12 @@ import { OrderModule } from './order/order.module.js';
 import { GiftModule } from './gift/gift.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 import { LiveEngineModule } from './live-engine/live-engine.module.js';
+import { TaskModule } from './task/task.module.js';
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
     Module({
-        imports: [PrismaModule, MinigameModule, StaffModule, LiveSessionModule, LeadModule, ShiftModule, OrderModule, GiftModule, DashboardModule, LiveEngineModule],
+        imports: [PrismaModule, MinigameModule, StaffModule, LiveSessionModule, LeadModule, ShiftModule, OrderModule, GiftModule, DashboardModule, LiveEngineModule, TaskModule],
         controllers: [AppController],
         providers: [AppService, { provide: APP_GUARD, useClass: RolesGuard }],
     })

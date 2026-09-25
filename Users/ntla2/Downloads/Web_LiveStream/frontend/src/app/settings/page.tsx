@@ -11,7 +11,7 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [toastMsg, setToastMsg] = useState<{title: string, desc?: string, type?: 'success'|'error'} | null>(null);
 
-  const [roles, setRoles] = useState([
+  const defaultRoles = [
     { id: 1, name: 'Admin Hệ thống', desc: 'Toàn quyền truy cập và cài đặt hệ thống', users: 2, color: 'bg-red-50 text-red-600 border-red-200', permissions: ['all'] },
     { id: 2, name: 'Quản lý (Manager)', desc: 'Xem báo cáo, theo dõi tiến độ và phân ca trực', users: 3, color: 'bg-blue-50 text-blue-600 border-blue-200', permissions: ['dash_view', 'crm_view', 'inv_view', 'live_view', 'task_view', 'sch_view', 'sch_assign', 'staff_view', 'analytic_view', 'analytic_export'] },
     { id: 3, name: 'Tổ Chức Sản Xuất', desc: 'Lên kế hoạch kịch bản, chia việc và kiểm soát luồng LIVE', users: 2, color: 'bg-indigo-50 text-indigo-600 border-indigo-200', permissions: ['live_view', 'live_script', 'task_view', 'task_edit', 'sch_view'] },
@@ -20,7 +20,35 @@ export default function SettingsPage() {
     { id: 6, name: 'VJ / Host Livestream', desc: 'Xem lịch trực và kịch bản cá nhân', users: 5, color: 'bg-pink-50 text-pink-600 border-pink-200', permissions: ['live_view', 'sch_view', 'task_view'] },
     { id: 7, name: 'CSKH (Trực Comment)', desc: 'Quản lý danh sách học sinh và gọi điện chốt đơn', users: 15, color: 'bg-green-50 text-green-600 border-green-200', permissions: ['crm_view', 'crm_edit', 'task_view'] },
     { id: 8, name: 'Thủ Kho', desc: 'Nhập xuất kho quà và đóng gói đơn gửi đi', users: 2, color: 'bg-orange-50 text-orange-600 border-orange-200', permissions: ['inv_view', 'inv_fulfill', 'inv_edit', 'task_view'] },
-  ]);
+  ];
+  
+  const [roles, setRoles] = useState(defaultRoles);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  React.useEffect(() => {
+    // Load roles from localStorage
+    const savedRoles = localStorage.getItem('settings_roles');
+    if (savedRoles) {
+      try { setRoles(JSON.parse(savedRoles)); } catch(e) {}
+    }
+    
+    // Load profile
+    async function fetchProfile() {
+      try {
+        const sessionRes = await fetch('/api/auth/session').then(r => r.json());
+        if (sessionRes?.user?.email) {
+          const { StaffAPI } = await import('@/lib/api');
+          const usersRes = await StaffAPI.getAll();
+          const user = Array.isArray(usersRes) ? usersRes.find((u: any) => u.email === sessionRes.user.email) : null;
+          setCurrentUser(user || sessionRes.user);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    fetchProfile();
+  }, []);
+
   const [editingRole, setEditingRole] = useState<any | null>(null);
   const [tiktokUsername, setTiktokUsername] = useState('fptu.hcm');
   const [isConnecting, setIsConnecting] = useState(false);
@@ -157,21 +185,19 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     try {
-      const sessionRes = await fetch('/api/auth/session').then(r => r.json());
       const name = (document.getElementById('profile-name') as HTMLInputElement)?.value;
       const phone = (document.getElementById('profile-phone') as HTMLInputElement)?.value;
       const department = (document.getElementById('profile-dept') as HTMLInputElement)?.value;
-      if (sessionRes?.user?.email) {
-        await fetch('/api/admin/users', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: sessionRes.user.id,
-            phone: phone || undefined,
-            department: department || undefined
-          })
+      
+      if (currentUser?.id) {
+        const { StaffAPI } = await import('@/lib/api');
+        await StaffAPI.update(currentUser.id, {
+          name: name || undefined,
+          phone: phone || undefined,
+          department: department || undefined
         });
       }
+      
       setSaved(true);
       setToastMsg({ title: "✅ Đã lưu thay đổi!", desc: "Hồ sơ của bạn đã được cập nhật.", type: 'success' });
       setTimeout(() => { setSaved(false); setToastMsg(null); }, 2000);
@@ -194,12 +220,17 @@ export default function SettingsPage() {
 
   const handleSaveRole = () => {
     if (!editingRole) return;
+    let newRoles;
     if (roles.find(r => r.id === editingRole.id)) {
-      setRoles(roles.map(r => r.id === editingRole.id ? editingRole : r));
+      newRoles = roles.map(r => r.id === editingRole.id ? editingRole : r);
     } else {
-      setRoles([...roles, { ...editingRole, id: Date.now(), users: 0, color: 'bg-slate-100 text-slate-600 border-slate-200' }]);
+      newRoles = [...roles, { ...editingRole, id: Date.now(), users: 0, color: 'bg-slate-100 text-slate-600 border-slate-200' }];
     }
+    setRoles(newRoles);
+    localStorage.setItem('settings_roles', JSON.stringify(newRoles));
     setEditingRole(null);
+    setToastMsg({ title: "✅ Đã lưu phân quyền!", type: 'success' });
+    setTimeout(() => setToastMsg(null), 3000);
   };
 
   return (
@@ -293,22 +324,22 @@ export default function SettingsPage() {
                   <User size={18} className="text-[#005691]" /> Thông tin cơ bản
                 </h3>
                 
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-6" key={currentUser?.id || 'loading'}>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-500 uppercase">Họ và Tên</label>
-                    <input type="text" defaultValue="Admin System" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-900 focus:ring-2 focus:ring-[#005691]/20 outline-none transition-all" />
+                    <input id="profile-name" type="text" defaultValue={currentUser?.name || "Admin System"} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-900 focus:ring-2 focus:ring-[#005691]/20 outline-none transition-all" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-500 uppercase">Chức vụ / Phòng ban</label>
-                    <input type="text" defaultValue="Quản lý Vận hành LIVE" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-900 focus:ring-2 focus:ring-[#005691]/20 outline-none transition-all" />
+                    <input id="profile-dept" type="text" defaultValue={currentUser?.department || currentUser?.role || "Quản lý Vận hành LIVE"} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-900 focus:ring-2 focus:ring-[#005691]/20 outline-none transition-all" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-500 uppercase">Email (Đăng nhập)</label>
-                    <input type="email" defaultValue="admin@fpt.edu.vn" disabled className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-500 cursor-not-allowed" />
+                    <input type="email" defaultValue={currentUser?.email || "admin@fpt.edu.vn"} disabled className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-500 cursor-not-allowed" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-500 uppercase">Số điện thoại</label>
-                    <input type="text" defaultValue="0987.654.321" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-900 focus:ring-2 focus:ring-[#005691]/20 outline-none transition-all" />
+                    <input id="profile-phone" type="text" defaultValue={currentUser?.phone || "0987.654.321"} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-900 focus:ring-2 focus:ring-[#005691]/20 outline-none transition-all" />
                   </div>
                 </div>
 

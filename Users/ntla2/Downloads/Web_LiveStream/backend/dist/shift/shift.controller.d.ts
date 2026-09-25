@@ -3,11 +3,13 @@ export declare class ShiftController {
     private readonly shiftService;
     constructor(shiftService: ShiftService);
     create(createShiftDto: any): Promise<{
+        description: string | null;
         id: string;
+        status: string;
+        createdAt: Date;
+        color: string | null;
         liveId: string | null;
         title: string;
-        description: string | null;
-        color: string | null;
         project: string | null;
         day: number | null;
         time: string | null;
@@ -15,8 +17,6 @@ export declare class ShiftController {
         scheduledAt: Date | null;
         startTime: Date | null;
         endTime: Date | null;
-        status: string;
-        createdAt: Date;
         campaignId: string | null;
     }>;
     findAll(): Promise<{
@@ -28,21 +28,57 @@ export declare class ShiftController {
         project: string | null;
         color: string | null;
         status: string;
-        assignments: {
+        assignments: ({
+            staff: {
+                id: number;
+                name: string;
+                status: string;
+                phone: string | null;
+                role: string;
+                email: string | null;
+                rate: number;
+                avatar: string | null;
+                color: string | null;
+                joinDate: string | null;
+            };
+        } & {
             id: number;
+            liveSessionId: string;
             bonus: number;
             rateOverride: number | null;
             staffId: number;
-            liveSessionId: string;
-        }[];
+        })[];
         registered: any;
     }[]>;
-    findOne(id: string): Promise<{
+    findOne(id: string): Promise<({
+        assignments: ({
+            staff: {
+                id: number;
+                name: string;
+                status: string;
+                phone: string | null;
+                role: string;
+                email: string | null;
+                rate: number;
+                avatar: string | null;
+                color: string | null;
+                joinDate: string | null;
+            };
+        } & {
+            id: number;
+            liveSessionId: string;
+            bonus: number;
+            rateOverride: number | null;
+            staffId: number;
+        })[];
+    } & {
+        description: string | null;
         id: string;
+        status: string;
+        createdAt: Date;
+        color: string | null;
         liveId: string | null;
         title: string;
-        description: string | null;
-        color: string | null;
         project: string | null;
         day: number | null;
         time: string | null;
@@ -50,16 +86,16 @@ export declare class ShiftController {
         scheduledAt: Date | null;
         startTime: Date | null;
         endTime: Date | null;
-        status: string;
-        createdAt: Date;
         campaignId: string | null;
-    } | null>;
+    }) | null>;
     update(id: string, updateShiftDto: any): Promise<{
+        description: string | null;
         id: string;
+        status: string;
+        createdAt: Date;
+        color: string | null;
         liveId: string | null;
         title: string;
-        description: string | null;
-        color: string | null;
         project: string | null;
         day: number | null;
         time: string | null;
@@ -67,16 +103,16 @@ export declare class ShiftController {
         scheduledAt: Date | null;
         startTime: Date | null;
         endTime: Date | null;
-        status: string;
-        createdAt: Date;
         campaignId: string | null;
     }>;
     remove(id: string): Promise<{
+        description: string | null;
         id: string;
+        status: string;
+        createdAt: Date;
+        color: string | null;
         liveId: string | null;
         title: string;
-        description: string | null;
-        color: string | null;
         project: string | null;
         day: number | null;
         time: string | null;
@@ -84,22 +120,20 @@ export declare class ShiftController {
         scheduledAt: Date | null;
         startTime: Date | null;
         endTime: Date | null;
-        status: string;
-        createdAt: Date;
         campaignId: string | null;
     }>;
     assignStaff(id: string, body: any): Promise<{
         id: number;
+        liveSessionId: string;
         bonus: number;
         rateOverride: number | null;
         staffId: number;
-        liveSessionId: string;
     }>;
     removeStaff(assignmentId: string): Promise<{
         id: number;
+        liveSessionId: string;
         bonus: number;
         rateOverride: number | null;
         staffId: number;
-        liveSessionId: string;
     }>;
 }

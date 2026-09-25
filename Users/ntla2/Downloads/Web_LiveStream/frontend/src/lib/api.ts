@@ -65,6 +65,14 @@ export const LeadAPI = {
   delete: (id: string) => fetchApi(`/lead/${id}`, { method: 'DELETE' }),
 };
 
+export const TaskAPI = {
+  getAll: () => fetchApi('/task'),
+  getById: (id: string) => fetchApi(`/task/${id}`),
+  create: (data: any) => fetchApi('/task', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: string, data: any) => fetchApi(`/task/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  delete: (id: string) => fetchApi(`/task/${id}`, { method: 'DELETE' }),
+};
+
 // api.get/post/patch/delete trả về { data } để tương thích ngược với code cũ
 export const api = {
   get: async (endpoint: string) => {

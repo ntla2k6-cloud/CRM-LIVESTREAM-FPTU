@@ -6,6 +6,7 @@ export declare class DashboardController {
         metrics: {
             sessions: number;
             leads: number;
+            customers: number;
             orders: number;
             conversionRate: number;
         };
@@ -13,6 +14,14 @@ export declare class DashboardController {
             date: string;
             total: number;
             hot: number;
+        }[];
+        recentActivities: {
+            customer: {
+                fullName: string | null;
+            };
+            id: string;
+            status: string;
+            createdAt: Date;
         }[];
     }>;
 }

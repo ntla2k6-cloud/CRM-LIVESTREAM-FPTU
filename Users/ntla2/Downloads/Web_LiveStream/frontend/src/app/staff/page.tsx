@@ -93,8 +93,8 @@ export default function UnifiedStaffPage() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/users');
-      const data = await res.json();
+      const { StaffAPI } = await import('@/lib/api');
+      const data = await StaffAPI.getAll();
       if (Array.isArray(data)) {
         setUsers(data);
         if (data.length > 0 && !selectedUser) {
@@ -127,12 +127,8 @@ export default function UnifiedStaffPage() {
   const handleSaveUser = async () => {
     setSaving(true);
     try {
-      const res = await fetch('/api/admin/users', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: editForm.id, role: editForm.role, phone: editForm.phone, department: editForm.department })
-      });
-      if (!res.ok) throw new Error();
+      const { StaffAPI } = await import('@/lib/api');
+      await StaffAPI.update(editForm.id, { role: editForm.role, phone: editForm.phone, department: editForm.department });
       showToast(`✅ Đã cập nhật nhân sự ${editForm.name} thành công!`);
       setEditMode(false);
       fetchUsers();
