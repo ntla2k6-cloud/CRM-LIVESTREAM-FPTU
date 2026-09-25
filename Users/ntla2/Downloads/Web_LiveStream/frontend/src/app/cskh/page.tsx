@@ -13,6 +13,18 @@ export default function CSKHBoardPage() {
   const [activeDropdown, setActiveDropdown] = useState<'status' | 'staff' | 'gift' | null>(null);
   const [filterProject, setFilterProject] = useState('Tất cả');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [renderError, setRenderError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    const handleErr = (e: ErrorEvent) => setRenderError(e.message);
+    window.addEventListener('error', handleErr);
+    return () => window.removeEventListener('error', handleErr);
+  }, []);
+
+  if (renderError) {
+    return <div className="p-10 text-red-500 font-bold">CRASH: {renderError}</div>;
+  }
+
 
   const columns = [
     { id: 0, title: "LEAD MỚI", icon: Users, color: "#005691", bg: "bg-blue-50/50", border: "border-blue-200" },
@@ -77,25 +89,32 @@ export default function CSKHBoardPage() {
         const rawGifts = Array.isArray(giftsRes) ? giftsRes : (giftsRes?.data || []);
         const rawOrders = Array.isArray(ordersRes) ? ordersRes : (ordersRes?.data || []);
         
-        const apiLeads = rawLeads.map((l: any) => ({
-          id: l.id,
-          name: l.customer?.fullName || 'Khách ' + l.id.substring(0,4),
-          phone: l.customer?.phone || '',
-          tiktok: l.customer?.tiktokAccount || '',
-          intent: l.intent || '',
-          source: l.campaignId || '',
-          project: l.campaign?.name || 'Chưa phân loại',
-          score: l.leadScore || 0,
-          isHot: l.leadScore >= 80,
-          col: l.status === 'NEW' ? 0 : l.status === 'CONTACTED' ? 1 : l.status === 'CONSULTING' ? 2 : 3,
-          avatar: (l.customer?.fullName || 'K H').split(' ').map((w: string) => w[0]).join('').substring(0, 2).toUpperCase(),
-          highSchool: l.customer?.highSchool || '',
-          grade: l.customer?.classGrade || '',
-          province: l.customer?.location || '',
-          cskhStaff: l.assignedCskh?.name || '',
-          note: l.note || '',
-          history: l.history || []
-        }));
+        const apiLeads = rawLeads.map((l: any) => {
+          try {
+            return {
+              id: String(l.id || Math.random()),
+              name: String(l.customer?.fullName || ('Khách ' + String(l.id).substring(0,4))),
+              phone: String(l.customer?.phone || ''),
+              tiktok: String(l.customer?.tiktokAccount || ''),
+              intent: String(l.intent || ''),
+              source: String(l.campaignId || ''),
+              project: String(l.campaign?.name || 'Chưa phân loại'),
+              score: Number(l.leadScore) || 0,
+              isHot: (Number(l.leadScore) || 0) >= 80,
+              col: l.status === 'NEW' ? 0 : l.status === 'CONTACTED' ? 1 : l.status === 'CONSULTING' ? 2 : 3,
+              avatar: String(l.customer?.fullName || 'K H').trim().split(' ').map((w: string) => w[0] || '').join('').substring(0, 2).toUpperCase(),
+              highSchool: String(l.customer?.highSchool || ''),
+              grade: String(l.customer?.classGrade || ''),
+              province: String(l.customer?.location || ''),
+              cskhStaff: String(l.assignedCskh?.name || ''),
+              note: String(l.note || ''),
+              history: Array.isArray(l.history) ? l.history : []
+            };
+          } catch(e) {
+            console.error("Lỗi khi parse lead:", l, e);
+            return null;
+          }
+        }).filter(Boolean);
         
         setLeads(apiLeads);
         setGifts(rawGifts);
