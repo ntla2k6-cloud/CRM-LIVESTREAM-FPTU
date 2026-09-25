@@ -72,7 +72,12 @@ export default function CSKHBoardPage() {
           api.get('/order')
         ]);
         
-        const apiLeads = leadsRes.map((l: any) => ({
+        // Trích xuất dữ liệu từ object { data: [...] }
+        const rawLeads = Array.isArray(leadsRes) ? leadsRes : (leadsRes?.data || []);
+        const rawGifts = Array.isArray(giftsRes) ? giftsRes : (giftsRes?.data || []);
+        const rawOrders = Array.isArray(ordersRes) ? ordersRes : (ordersRes?.data || []);
+        
+        const apiLeads = rawLeads.map((l: any) => ({
           id: l.id,
           name: l.customer?.fullName || 'Khách ' + l.id.substring(0,4),
           phone: l.customer?.phone || '',
@@ -82,7 +87,7 @@ export default function CSKHBoardPage() {
           project: l.campaign?.name || 'Chưa phân loại',
           score: l.leadScore || 0,
           isHot: l.leadScore >= 80,
-          col: l.status === 'NEW' ? 0 : l.status === 'CONSULTING' ? 1 : l.status === 'CONSIDERING' ? 2 : 3,
+          col: l.status === 'NEW' ? 0 : l.status === 'CONTACTED' ? 1 : l.status === 'CONSULTING' ? 2 : 3,
           avatar: (l.customer?.fullName || 'K H').split(' ').map((w: string) => w[0]).join('').substring(0, 2).toUpperCase(),
           highSchool: l.customer?.highSchool || '',
           grade: l.customer?.classGrade || '',
@@ -93,8 +98,8 @@ export default function CSKHBoardPage() {
         }));
         
         setLeads(apiLeads);
-        setGifts(giftsRes);
-        setOrders(ordersRes);
+        setGifts(rawGifts);
+        setOrders(rawOrders);
       } catch (err) {
         console.error("Lỗi lấy dữ liệu CSKH:", err);
       }
