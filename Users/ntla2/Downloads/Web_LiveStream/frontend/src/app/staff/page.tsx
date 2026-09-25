@@ -95,13 +95,19 @@ export default function UnifiedStaffPage() {
     try {
       const res = await fetch('/api/admin/users');
       const data = await res.json();
-      setUsers(data);
-      if (data.length > 0 && !selectedUser) {
-        setSelectedUser(data[0]);
-        setEditForm(data[0]);
+      if (Array.isArray(data)) {
+        setUsers(data);
+        if (data.length > 0 && !selectedUser) {
+          setSelectedUser(data[0]);
+          setEditForm(data[0]);
+        }
+      } else {
+        console.error('API Error:', data);
+        setUsers([]);
       }
     } catch (e) {
       console.error(e);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
