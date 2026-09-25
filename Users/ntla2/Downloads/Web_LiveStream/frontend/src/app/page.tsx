@@ -28,6 +28,8 @@ export default function FptLightDashboard() {
     { hot: 0, total: 0, day: 'CN', date: 'CN', hotRaw: 0, totalRaw: 0 }
   ]);
 
+  const [recentActivities, setRecentActivities] = useState<any[]>([]);
+
   useEffect(() => {
     setMounted(true);
     setCurrentDate(new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
@@ -45,6 +47,7 @@ export default function FptLightDashboard() {
       .then(res => {
         if (res?.data) {
           if (res.data.metrics) setStats(res.data.metrics);
+          if (res.data.recentActivities) setRecentActivities(res.data.recentActivities);
           if (res.data.chartData && res.data.chartData.length > 0) {
             const mappedChart = res.data.chartData.map((c: any) => ({
               hot: c.hot > 0 ? (c.hot / Math.max(c.total, 1)) * 100 : 0,
@@ -220,12 +223,29 @@ export default function FptLightDashboard() {
               <h2 className="text-lg font-bold text-slate-900 tracking-tight">Hoạt Động Gần Đây</h2>
             </div>
             
-            <div className="flex flex-col gap-5 flex-1">
-              {/* Empty State */}
-              <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-70">
-                <p className="text-sm font-bold">Chưa có hoạt động nào</p>
-                <p className="text-xs mt-1 text-center">Hệ thống sẽ cập nhật ngay khi có sự kiện mới.</p>
-              </div>
+            <div className="flex flex-col gap-4 flex-1">
+              {recentActivities.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-70">
+                  <p className="text-sm font-bold">Chưa có hoạt động nào</p>
+                  <p className="text-xs mt-1 text-center">Hệ thống sẽ cập nhật ngay khi có sự kiện mới.</p>
+                </div>
+              ) : (
+                recentActivities.map((act) => (
+                  <div key={act.id} className="flex gap-3 items-start p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                      <Users size={14} />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-700">
+                        Lead mới <b>{act.customer?.fullName || 'Khách hàng'}</b> vừa được tạo.
+                      </p>
+                      <p className="text-xs text-slate-400 mt-1">
+                        {new Date(act.createdAt).toLocaleString('vi-VN')} • Trạng thái: {act.status}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 

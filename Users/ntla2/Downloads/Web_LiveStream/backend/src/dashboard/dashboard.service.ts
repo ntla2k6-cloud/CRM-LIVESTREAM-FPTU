@@ -39,6 +39,17 @@ export class DashboardService {
       });
     }
 
+    const recentActivities = await this.prisma.lead.findMany({
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        createdAt: true,
+        status: true,
+        customer: { select: { fullName: true } }
+      }
+    });
+
     return {
       metrics: {
         sessions: totalSessions,
@@ -47,7 +58,8 @@ export class DashboardService {
         orders: totalOrders,
         conversionRate: totalCustomers > 0 ? Math.round((totalOrders / totalCustomers) * 100) : 0
       },
-      chartData
+      chartData,
+      recentActivities
     };
   }
 }

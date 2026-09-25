@@ -17,17 +17,14 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     // Tải danh sách phiên live từ DB
-    fetch('/api/live-session').then(r => r.json()).catch(() => {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-      return fetch(`${baseUrl}/live-session`).then(r => r.json());
-    }
-    ).then(apiSessions => {
-      if (apiSessions && apiSessions.length > 0) {
-        setActiveSession(apiSessions[0].id);
-        
-        // Đọc data từ localStorage cho từng phiên
-        const liveSessions = apiSessions.map((s: any) => {
-          let rawData = null;
+    import('@/lib/api').then(({ LiveSessionAPI }) => {
+      LiveSessionAPI.getAll().then((apiSessions: any[]) => {
+        if (apiSessions && apiSessions.length > 0) {
+          setActiveSession(apiSessions[0].id);
+          
+          // Đọc data từ localStorage cho từng phiên
+          const liveSessions = apiSessions.map((s: any) => {
+            let rawData = null;
           try {
             const lsData = localStorage.getItem(`live_report_${s.id}`);
             if (lsData) rawData = JSON.parse(lsData);
@@ -53,7 +50,8 @@ export default function AnalyticsPage() {
           return merged;
         });
       }
-    }).catch(e => console.log(e));
+      }).catch(e => console.log(e));
+    });
   }, []);
 
   // Update mock data when active session changes
