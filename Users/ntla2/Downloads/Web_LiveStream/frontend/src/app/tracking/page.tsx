@@ -13,6 +13,13 @@ const STATUS_CONFIG: Record<string, {
   label: string; emoji: string; message: string;
   color: string; bg: string; badge: string; isFailed?: boolean;
 }> = {
+  UNPACKED: {
+    label: 'Chưa đóng gói',
+    emoji: '⏳',
+    message: 'Tụi mình đã tiếp nhận thông tin đơn hàng.\nĐơn sẽ được đóng gói trong thời gian sớm nhất nha 📦',
+    color: 'text-slate-600', bg: 'bg-slate-50 border-slate-200',
+    badge: 'bg-slate-400',
+  },
   PACKED: {
     label: 'Đã đóng gói',
     emoji: '📦',
@@ -57,7 +64,7 @@ const STATUS_CONFIG: Record<string, {
   'Giao chưa thành công': { label: 'Giao chưa thành công', emoji: '⚠️', message: 'Quà chưa đến được bạn. Vui lòng liên hệ lại!', color: 'text-red-600', bg: 'bg-red-50 border-red-200', badge: 'bg-red-500', isFailed: true },
 };
 
-const STATUS_ORDER = ['PACKED', 'HANDED_OVER', 'IN_TRANSIT', 'COMPLETED'];
+const STATUS_ORDER = ['UNPACKED', 'PACKED', 'HANDED_OVER', 'IN_TRANSIT', 'COMPLETED'];
 
 const maskedPhone = (phone: string) =>
   phone ? phone.replace(/(\d{3})\d{4}(\d{3})/, '$1****$2') : 'Chưa có SĐT';

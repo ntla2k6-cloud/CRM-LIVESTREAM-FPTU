@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 
-// 5 Status labels
+// 6 Status labels
 export const STATUS_LABELS: Record<string, { label: string; location: string; emoji: string }> = {
+  UNPACKED:     { label: 'Chưa đóng gói',                    location: 'Kho Uống Gì Chưa',          emoji: '⏳' },
   PACKED:       { label: 'Đã đóng gói',                      location: 'Kho Uống Gì Chưa',          emoji: '📦' },
   HANDED_OVER:  { label: 'Đã chuyển tới đơn vị vận chuyển',  location: 'Trung tâm phân loại hàng',  emoji: '🚉' },
   IN_TRANSIT:   { label: 'Đơn vị vận chuyển đang xử lý',     location: 'Đang trên đường vận chuyển', emoji: '🚚' },

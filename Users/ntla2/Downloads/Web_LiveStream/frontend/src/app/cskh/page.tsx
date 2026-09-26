@@ -843,7 +843,7 @@ export default function CSKHBoardPage() {
                           phone: selectedLead.phone || 'Chưa cập nhật',
                           address: selectedLead.giftAddress,
                           gift: selectedLead._rawGiftName || 'Quà tặng',
-                          status: 'PACKED',
+                          status: 'UNPACKED',
                         };
                         
                         // Gọi API tạo đơn
@@ -855,7 +855,7 @@ export default function CSKHBoardPage() {
                           recipient: selectedLead.name,
                           phone: selectedLead.phone || 'Chưa cập nhật',
                           gift: newOrder.gift,
-                          status: 'Đã đóng gói',
+                          status: 'Chưa đóng gói',
                           date: `${timeString} - ${dateStr}`
                         };
                         setOrders((prev) => [displayOrder, ...prev]);

@@ -7,8 +7,9 @@ import {
 } from "lucide-react";
 import { api } from '@/lib/api';
 
-// ─── 5 Status Config ──────────────────────────────────────────────────────────
+// ─── Status Config ──────────────────────────────────────────────────────────
 const ORDER_STATUSES = [
+  { key: 'UNPACKED',    label: 'Chưa đóng gói',                    color: 'bg-slate-50 text-slate-600 border-slate-200',     dot: 'bg-slate-400' },
   { key: 'PACKED',      label: 'Đã đóng gói',                      color: 'bg-orange-50 text-orange-600 border-orange-200',  dot: 'bg-orange-500' },
   { key: 'HANDED_OVER', label: 'Đã chuyển tới đơn vị vận chuyển', color: 'bg-purple-50 text-purple-600 border-purple-200',  dot: 'bg-purple-500' },
   { key: 'IN_TRANSIT',  label: 'Đơn vị vận chuyển đang xử lý',    color: 'bg-blue-50 text-blue-600 border-blue-200',        dot: 'bg-blue-500' },
@@ -16,7 +17,7 @@ const ORDER_STATUSES = [
   { key: 'RETURNED',    label: 'Hoàn hàng',                         color: 'bg-red-50 text-red-600 border-red-200',           dot: 'bg-red-500' },
 ] as const;
 
-type StatusKey = 'PACKED' | 'HANDED_OVER' | 'IN_TRANSIT' | 'COMPLETED' | 'RETURNED';
+type StatusKey = 'UNPACKED' | 'PACKED' | 'HANDED_OVER' | 'IN_TRANSIT' | 'COMPLETED' | 'RETURNED';
 
 const STATUS_MAP: Record<string, { label: string; color: string; dot: string }> = {};
 ORDER_STATUSES.forEach(s => { STATUS_MAP[s.key] = s; });
@@ -175,7 +176,7 @@ export default function InventoryPage() {
           address:       selectedOrder.address || '',
           recipientEmail:selectedOrder.recipientEmail || null,
           gift:          selectedOrder.gift || '',
-          status:        selectedOrder.status || 'PACKED',
+          status:        selectedOrder.status || 'UNPACKED',
           liveSessionId: selectedOrder.liveSessionId || null,
           currentLocation: 'Kho Uống Gì Chưa',
         });
@@ -286,7 +287,7 @@ export default function InventoryPage() {
           )}
           {activeTab === 'FULFILLMENT' && (
             <>
-              <button onClick={() => setSelectedOrder({ id: '', recipient: '', phone: '', address: '', recipientEmail: '', gift: gifts[0]?.name || '', status: 'PACKED', liveSessionId: '' })}
+              <button onClick={() => setSelectedOrder({ id: '', recipient: '', phone: '', address: '', recipientEmail: '', gift: gifts[0]?.name || '', status: 'UNPACKED', liveSessionId: '' })}
                 className="flex items-center gap-2 px-4 py-2.5 bg-[#00A859] hover:bg-[#008f4c] rounded-xl text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5">
                 <Plus size={15} /> Tạo đơn hàng
               </button>
