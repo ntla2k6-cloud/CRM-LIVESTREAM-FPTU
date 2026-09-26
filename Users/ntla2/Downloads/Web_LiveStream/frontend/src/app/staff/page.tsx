@@ -80,20 +80,10 @@ export default function UnifiedStaffPage() {
   const [toast, setToast] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string>('ADMIN');
 
-  useEffect(() => { 
-    fetchUsers();
-    fetch('/api/auth/session')
-      .then(r => r.json())
-      .then(s => { if (s?.user?.role) setCurrentUserRole(s.user.role); })
-      .catch(() => {});
-  }, []);
-
-  const isAdmin = currentUserRole === 'ADMIN' || currentUserRole === 'MANAGER';
-
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/users');
+      const res = await fetch('/api/admin/users', { cache: 'no-store' });
       const data = await res.json();
       if (Array.isArray(data)) {
         setUsers(data);
@@ -112,12 +102,22 @@ export default function UnifiedStaffPage() {
         setUsers([]);
       }
     } catch (e) {
-      console.error(e);
+      console.error('Fetch error:', e);
       setUsers([]);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => { 
+    fetchUsers();
+    fetch('/api/auth/session', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(s => { if (s?.user?.role) setCurrentUserRole(s.user.role); })
+      .catch(() => {});
+  }, []);
+
+  const isAdmin = currentUserRole === 'ADMIN' || currentUserRole === 'MANAGER';
 
   const showToast = (msg: string) => {
     setToast(msg);

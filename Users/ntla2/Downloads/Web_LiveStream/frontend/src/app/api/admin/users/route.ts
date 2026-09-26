@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+
+import { prisma } from '@/lib/prisma';
 
 // GET: Lấy toàn bộ user đã đăng nhập (nhân sự)
 export async function GET() {
