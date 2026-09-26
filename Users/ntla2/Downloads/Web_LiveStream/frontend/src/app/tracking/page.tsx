@@ -8,63 +8,59 @@ import {
 import { api } from '@/lib/api';
 import Link from 'next/link';
 
-// ─── Status Config ──────────────────────────────────────────────────────────
+// ─── Status Config (Customer-facing EXACTLY 4 STEPS) ──────────────────────────────────────────────────────────
+const CUSTOMER_MAPPING: Record<string, string> = {
+  UNPACKED: 'RECEIVED',
+  PACKED: 'PROCESSED',
+  HANDED_OVER: 'SHIPPING',
+  IN_TRANSIT: 'SHIPPING',
+  COMPLETED: 'DELIVERED',
+  RETURNED: 'RETURNED'
+};
+
 const STATUS_CONFIG: Record<string, {
   label: string; emoji: string; message: string;
   color: string; bg: string; badge: string; isFailed?: boolean;
 }> = {
-  UNPACKED: {
-    label: 'Chưa đóng gói',
-    emoji: '⏳',
-    message: 'Tụi mình đã tiếp nhận thông tin đơn hàng.\nĐơn sẽ được đóng gói trong thời gian sớm nhất nha 📦',
+  RECEIVED: {
+    label: 'Đã tiếp nhận',
+    emoji: '📥',
+    message: 'Hệ thống đã tiếp nhận thông tin gửi quà.',
     color: 'text-slate-600', bg: 'bg-slate-50 border-slate-200',
     badge: 'bg-slate-400',
   },
-  PACKED: {
-    label: 'Đã đóng gói',
-    emoji: '📦',
-    message: 'Quà đã được tụi mình đóng gói xong!\nMột chút yêu thương đang chuẩn bị lên đường đến bạn 💗',
+  PROCESSED: {
+    label: 'Đã xử lý',
+    emoji: '🛠️',
+    message: 'Quà đã được xử lý/chuẩn bị để bàn giao vận chuyển.',
     color: 'text-orange-600', bg: 'bg-orange-50 border-orange-200',
     badge: 'bg-orange-500',
   },
-  HANDED_OVER: {
-    label: 'Đã chuyển tới đơn vị vận chuyển',
-    emoji: '🚉',
-    message: 'Quà đã được bàn giao cho đơn vị vận chuyển!\nSắp đến tay bạn rồi đó 🙌',
-    color: 'text-purple-600', bg: 'bg-purple-50 border-purple-200',
-    badge: 'bg-purple-500',
-  },
-  IN_TRANSIT: {
-    label: 'Đơn vị vận chuyển đang xử lý',
+  SHIPPING: {
+    label: 'Đang vận chuyển',
     emoji: '🚚',
-    message: 'Quà đang trên đường đến bạn!\nKiên nhẫn xíu nha, cuộc gặp này sắp tới rồi 💨',
+    message: 'Đơn vị vận chuyển đã nhận hàng và đang vận chuyển.',
     color: 'text-blue-600', bg: 'bg-blue-50 border-blue-200',
     badge: 'bg-blue-500',
   },
-  COMPLETED: {
-    label: 'Hoàn tất - Đã giao hàng',
+  DELIVERED: {
+    label: 'Đã giao',
     emoji: '✅',
-    message: 'YAY! Bạn nhận được quà rồi! 🎉\nCảm ơn bạn đã cùng tụi mình tạo nên một buổi LIVE thật vui.\nHẹn gặp lại bạn ở những thử thách tiếp theo nha!',
+    message: 'Bạn đã nhận được quà. Cảm ơn bạn đã đồng hành cùng chúng mình!',
     color: 'text-green-600', bg: 'bg-green-50 border-green-200',
     badge: 'bg-green-500',
   },
   RETURNED: {
-    label: 'Hoàn hàng - Giao thất bại',
+    label: 'Giao thất bại (Hoàn hàng)',
     emoji: '↩️',
     message: 'Quà chưa đến được bạn và đang được hoàn về kho.\nVui lòng liên hệ tụi mình để được hỗ trợ nhé!',
     color: 'text-red-600', bg: 'bg-red-50 border-red-200',
     badge: 'bg-red-500',
     isFailed: true,
   },
-  // Legacy fallback mappings
-  'Đã tạo đơn':        { label: 'Đã tạo đơn',       emoji: '📦', message: 'Quà đã được tụi mình đóng gói xong!', color: 'text-orange-600', bg: 'bg-orange-50 border-orange-200', badge: 'bg-orange-500' },
-  'Đang vận chuyển':   { label: 'Đang vận chuyển',   emoji: '🚚', message: 'Quà đang trên đường đến bạn!',        color: 'text-blue-600',   bg: 'bg-blue-50 border-blue-200',   badge: 'bg-blue-500' },
-  'Đang giao':         { label: 'Đang giao',          emoji: '🏠', message: 'TING TING! Quà đang gần bạn rồi!',   color: 'text-indigo-600', bg: 'bg-indigo-50 border-indigo-200',badge: 'bg-indigo-500' },
-  'Đã giao':           { label: 'Đã giao',            emoji: '✅', message: 'YAY! Bạn nhận được quà rồi! 🎉',     color: 'text-green-600',  bg: 'bg-green-50 border-green-200',  badge: 'bg-green-500' },
-  'Giao chưa thành công': { label: 'Giao chưa thành công', emoji: '⚠️', message: 'Quà chưa đến được bạn. Vui lòng liên hệ lại!', color: 'text-red-600', bg: 'bg-red-50 border-red-200', badge: 'bg-red-500', isFailed: true },
 };
 
-const STATUS_ORDER = ['UNPACKED', 'PACKED', 'HANDED_OVER', 'IN_TRANSIT', 'COMPLETED'];
+const STATUS_ORDER = ['RECEIVED', 'PROCESSED', 'SHIPPING', 'DELIVERED'];
 
 const maskedPhone = (phone: string) =>
   phone ? phone.replace(/(\d{3})\d{4}(\d{3})/, '$1****$2') : 'Chưa có SĐT';
@@ -119,21 +115,32 @@ export default function TrackingPage() {
     fetchOrder(trimmed);
   };
 
-  // Computed
-  const statusCfg = order?.status ? (STATUS_CONFIG[order.status] ?? {
-    label: order.status, emoji: '🔄', message: 'Đơn hàng đang được cập nhật.',
+  // Computed Customer Mapping
+  const mappedCustomerStatus = order?.status ? (CUSTOMER_MAPPING[order.status] || order.status) : null;
+  const statusCfg = mappedCustomerStatus ? (STATUS_CONFIG[mappedCustomerStatus] ?? {
+    label: mappedCustomerStatus, emoji: '🔄', message: 'Đơn hàng đang được cập nhật.',
     color: 'text-slate-600', bg: 'bg-slate-50 border-slate-200', badge: 'bg-slate-400',
   }) : null;
 
-  const currentStepIdx = order ? STATUS_ORDER.indexOf(order.status) : -1;
-  const isReturned = order?.status === 'RETURNED';
-  const isCompleted = order?.status === 'COMPLETED';
-  const isInTransit = order?.status === 'IN_TRANSIT';
+  const currentStepIdx = mappedCustomerStatus ? STATUS_ORDER.indexOf(mappedCustomerStatus) : -1;
+  const isReturned = mappedCustomerStatus === 'RETURNED';
+  const isCompleted = mappedCustomerStatus === 'DELIVERED';
+  const isInTransit = order?.status === 'IN_TRANSIT' || order?.status === 'HANDED_OVER';
 
-  // Histories from new API or fallback to generated
-  const histories: any[] = order?.histories?.length > 0
-    ? order.histories
-    : order ? [{ status: order.status, statusLabel: statusCfg?.label, location: order.currentLocation || '', timeStr: order.date }] : [];
+  // Histories mapping
+  let histories: any[] = [];
+  if (order?.histories?.length > 0) {
+    const seen = new Set();
+    for (const h of order.histories) {
+      const cStatus = CUSTOMER_MAPPING[h.status] || h.status;
+      if (!seen.has(cStatus)) {
+        seen.add(cStatus);
+        histories.push({ ...h, customerStatus: cStatus, statusLabel: STATUS_CONFIG[cStatus]?.label || cStatus });
+      }
+    }
+  } else if (order) {
+    histories = [{ status: order.status, customerStatus: mappedCustomerStatus, statusLabel: statusCfg?.label, location: order.currentLocation || '', timeStr: order.date }];
+  }
 
   return (
     <div className="min-h-screen bg-[#F0F4F8] flex flex-col font-sans">
@@ -272,7 +279,7 @@ export default function TrackingPage() {
 
                   <div className="space-y-6">
                     {histories.map((h: any, idx: number) => {
-                      const cfg = STATUS_CONFIG[h.status] ?? { emoji: '🔄', label: h.status || h.statusLabel || '', color: 'text-slate-600', badge: 'bg-slate-400' };
+                      const cfg = STATUS_CONFIG[h.customerStatus] ?? { emoji: '🔄', label: h.customerStatus || h.statusLabel || h.status || '', color: 'text-slate-600', badge: 'bg-slate-400' };
                       const isFirst = idx === 0;
                       return (
                         <div key={h.id || idx} className="relative flex gap-4">
@@ -284,7 +291,7 @@ export default function TrackingPage() {
                           <div className={`flex-1 pb-1 ${isFirst ? 'opacity-100' : 'opacity-60'}`}>
                             <div className="flex items-start justify-between gap-2 flex-wrap">
                               <h5 className={`font-bold text-base ${isFirst ? cfg.color : 'text-slate-600'}`}>
-                                {h.statusLabel || cfg.label || h.status}
+                                {h.statusLabel || cfg.label || h.customerStatus || h.status}
                               </h5>
                               <span className="text-slate-400 text-xs font-medium shrink-0">{h.timeStr}</span>
                             </div>

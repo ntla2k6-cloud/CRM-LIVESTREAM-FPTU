@@ -99,6 +99,12 @@ let OrderService = class OrderService {
         if (!existing)
             throw new NotFoundException('Đơn hàng không tồn tại');
         const statusChanged = data.status && data.status !== existing.status;
+        const CUSTOMER_MAP = {
+            UNPACKED: 'RECEIVED', PACKED: 'PROCESSED', HANDED_OVER: 'SHIPPING', IN_TRANSIT: 'SHIPPING', COMPLETED: 'DELIVERED', RETURNED: 'RETURNED'
+        };
+        const oldCustStatus = CUSTOMER_MAP[existing.status] || existing.status;
+        const newCustStatus = CUSTOMER_MAP[data.status] || data.status;
+        const customerStatusChanged = data.status && (oldCustStatus !== newCustStatus);
         const updateData = {};
         if (data.status)
             updateData.status = data.status;
@@ -139,8 +145,9 @@ let OrderService = class OrderService {
                     note: data.note || null,
                 }
             });
-            this.emailService.sendStatusUpdate({ ...updated, id }, data.status)
-                .catch(() => { });
+            if (customerStatusChanged) {
+                this.emailService.sendStatusUpdate({ ...updated, id }, data.status).catch(() => { });
+            }
         }
         return updated;
     }

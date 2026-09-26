@@ -101,6 +101,14 @@ export class OrderService {
     if (!existing) throw new NotFoundException('Đơn hàng không tồn tại');
 
     const statusChanged = data.status && data.status !== existing.status;
+    
+    // CUSTOMER STATUS MAPPING (Prevent duplicate emails if customer doesn't see a change)
+    const CUSTOMER_MAP: Record<string, string> = {
+      UNPACKED: 'RECEIVED', PACKED: 'PROCESSED', HANDED_OVER: 'SHIPPING', IN_TRANSIT: 'SHIPPING', COMPLETED: 'DELIVERED', RETURNED: 'RETURNED'
+    };
+    const oldCustStatus = CUSTOMER_MAP[existing.status] || existing.status;
+    const newCustStatus = CUSTOMER_MAP[data.status] || data.status;
+    const customerStatusChanged = data.status && (oldCustStatus !== newCustStatus);
 
     const updateData: any = {};
     if (data.status)               updateData.status = data.status;
@@ -121,7 +129,7 @@ export class OrderService {
 
     const updated = await this.prisma.shipment.update({ where: { id }, data: updateData });
 
-    // When status changes: create history + send email
+    // When status changes: create history
     if (statusChanged) {
       const statusInfo = STATUS_LABELS[data.status];
       const location = data.currentLocation || (statusInfo?.location) || data.status;
@@ -134,10 +142,11 @@ export class OrderService {
           note:       data.note || null,
         }
       });
-
-      // Send email notification (non-blocking)
-      this.emailService.sendStatusUpdate({ ...updated, id }, data.status)
-        .catch(() => {}); // never crash the response
+      
+      // ONLY send email if CUSTOMER status changed
+      if (customerStatusChanged) {
+        this.emailService.sendStatusUpdate({ ...updated, id }, data.status).catch(() => {});
+      }
     }
 
     return updated;

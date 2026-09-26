@@ -40,12 +40,22 @@ export class EmailService {
       return;
     }
 
-    const statusInfo = STATUS_LABELS[newStatus] || { label: newStatus, location: 'Đang cập nhật', emoji: '🔄' };
+    const CUSTOMER_MAPPING_LABELS: Record<string, { label: string; emoji: string }> = {
+      UNPACKED: { label: 'Đã tiếp nhận', emoji: '📥' },
+      PACKED: { label: 'Đã xử lý', emoji: '🛠️' },
+      HANDED_OVER: { label: 'Đang vận chuyển', emoji: '🚚' },
+      IN_TRANSIT: { label: 'Đang vận chuyển', emoji: '🚚' },
+      COMPLETED: { label: 'Đã giao', emoji: '✅' },
+      RETURNED: { label: 'Giao thất bại (Hoàn hàng)', emoji: '❌' },
+    };
+
+    const statusInfo = STATUS_LABELS[newStatus] || { label: newStatus, location: 'Kho Uống Gì Chưa', emoji: '🔄' };
+    const cInfo = CUSTOMER_MAPPING_LABELS[newStatus] || { label: newStatus, emoji: '🔄' };
     const trackingUrl = `${process.env.TRACKING_BASE_URL || 'https://crm.student.fptu.mobot.app/tracking'}?code=${encodeURIComponent(shipment.trackingCode || shipment.id)}`;
     const fromEmail = process.env.SMTP_FROM_EMAIL || 'uonggichua@fpt.edu.vn';
     const fromName = process.env.SMTP_FROM_NAME || 'Uống Gì Chưa';
 
-    const subject = `[Cập nhật đơn hàng] ${statusInfo.emoji} ${statusInfo.label} — Đơn ${shipment.id}`;
+    const subject = `[Cập nhật đơn hàng] ${cInfo.emoji} ${cInfo.label} — Đơn ${shipment.id}`;
 
     const html = `
 <!DOCTYPE html>
@@ -65,8 +75,8 @@ export class EmailService {
 
         <!-- STATUS BADGE -->
         <tr><td style="padding:32px 40px 0;text-align:center;">
-          <div style="font-size:48px;margin-bottom:12px;">${statusInfo.emoji}</div>
-          <div style="display:inline-block;background:#e8f4fd;color:#005691;padding:8px 20px;border-radius:999px;font-size:14px;font-weight:700;">${statusInfo.label}</div>
+          <div style="font-size:48px;margin-bottom:12px;">${cInfo.emoji}</div>
+          <div style="display:inline-block;background:#e8f4fd;color:#005691;padding:8px 20px;border-radius:999px;font-size:14px;font-weight:700;">${cInfo.label}</div>
         </td></tr>
 
         <!-- GREETING -->
@@ -81,7 +91,7 @@ export class EmailService {
             <tr>
               <td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;">
                 <span style="color:#888;font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Trạng thái</span><br>
-                <span style="color:#1a1a2e;font-size:15px;font-weight:700;margin-top:4px;display:block;">${statusInfo.emoji} ${statusInfo.label}</span>
+                <span style="color:#1a1a2e;font-size:15px;font-weight:700;margin-top:4px;display:block;">${cInfo.emoji} ${cInfo.label}</span>
               </td>
             </tr>
             <tr>
