@@ -8,11 +8,12 @@ import { Module } from '@nestjs/common';
 import { OrderService } from './order.service.js';
 import { OrderController } from './order.controller.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
+import { EmailModule } from '../email/email.module.js';
 let OrderModule = class OrderModule {
 };
 OrderModule = __decorate([
     Module({
-        imports: [PrismaModule],
+        imports: [PrismaModule, EmailModule],
         controllers: [OrderController],
         providers: [OrderService],
     })

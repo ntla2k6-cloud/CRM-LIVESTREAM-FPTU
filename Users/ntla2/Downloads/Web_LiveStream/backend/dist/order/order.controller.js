@@ -10,9 +10,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { OrderService } from './order.service.js';
-import { UpdateOrderDto } from './dto/update-order.dto.js';
 let OrderController = class OrderController {
     orderService;
     constructor(orderService) {
@@ -21,11 +20,14 @@ let OrderController = class OrderController {
     create(createOrderDto) {
         return this.orderService.create(createOrderDto);
     }
-    findAll() {
-        return this.orderService.findAll();
+    findAll(sessionId) {
+        return this.orderService.findAll(sessionId);
     }
     findByTracking(trackingCode) {
         return this.orderService.findByTracking(trackingCode);
+    }
+    getHistory(id) {
+        return this.orderService.getHistory(id);
     }
     findOne(id) {
         return this.orderService.findOne(id);
@@ -46,8 +48,9 @@ __decorate([
 ], OrderController.prototype, "create", null);
 __decorate([
     Get(),
+    __param(0, Query('sessionId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], OrderController.prototype, "findAll", null);
 __decorate([
@@ -57,6 +60,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], OrderController.prototype, "findByTracking", null);
+__decorate([
+    Get(':id/history'),
+    __param(0, Param('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], OrderController.prototype, "getHistory", null);
 __decorate([
     Get(':id'),
     __param(0, Param('id')),
@@ -69,7 +79,7 @@ __decorate([
     __param(0, Param('id')),
     __param(1, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, UpdateOrderDto]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], OrderController.prototype, "update", null);
 __decorate([

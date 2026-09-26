@@ -268,21 +268,50 @@ model Shipment {
   id               String   @id // VD: "DON-001"
   winnerId         String?  @unique
   winner           Winner?  @relation(fields: [winnerId], references: [id])
-  
+
+  // Người gửi (mặc định "Uống Gì Chưa")
+  senderName       String   @default("Uống Gì Chưa")
+  senderAddress    String   @default("FPT University HCM, Lô E2a-7, Đường D1, Long Thạnh Mỹ, TP.HCM")
+
+  // Người nhận
   recipientName    String
   phone            String
   address          String
-  
-  // Trạng thái vận chuyển
-  status           String   @default("PACKING") // PACKING, SHIPPED, DELIVERED, RETURNED
-  
-  shippingProvider String?  // VD: GHTK, Viettel Post...
-  trackingCode     String?  // Mã vận đơn để khách tra cứu
-  trackingLink     String?  // Link theo dõi
-    giftName         String?
-  
+  recipientEmail   String?  // Email để gửi thông báo tự động
+
+  // Liên kết livestream (để filter)
+  liveSessionId    String?
+
+  // 5 trạng thái cố định: PACKED | HANDED_OVER | IN_TRANSIT | COMPLETED | RETURNED
+  status           String   @default("PACKED")
+  currentLocation  String?  // Vị trí hiện tại hiển thị cho khách
+
+  // Đơn vị vận chuyển chặng cuối (NCC - xuất hiện khi IN_TRANSIT)
+  lastMileCarrier       String?  // VD: "Viettel Post", "GHTK"
+  lastMileTrackingCode  String?  // Mã vận đơn NCC
+  lastMileTrackingLink  String?  // Link tra cứu NCC
+
+  // Legacy fields (giữ lại để không break existing code)
+  shippingProvider String?
+  trackingCode     String?
+  trackingLink     String?
+  giftName         String?
+
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  histories        ShipmentHistory[]
+}
+
+model ShipmentHistory {
+  id         String   @id @default(uuid())
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  status     String
+  location   String?
+  note       String?
+  timestamp  DateTime @default(now())
 }
 
 // -----------------------------------------------------------------------------

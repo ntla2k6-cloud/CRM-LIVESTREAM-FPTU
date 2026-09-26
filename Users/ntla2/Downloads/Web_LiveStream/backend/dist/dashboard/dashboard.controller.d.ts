@@ -24,4 +24,18 @@ export declare class DashboardController {
             createdAt: Date;
         }[];
     }>;
+    getAnalytics(sessionId: string): Promise<{
+        id: string;
+        name: string;
+        date: string;
+        comments: number;
+        rawData: {
+            comments: {
+                user: string;
+                content: string;
+                intent: string;
+                time: string;
+            }[];
+        };
+    } | null>;
 }

@@ -1,121 +1,93 @@
 'use client';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
-import { Search, Package, CheckCircle2, Truck, Box, Phone, Calendar, ArrowRight, X, Clock, MapPin, Heart, ArrowLeft, AlertTriangle, Gift } from 'lucide-react';
+import { useRef, useState, useEffect } from 'react';
+import {
+  Package, Truck, CheckCircle2, X, Phone, Calendar, ArrowRight,
+  Clock, MapPin, ArrowLeft, AlertTriangle, Gift, User, Home,
+  ChevronRight, ExternalLink, RotateCcw
+} from 'lucide-react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
 
-// ============================================================
-// STATUS CONFIG — tập trung, không if/else rải rác
-// Khớp chính xác với giá trị status trong Database (tiếng Việt)
-// ============================================================
+// ─── Status Config ──────────────────────────────────────────────────────────
 const STATUS_CONFIG: Record<string, {
-  title: string;
-  emoji: string;
-  message: string;
-  color: string;
-  bgColor: string;
-  isFailed?: boolean;
+  label: string; emoji: string; message: string;
+  color: string; bg: string; badge: string; isFailed?: boolean;
 }> = {
-  'Đã tạo đơn': {
-    title: 'ĐÃ TẠO ĐƠN',
-    emoji: '🎁',
-    message: 'Quà đã được tụi mình đóng gói xong!\nMột chút yêu thương đang chuẩn bị lên đường đến bạn 💗',
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-500',
-  },
-  'Đang lấy hàng': {
-    title: 'ĐANG LẤY HÀNG',
+  PACKED: {
+    label: 'Đã đóng gói',
     emoji: '📦',
-    message: 'Quà đang được shipper đến lấy!',
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-500',
+    message: 'Quà đã được tụi mình đóng gói xong!\nMột chút yêu thương đang chuẩn bị lên đường đến bạn 💗',
+    color: 'text-orange-600', bg: 'bg-orange-50 border-orange-200',
+    badge: 'bg-orange-500',
   },
-  'Đang vận chuyển': {
-    title: 'ĐANG VẬN CHUYỂN',
+  HANDED_OVER: {
+    label: 'Đã chuyển tới đơn vị vận chuyển',
+    emoji: '🚉',
+    message: 'Quà đã được bàn giao cho đơn vị vận chuyển!\nSắp đến tay bạn rồi đó 🙌',
+    color: 'text-purple-600', bg: 'bg-purple-50 border-purple-200',
+    badge: 'bg-purple-500',
+  },
+  IN_TRANSIT: {
+    label: 'Đơn vị vận chuyển đang xử lý',
     emoji: '🚚',
     message: 'Quà đang trên đường đến bạn!\nKiên nhẫn xíu nha, cuộc gặp này sắp tới rồi 💨',
-    color: 'text-indigo-600',
-    bgColor: 'bg-indigo-500',
+    color: 'text-blue-600', bg: 'bg-blue-50 border-blue-200',
+    badge: 'bg-blue-500',
   },
-  'Đang giao': {
-    title: 'ĐANG GIAO',
-    emoji: '🏠',
-    message: 'TING TING! 🔔\nHình như quà đang ở rất gần bạn rồi đó!',
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-500',
-  },
-  'Đã giao': {
-    title: 'ĐÃ GIAO',
+  COMPLETED: {
+    label: 'Hoàn tất - Đã giao hàng',
     emoji: '✅',
-    message: 'YAY! Bạn nhận được quà rồi! 🎉\n\nCảm ơn bạn đã cùng tụi mình tạo nên một buổi LIVE thật vui.\nHẹn gặp lại bạn ở những thử thách tiếp theo nha!',
-    color: 'text-green-600',
-    bgColor: 'bg-green-500',
+    message: 'YAY! Bạn nhận được quà rồi! 🎉\nCảm ơn bạn đã cùng tụi mình tạo nên một buổi LIVE thật vui.\nHẹn gặp lại bạn ở những thử thách tiếp theo nha!',
+    color: 'text-green-600', bg: 'bg-green-50 border-green-200',
+    badge: 'bg-green-500',
   },
-  'Giao chưa thành công': {
-    title: 'GIAO CHƯA THÀNH CÔNG',
-    emoji: '⚠️',
-    message: 'Quà chưa đến được bạn!\n\nBạn kiểm tra lại thông tin nhận hàng và chờ shipper liên hệ nha.',
-    color: 'text-red-600',
-    bgColor: 'bg-red-500',
+  RETURNED: {
+    label: 'Hoàn hàng - Giao thất bại',
+    emoji: '↩️',
+    message: 'Quà chưa đến được bạn và đang được hoàn về kho.\nVui lòng liên hệ tụi mình để được hỗ trợ nhé!',
+    color: 'text-red-600', bg: 'bg-red-50 border-red-200',
+    badge: 'bg-red-500',
     isFailed: true,
   },
+  // Legacy fallback mappings
+  'Đã tạo đơn':        { label: 'Đã tạo đơn',       emoji: '📦', message: 'Quà đã được tụi mình đóng gói xong!', color: 'text-orange-600', bg: 'bg-orange-50 border-orange-200', badge: 'bg-orange-500' },
+  'Đang vận chuyển':   { label: 'Đang vận chuyển',   emoji: '🚚', message: 'Quà đang trên đường đến bạn!',        color: 'text-blue-600',   bg: 'bg-blue-50 border-blue-200',   badge: 'bg-blue-500' },
+  'Đang giao':         { label: 'Đang giao',          emoji: '🏠', message: 'TING TING! Quà đang gần bạn rồi!',   color: 'text-indigo-600', bg: 'bg-indigo-50 border-indigo-200',badge: 'bg-indigo-500' },
+  'Đã giao':           { label: 'Đã giao',            emoji: '✅', message: 'YAY! Bạn nhận được quà rồi! 🎉',     color: 'text-green-600',  bg: 'bg-green-50 border-green-200',  badge: 'bg-green-500' },
+  'Giao chưa thành công': { label: 'Giao chưa thành công', emoji: '⚠️', message: 'Quà chưa đến được bạn. Vui lòng liên hệ lại!', color: 'text-red-600', bg: 'bg-red-50 border-red-200', badge: 'bg-red-500', isFailed: true },
 };
 
-// Timeline steps (thứ tự chuẩn)
-const TIMELINE_STEPS = [
-  { status: 'Đã tạo đơn', emoji: '🎁', label: 'Đã tạo đơn' },
-  { status: 'Đang lấy hàng', emoji: '📦', label: 'Đang lấy hàng' },
-  { status: 'Đang vận chuyển', emoji: '🚚', label: 'Đang vận chuyển' },
-  { status: 'Đang giao', emoji: '🏠', label: 'Đang giao' },
-  { status: 'Đã giao', emoji: '✅', label: 'Đã giao' },
-];
+const STATUS_ORDER = ['PACKED', 'HANDED_OVER', 'IN_TRANSIT', 'COMPLETED'];
 
-const STATUS_ORDER = ['Đã tạo đơn', 'Đang lấy hàng', 'Đang vận chuyển', 'Đang giao', 'Đã giao'];
+const maskedPhone = (phone: string) =>
+  phone ? phone.replace(/(\d{3})\d{4}(\d{3})/, '$1****$2') : 'Chưa có SĐT';
 
 export default function TrackingPage() {
-  const router = useRouter();
   const [input, setInput] = useState('');
   const [order, setOrder] = useState<any>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const resultRef = useRef<HTMLDivElement>(null);
-  // Prevent double request
   const fetchingRef = useRef(false);
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const fetchOrder = async (code: string) => {
     const trimmed = code.trim();
-    if (!trimmed) return;
-    if (fetchingRef.current) return; // prevent double call
-    
+    if (!trimmed || fetchingRef.current) return;
     fetchingRef.current = true;
     setLoading(true);
     setError('');
     setOrder(null);
-
     try {
       const res = await api.get('/order/tracking/' + encodeURIComponent(trimmed));
       const data = res?.data;
-      
-      if (!data || typeof data !== 'object') {
-        throw new Error('Dữ liệu không hợp lệ');
-      }
-      
-      // Log unknown status for developer
-      if (data.status && !STATUS_CONFIG[data.status]) {
-        console.warn('[Tracking] Unknown status from API:', data.status, '— using fallback');
-      }
-      
+      if (!data || typeof data !== 'object') throw new Error('Dữ liệu không hợp lệ');
       setOrder(data);
-      
-      setTimeout(() => {
-        resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 150);
+      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
     } catch (e: any) {
       setOrder(null);
-      const msg = e?.response?.data?.message || e?.message || '';
-      if (msg.toLowerCase().includes('không tìm thấy') || e?.response?.status === 404) {
-        setError('Không tìm thấy thông tin đơn hàng. Vui lòng kiểm tra lại mã đơn hoặc số điện thoại và thử lại nhé.');
+      const status = e?.response?.status;
+      if (status === 404 || e?.message?.includes('không tìm thấy')) {
+        setError('Không tìm thấy đơn hàng. Vui lòng kiểm tra lại mã đơn hoặc số điện thoại.');
       } else {
         setError('Có lỗi khi tra cứu. Vui lòng thử lại sau.');
       }
@@ -125,309 +97,305 @@ export default function TrackingPage() {
     }
   };
 
-  // Only run once on mount — read ?code= from URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
-    if (code) {
-      setInput(code);
-      fetchOrder(code);
-    }
+    if (code) { setInput(code); fetchOrder(code); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = input.trim();
-    if (!trimmed) {
-      setError('Vui lòng nhập mã vận chuyển, mã đơn hoặc số điện thoại.');
-      return;
-    }
-    // Update URL without triggering re-fetch via useEffect
+    if (!trimmed) { setError('Vui lòng nhập mã đơn, mã vận đơn hoặc số điện thoại.'); return; }
     window.history.replaceState(null, '', `/tracking?code=${encodeURIComponent(trimmed)}`);
     fetchOrder(trimmed);
   };
 
-  // ---- Computed display values ----
+  // Computed
   const statusCfg = order?.status ? (STATUS_CONFIG[order.status] ?? {
-    title: 'ĐANG CẬP NHẬT',
-    emoji: '🔄',
-    message: 'Đơn hàng đang được cập nhật. Vui lòng quay lại sau nhé!',
-    color: 'text-slate-600',
-    bgColor: 'bg-slate-400',
+    label: order.status, emoji: '🔄', message: 'Đơn hàng đang được cập nhật.',
+    color: 'text-slate-600', bg: 'bg-slate-50 border-slate-200', badge: 'bg-slate-400',
   }) : null;
 
-  const isFailed = order?.status === 'Giao chưa thành công';
-
-  // Compute timeline step index for non-failed orders
   const currentStepIdx = order ? STATUS_ORDER.indexOf(order.status) : -1;
+  const isReturned = order?.status === 'RETURNED';
+  const isCompleted = order?.status === 'COMPLETED';
+  const isInTransit = order?.status === 'IN_TRANSIT';
 
-  const maskedPhone = (phone: string) => {
-    if (!phone) return 'Chưa có SĐT';
-    return phone.replace(/(\d{3})\d{4}(\d{3})/, '$1****$2');
-  };
+  // Histories from new API or fallback to generated
+  const histories: any[] = order?.histories?.length > 0
+    ? order.histories
+    : order ? [{ status: order.status, statusLabel: statusCfg?.label, location: order.currentLocation || '', timeStr: order.date }] : [];
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] flex flex-col font-sans selection:bg-[#005691] selection:text-white">
-      
+    <div className="min-h-screen bg-[#F0F4F8] flex flex-col font-sans">
+
       {/* HEADER */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center gap-4">
-          <Link href="/" className="text-slate-500 hover:text-[#005691] transition-colors">
-            <ArrowLeft size={24} />
+        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center gap-4">
+          <Link href="/" className="text-slate-400 hover:text-[#005691] transition-colors p-1">
+            <ArrowLeft size={22} />
           </Link>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#F58220] rounded-xl flex items-center justify-center text-white shadow-sm">
-              <Package size={22} />
+            <div className="w-9 h-9 bg-[#F58220] rounded-xl flex items-center justify-center text-white shadow-sm">
+              <Package size={20} />
             </div>
-            <h1 className="text-xl font-bold text-[#005691]">FPTU Tracking</h1>
+            <div>
+              <h1 className="text-base font-bold text-[#005691] leading-none">FPTU Tracking</h1>
+              <p className="text-xs text-slate-400">Theo dõi đơn quà tặng</p>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* HERO */}
-      <section className="bg-white pt-16 pb-24 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-orange-50 to-transparent pointer-events-none" />
-        <div className="absolute -right-48 -top-48 w-96 h-96 bg-orange-100 rounded-full blur-3xl opacity-50 pointer-events-none" />
+      {/* SEARCH HERO */}
+      <section className="bg-gradient-to-br from-[#005691] to-[#003d6b] py-12 px-4">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="text-4xl mb-3">🎉</div>
+          <h2 className="text-white text-2xl md:text-3xl font-black mb-2">CHÚC MỪNG BẠN ĐÃ CHIẾN THẮNG!</h2>
+          <p className="text-blue-200 mb-8 text-sm md:text-base">Tra cứu phần quà đang trên đường đến bạn 🎁</p>
 
-        <div className="container mx-auto px-4 md:px-8 relative z-10">
-          <div className="flex flex-col md:flex-row items-center gap-12">
-
-            <div className="flex-1 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 text-[#F58220] rounded-full font-bold text-sm mb-6 uppercase tracking-wider">
-                🎉 CHÚC MỪNG BẠN ĐÃ CHIẾN THẮNG!
-              </div>
-              <h2 className="text-4xl md:text-5xl font-black text-[#005691] leading-tight mb-6">
-                Cảm ơn bạn đã tham gia thử thách <br className="hidden md:block"/>
-                và đồng hành cùng chương trình.
-              </h2>
-              <p className="text-slate-500 text-lg mb-10 max-w-xl mx-auto md:mx-0">
-                Cùng xem phần quà đang trên đường đến bạn nhé! 🎁
-              </p>
-
-              <form onSubmit={handleSearch} className="max-w-xl mx-auto md:mx-0 relative flex items-center shadow-2xl shadow-blue-900/5 rounded-2xl bg-white border-2 border-slate-100 focus-within:border-[#005691] focus-within:ring-4 ring-blue-100 transition-all p-2">
-                <input
-                  type="text"
-                  placeholder="Nhập mã vận đơn, mã đơn (DON-xxx) hoặc số điện thoại..."
-                  className="flex-1 h-14 bg-transparent outline-none px-4 text-slate-700 text-base font-medium placeholder:text-slate-400"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  disabled={loading}
-                />
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="h-14 px-8 bg-[#005691] hover:bg-[#004270] text-white rounded-xl font-bold flex items-center gap-2 transition-colors disabled:opacity-70 shrink-0"
-                >
-                  {loading
-                    ? <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /><span>Đang tra...</span></>
-                    : <><Search size={18} /><span>Tra mã</span></>
-                  }
-                </button>
-              </form>
-              <p className="text-xs text-slate-400 mt-3 ml-2">
-                Nhập mã vận đơn GHTK/Viettel Post, mã đơn DON-xxx, hoặc số điện thoại đăng ký nhận quà
-              </p>
-            </div>
-
-            <div className="flex-1 hidden md:block relative">
-              <div className="relative w-full aspect-square max-w-md mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-tr from-blue-100 to-orange-100 rounded-[3rem] rotate-6 scale-95 opacity-50"></div>
-                <div className="absolute inset-0 bg-[#005691] rounded-[3rem] -rotate-3 transition-transform hover:rotate-0 duration-500"></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-white rounded-2xl shadow-xl flex items-center justify-center rotate-6">
-                  <Package size={100} className="text-[#005691]" />
-                </div>
-                <div className="absolute bottom-10 left-0 w-24 h-24 bg-white rounded-xl shadow-lg flex items-center justify-center -rotate-12 animate-bounce">
-                  <Truck size={40} className="text-[#F58220]" />
-                </div>
-                <div className="absolute top-10 right-0 w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center rotate-12">
-                  <Clock size={30} className="text-green-500" />
-                </div>
-              </div>
-            </div>
-
-          </div>
+          <form onSubmit={handleSearch} className="relative flex items-center bg-white rounded-2xl shadow-2xl p-2 gap-2">
+            <input
+              type="text"
+              placeholder="Nhập mã đơn (DON-xxx), mã vận đơn hoặc số điện thoại..."
+              className="flex-1 h-12 bg-transparent outline-none px-3 text-slate-700 text-sm font-medium placeholder:text-slate-400"
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              disabled={loading}
+            />
+            <button type="submit" disabled={loading}
+              className="h-12 px-6 bg-[#005691] hover:bg-[#004270] text-white rounded-xl font-bold text-sm flex items-center gap-2 transition-colors disabled:opacity-70 shrink-0">
+              {loading
+                ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /><span>Đang tìm...</span></>
+                : <><ChevronRight size={16} /><span>Tra cứu</span></>
+              }
+            </button>
+          </form>
+          <p className="text-blue-300 text-xs mt-3">Hỗ trợ: Mã đơn DON-xxx · Mã GHTK/Viettel · Số điện thoại</p>
         </div>
       </section>
 
-      {/* RESULT */}
-      <section ref={resultRef} className="container mx-auto px-4 md:px-8 pb-20">
+      {/* RESULTS */}
+      <main ref={resultRef} className="max-w-5xl mx-auto px-4 py-8 w-full flex-1">
 
-        {/* Error state */}
+        {/* Error */}
         {error && !order && (
-          <div className="mt-8 p-5 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-start gap-3 font-semibold max-w-3xl mx-auto shadow-sm">
-            <X size={20} className="shrink-0 mt-0.5" />
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 flex items-start gap-3 font-medium max-w-2xl mx-auto">
+            <AlertTriangle size={20} className="shrink-0 mt-0.5 text-red-500" />
             <span>{error}</span>
           </div>
         )}
 
-        {/* Success result */}
         {order && statusCfg && (
-          <div className="mt-12 max-w-4xl mx-auto space-y-6">
+          <div className="space-y-5">
 
-            {/* Congrats banner */}
-            <div className="bg-gradient-to-r from-[#005691] to-[#0074bc] rounded-2xl p-6 text-white text-center shadow-xl">
-              <div className="text-4xl mb-2">🎉</div>
-              <h2 className="text-2xl md:text-3xl font-black mb-2">CHÚC MỪNG BẠN ĐÃ CHIẾN THẮNG!</h2>
-              <p className="text-blue-200 text-base">Cảm ơn bạn đã tham gia thử thách và đồng hành cùng chúng mình.</p>
-            </div>
+            {/* ══════════════════════════════════════════════════════
+                BLOCK 1: TỔNG QUAN
+            ══════════════════════════════════════════════════════ */}
+            <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-200">
 
-            {/* Order card */}
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-
-              {/* Card header */}
-              <div className="bg-[#005691] p-6 text-white flex flex-col md:flex-row justify-between md:items-center gap-4">
-                <div>
-                  <div className="text-blue-200 text-sm font-semibold mb-1">KẾT QUẢ TRA CỨU ĐƠN QUÀ</div>
-                  <h3 className="text-2xl font-bold">{order.trackingCode || order.id}</h3>
-                  <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-white/20 rounded font-semibold text-sm">
-                    {order.shippingProvider || 'Đang cập nhật đơn vị VC'}
+              {/* Blue header */}
+              <div className="bg-gradient-to-r from-[#005691] to-[#0074bc] px-6 py-5 text-white">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div>
+                    <div className="text-blue-200 text-xs font-bold uppercase tracking-widest mb-1">Mã vận đơn</div>
+                    <div className="text-2xl font-black tracking-tight">{order.trackingCode || order.id}</div>
+                    {order.trackingCode && order.id !== order.trackingCode && (
+                      <div className="text-blue-200 text-xs mt-1">Mã đơn: {order.id}</div>
+                    )}
+                  </div>
+                  <div className={`px-3 py-1.5 rounded-full text-sm font-bold backdrop-blur-sm bg-white/20 border border-white/30`}>
+                    {statusCfg.emoji} {statusCfg.label}
                   </div>
                 </div>
-                <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/20">
-                  <div className="text-sm text-blue-100 font-semibold mb-1">Người nhận</div>
-                  <div className="text-xl font-bold mb-2">{order.recipient || 'Chưa cập nhật'}</div>
-                  <div className="flex flex-wrap gap-4 text-sm font-medium">
-                    <span className="flex items-center gap-1"><Phone size={14}/> {maskedPhone(order.phone)}</span>
-                    {order.date && <span className="flex items-center gap-1"><Calendar size={14}/> {order.date}</span>}
-                  </div>
-                </div>
-              </div>
 
-              {/* Gift info */}
-              <div className="px-6 py-4 bg-orange-50 border-b border-orange-100 flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#F58220] rounded-xl flex items-center justify-center text-white shrink-0">
-                  <Gift size={20} />
-                </div>
-                <div>
-                  <div className="text-xs text-slate-500 font-semibold uppercase tracking-wide">Phần quà của bạn</div>
-                  <div className="text-base font-bold text-slate-800">{order.gift}</div>
-                </div>
-                {order.address && (
-                  <div className="ml-auto text-right hidden md:block">
-                    <div className="text-xs text-slate-500 font-semibold uppercase tracking-wide">Địa chỉ nhận</div>
-                    <div className="text-sm font-medium text-slate-700 max-w-[200px]">{order.address}</div>
+                {(order.lastMileCarrier || order.shippingProvider) && (
+                  <div className="mt-3 text-blue-100 text-sm">
+                    🚚 Tuyến vận chuyển: <span className="font-bold text-white">{order.lastMileCarrier || order.shippingProvider}</span>
                   </div>
                 )}
               </div>
 
-              {/* Current status highlight */}
-              <div className={`mx-6 mt-6 rounded-xl p-5 ${isFailed ? 'bg-red-50 border border-red-200' : 'bg-gradient-to-r from-blue-50 to-orange-50 border border-blue-100'}`}>
-                <div className="flex items-start gap-4">
-                  <div className="text-3xl">{statusCfg.emoji}</div>
-                  <div>
-                    <div className={`font-black text-lg mb-1 ${isFailed ? 'text-red-600' : 'text-[#005691]'}`}>
-                      {statusCfg.title}
-                    </div>
-                    <div className="text-slate-600 text-sm md:text-base whitespace-pre-line leading-relaxed">
-                      {statusCfg.message}
-                    </div>
-                    {!isFailed && order.trackingLink && (
-                      <a href={order.trackingLink} target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 mt-3 px-4 py-2 bg-[#005691] text-white rounded text-sm font-semibold hover:bg-[#004270] transition-colors">
-                        Xem trên trang {order.shippingProvider} <ArrowRight size={14}/>
-                      </a>
+              {/* 4 Info boxes */}
+              <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-slate-100">
+                <div className="p-4">
+                  <div className="flex items-center gap-1.5 text-slate-400 text-xs font-bold uppercase tracking-wide mb-2">
+                    <User size={12} /> Người gửi
+                  </div>
+                  <div className="text-slate-800 font-bold text-sm">{order.senderName || 'Uống Gì Chưa'}</div>
+                  <div className="text-slate-500 text-xs mt-0.5 leading-tight">{(order.senderAddress || 'FPT University HCM').split(',')[0]}</div>
+                </div>
+                <div className="p-4">
+                  <div className="flex items-center gap-1.5 text-slate-400 text-xs font-bold uppercase tracking-wide mb-2">
+                    <Home size={12} /> Người nhận
+                  </div>
+                  <div className="text-slate-800 font-bold text-sm">{order.recipient || order.recipientName}</div>
+                  <div className="text-slate-500 text-xs mt-0.5">{maskedPhone(order.phone)}</div>
+                </div>
+                <div className="p-4">
+                  <div className="flex items-center gap-1.5 text-slate-400 text-xs font-bold uppercase tracking-wide mb-2">
+                    <MapPin size={12} /> Vị trí hiện tại
+                  </div>
+                  <div className="text-slate-800 font-bold text-sm leading-tight">{order.currentLocation || statusCfg.label}</div>
+                </div>
+                <div className="p-4">
+                  <div className="flex items-center gap-1.5 text-slate-400 text-xs font-bold uppercase tracking-wide mb-2">
+                    <Gift size={12} /> Phần quà
+                  </div>
+                  <div className="text-slate-800 font-bold text-sm leading-tight">{order.gift}</div>
+                  {order.date && <div className="text-slate-400 text-xs mt-0.5">{order.date}</div>}
+                </div>
+              </div>
+            </div>
+
+            {/* ══════════════════════════════════════════════════════
+                BLOCK 2: HÀNH TRÌNH BƯU KIỆN (TIMELINE)
+            ══════════════════════════════════════════════════════ */}
+            <div className="bg-white rounded-2xl shadow-md border border-slate-200 p-6">
+              <h3 className="text-slate-800 font-black text-lg mb-6 flex items-center gap-2">
+                <Clock size={20} className="text-[#F58220]" /> Hành trình bưu kiện
+              </h3>
+
+              {histories.length > 0 ? (
+                <div className="relative pl-8">
+                  {/* Vertical line */}
+                  <div className="absolute left-[15px] top-3 bottom-3 w-0.5 bg-slate-100" />
+
+                  <div className="space-y-6">
+                    {histories.map((h: any, idx: number) => {
+                      const cfg = STATUS_CONFIG[h.status] ?? { emoji: '🔄', label: h.status || h.statusLabel || '', color: 'text-slate-600', badge: 'bg-slate-400' };
+                      const isFirst = idx === 0;
+                      return (
+                        <div key={h.id || idx} className="relative flex gap-4">
+                          {/* Dot */}
+                          <div className={`absolute -left-8 w-7 h-7 rounded-full flex items-center justify-center shrink-0 border-2 border-white shadow-sm text-sm ${isFirst ? cfg.badge + ' text-white' : 'bg-slate-200 text-slate-500'}`}>
+                            {isFirst ? cfg.emoji : <div className="w-2 h-2 rounded-full bg-slate-400" />}
+                          </div>
+
+                          <div className={`flex-1 pb-1 ${isFirst ? 'opacity-100' : 'opacity-60'}`}>
+                            <div className="flex items-start justify-between gap-2 flex-wrap">
+                              <h5 className={`font-bold text-base ${isFirst ? cfg.color : 'text-slate-600'}`}>
+                                {h.statusLabel || cfg.label || h.status}
+                              </h5>
+                              <span className="text-slate-400 text-xs font-medium shrink-0">{h.timeStr}</span>
+                            </div>
+                            {h.location && (
+                              <p className="text-slate-500 text-sm mt-0.5 flex items-center gap-1">
+                                <MapPin size={12} className="shrink-0" /> {h.location}
+                              </p>
+                            )}
+                            {h.note && <p className="text-slate-400 text-xs mt-1 italic">{h.note}</p>}
+                            {isFirst && (
+                              <span className="inline-block mt-1.5 px-2 py-0.5 bg-[#F58220] text-white text-xs font-bold rounded-full">
+                                Trạng thái hiện tại
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                /* No history → show static progress steps */
+                <div className="relative pl-8">
+                  <div className="absolute left-[15px] top-3 bottom-3 w-0.5 bg-slate-100" />
+                  <div className="space-y-6">
+                    {STATUS_ORDER.map((key, idx) => {
+                      const cfg = STATUS_CONFIG[key]!;
+                      const isCompleted2 = currentStepIdx >= idx;
+                      const isCurrent = currentStepIdx === idx;
+                      return (
+                        <div key={key} className="relative flex gap-4">
+                          <div className={`absolute -left-8 w-7 h-7 rounded-full flex items-center justify-center shrink-0 border-2 border-white shadow-sm text-sm ${isCompleted2 ? (isCurrent ? cfg.badge + ' text-white' : 'bg-[#F58220] text-white') : 'bg-slate-200 text-slate-400'}`}>
+                            {isCompleted2 ? (isCurrent ? cfg.emoji : <CheckCircle2 size={14} />) : <div className="w-2 h-2 rounded-full bg-slate-300" />}
+                          </div>
+                          <div className={`flex-1 ${isCompleted2 ? 'opacity-100' : 'opacity-40'}`}>
+                            <h5 className={`font-bold text-base ${isCurrent ? cfg.color : 'text-slate-600'}`}>{cfg.emoji} {cfg.label}</h5>
+                            {isCurrent && <p className="text-slate-500 text-sm mt-0.5 whitespace-pre-line">{cfg.message}</p>}
+                            {isCurrent && <span className="inline-block mt-1.5 px-2 py-0.5 bg-[#F58220] text-white text-xs font-bold rounded-full">Trạng thái hiện tại</span>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {isReturned && (
+                      <div className="relative flex gap-4">
+                        <div className="absolute -left-8 w-7 h-7 rounded-full flex items-center justify-center shrink-0 border-2 border-white shadow-sm bg-red-500 text-white text-sm">↩️</div>
+                        <div className="flex-1">
+                          <h5 className="font-bold text-base text-red-600">↩️ Hoàn hàng - Giao thất bại</h5>
+                          <p className="text-slate-500 text-sm mt-0.5">{STATUS_CONFIG.RETURNED.message}</p>
+                          <span className="inline-block mt-1.5 px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full">Trạng thái hiện tại</span>
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
-              </div>
-
-              {/* Timeline */}
-              <div className="p-6 md:p-10">
-                <h4 className="text-lg font-bold text-slate-800 mb-8 flex items-center gap-2">
-                  <MapPin className="text-[#F58220]" /> Lịch sử hành trình
-                </h4>
-
-                {isFailed ? (
-                  /* Failed state — separate display */
-                  <div className="relative pl-8">
-                    <div className="absolute left-[15px] top-4 bottom-4 w-0.5 bg-slate-200"></div>
-                    <div className="space-y-8">
-                      {TIMELINE_STEPS.map((step, idx) => {
-                        const isCompleted = idx <= 1; // show first 2 as done
-                        const isCur = false;
-                        return (
-                          <div key={idx} className="relative z-10 flex gap-6">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-sm mt-0.5 ${isCompleted ? 'bg-[#F58220] text-white' : 'bg-slate-200 text-slate-400'}`}>
-                              {isCompleted ? <CheckCircle2 size={16} /> : <div className="w-2 h-2 rounded-full bg-slate-400" />}
-                            </div>
-                            <div className={`flex-1 ${isCompleted ? 'opacity-100' : 'opacity-40'}`}>
-                              <h5 className="font-bold text-lg text-slate-700">{step.emoji} {step.label}</h5>
-                            </div>
-                          </div>
-                        );
-                      })}
-                      {/* Failed step */}
-                      <div className="relative z-10 flex gap-6">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-sm mt-0.5 bg-red-500 text-white">
-                          <AlertTriangle size={16} />
-                        </div>
-                        <div className="flex-1">
-                          <h5 className="font-bold text-lg text-red-600">⚠️ Giao chưa thành công</h5>
-                          <p className="text-slate-500 font-medium mt-1 text-sm">Quà chưa đến được bạn. Vui lòng kiểm tra lại thông tin và chờ shipper liên hệ.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  /* Normal timeline */
-                  <div className="relative pl-8">
-                    <div className="absolute left-[15px] top-4 bottom-4 w-0.5 bg-slate-200"></div>
-                    <div className="space-y-8">
-                      {TIMELINE_STEPS.map((step, idx) => {
-                        const stepOrderIdx = STATUS_ORDER.indexOf(step.status);
-                        const isCompleted = currentStepIdx >= 0 && stepOrderIdx <= currentStepIdx;
-                        const isCur = currentStepIdx === stepOrderIdx;
-                        return (
-                          <div key={idx} className="relative z-10 flex gap-6">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-4 border-white shadow-sm mt-0.5 transition-colors ${isCompleted ? 'bg-[#F58220] text-white' : 'bg-slate-200 text-slate-400'}`}>
-                              {isCompleted ? <CheckCircle2 size={16} /> : <div className="w-2 h-2 rounded-full bg-slate-400" />}
-                            </div>
-                            <div className={`flex-1 pb-2 ${isCompleted ? 'opacity-100' : 'opacity-40'}`}>
-                              <h5 className={`font-bold text-lg ${isCur ? 'text-[#005691]' : 'text-slate-700'}`}>
-                                {step.emoji} {step.label}
-                              </h5>
-                              {isCur && STATUS_CONFIG[step.status] && (
-                                <p className="text-slate-500 font-medium mt-1 text-sm whitespace-pre-line">
-                                  {STATUS_CONFIG[step.status].message}
-                                </p>
-                              )}
-                              {isCur && (
-                                <span className="inline-block mt-2 px-3 py-0.5 bg-[#F58220] text-white text-xs font-bold rounded-full">
-                                  Trạng thái hiện tại
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
 
-            {/* Footer message */}
-            <div className="bg-gradient-to-r from-[#F58220] to-orange-400 rounded-2xl p-6 text-white text-center shadow-lg">
-              <div className="text-3xl mb-2">🎁</div>
-              <h3 className="text-xl font-black mb-2">QUÀ ĐANG TRÊN ĐƯỜNG ĐẾN BẠN!</h3>
-              <p className="text-orange-100">Cảm ơn bạn đã đồng hành cùng chúng mình. Hẹn gặp lại bạn trong những hoạt động tiếp theo!</p>
-            </div>
+            {/* ══════════════════════════════════════════════════════
+                BLOCK 3: GIAO HÀNG SỞ TẠI (chỉ hiện khi IN_TRANSIT)
+            ══════════════════════════════════════════════════════ */}
+            {isInTransit && (order.lastMileCarrier || order.lastMileTrackingCode) && (
+              <div className="bg-orange-50 border-2 border-orange-200 rounded-2xl p-6">
+                <h3 className="text-orange-800 font-black text-lg mb-4 flex items-center gap-2">
+                  <Truck size={20} className="text-[#F58220]" /> Giao hàng sở tại
+                </h3>
+                <div className="space-y-3">
+                  {order.lastMileCarrier && (
+                    <div className="flex items-center gap-3">
+                      <span className="text-slate-500 text-sm w-36 shrink-0">Đơn vị vận chuyển:</span>
+                      <span className="font-bold text-slate-800">{order.lastMileCarrier}</span>
+                    </div>
+                  )}
+                  {order.lastMileTrackingCode && (
+                    <div className="flex items-center gap-3">
+                      <span className="text-slate-500 text-sm w-36 shrink-0">Mã vận đơn NCC:</span>
+                      <code className="font-bold text-[#005691] bg-blue-50 px-2 py-0.5 rounded font-mono">{order.lastMileTrackingCode}</code>
+                    </div>
+                  )}
+                  {order.lastMileTrackingLink && (
+                    <a href={order.lastMileTrackingLink} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 mt-2 px-5 py-3 bg-[#F58220] hover:bg-orange-600 text-white rounded-xl font-bold transition-colors">
+                      <ExternalLink size={16} /> Theo dõi tiếp tại {order.lastMileCarrier || 'đơn vị vận chuyển'}
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Success / failure banner */}
+            {isCompleted ? (
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl p-6 text-white text-center shadow-lg">
+                <div className="text-3xl mb-2">🎉</div>
+                <h3 className="text-xl font-black mb-2">ĐÃ GIAO HÀNG THÀNH CÔNG!</h3>
+                <p className="text-green-100 text-sm">Cảm ơn bạn đã đồng hành cùng chúng mình. Hẹn gặp lại bạn ở những hoạt động tiếp theo!</p>
+              </div>
+            ) : isReturned ? (
+              <div className="bg-gradient-to-r from-red-500 to-rose-500 rounded-2xl p-6 text-white text-center shadow-lg">
+                <div className="text-3xl mb-2">↩️</div>
+                <h3 className="text-xl font-black mb-2">GIAO HÀNG CHƯA THÀNH CÔNG</h3>
+                <p className="text-red-100 text-sm">Vui lòng liên hệ fanpage Uống Gì Chưa để được hỗ trợ nhanh nhất.</p>
+              </div>
+            ) : (
+              <div className="bg-gradient-to-r from-[#F58220] to-orange-400 rounded-2xl p-5 text-white text-center shadow-lg">
+                <div className="text-2xl mb-2">🎁</div>
+                <p className="font-bold">Quà của bạn đang trên đường! Tụi mình sẽ cập nhật trạng thái sớm nhất có thể.</p>
+              </div>
+            )}
 
           </div>
         )}
-      </section>
+      </main>
 
       {/* FOOTER */}
-      <footer className="mt-auto bg-[#14141F] text-slate-400 py-10">
-        <div className="container mx-auto px-4 md:px-8 text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-4">
-          <div>
-            <div className="text-white font-bold text-xl mb-1">Tra mã vận đơn - FPTU HCM</div>
-            <p className="text-sm">Hệ thống theo dõi quà tặng Livestream 2026</p>
-          </div>
-          <div className="text-sm">
-            © {new Date().getFullYear()} Developed for FPT University HCM.
-          </div>
+      <footer className="bg-[#14141F] text-slate-400 py-8">
+        <div className="max-w-5xl mx-auto px-4 text-center">
+          <div className="text-white font-bold text-lg mb-1">🧋 Uống Gì Chưa</div>
+          <p className="text-sm">Hệ thống theo dõi quà tặng Livestream 2026 — FPT University HCM</p>
+          <p className="text-xs mt-2 text-slate-600">© 2026 Developed for FPT University HCM.</p>
         </div>
       </footer>
 

@@ -1,6 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { OrderService } from './order.service.js';
-import { UpdateOrderDto } from './dto/update-order.dto.js';
 
 @Controller('order')
 export class OrderController {
@@ -12,14 +11,19 @@ export class OrderController {
   }
 
   @Get()
-  findAll() {
-    return this.orderService.findAll();
+  findAll(@Query('sessionId') sessionId?: string) {
+    return this.orderService.findAll(sessionId);
   }
 
-  // API Check-in dành cho Customer
+  // Customer tracking — search by trackingCode, orderId, or phone
   @Get('tracking/:trackingCode')
   findByTracking(@Param('trackingCode') trackingCode: string) {
     return this.orderService.findByTracking(trackingCode);
+  }
+
+  @Get(':id/history')
+  getHistory(@Param('id') id: string) {
+    return this.orderService.getHistory(id);
   }
 
   @Get(':id')
@@ -28,7 +32,7 @@ export class OrderController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
+  update(@Param('id') id: string, @Body() updateOrderDto: any) {
     return this.orderService.update(id, updateOrderDto);
   }
 
