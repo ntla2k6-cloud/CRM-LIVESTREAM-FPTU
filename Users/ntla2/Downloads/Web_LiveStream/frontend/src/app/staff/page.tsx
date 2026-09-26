@@ -97,9 +97,15 @@ export default function UnifiedStaffPage() {
       const data = await res.json();
       if (Array.isArray(data)) {
         setUsers(data);
-        if (data.length > 0 && !selectedUser) {
-          setSelectedUser(data[0]);
-          setEditForm(data[0]);
+        if (data.length > 0) {
+          if (!selectedUser) {
+            setSelectedUser(data[0]);
+            setEditForm(data[0]);
+          } else {
+            const updatedSelected = data.find((u: any) => u.id === selectedUser.id) || data[0];
+            setSelectedUser(updatedSelected);
+            if (!editMode) setEditForm(updatedSelected);
+          }
         }
       } else {
         console.error('API Error:', data);
