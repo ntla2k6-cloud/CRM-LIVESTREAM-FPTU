@@ -832,21 +832,33 @@ export default function CSKHBoardPage() {
                         return;
                       }
 
-                      const now = new Date();
-                      const dateStr = `${now.getDate() < 10 ? '0'+now.getDate() : now.getDate()}/${now.getMonth()+1 < 10 ? '0'+(now.getMonth()+1) : now.getMonth()+1}/${now.getFullYear()}`;
-                      const timeStr = `${now.getHours()}:${now.getMinutes() < 10 ? '0'+now.getMinutes() : now.getMinutes()}`;
-                      
-                      try {
-                        const newOrder = {
+                        const nowTime = new Date();
+                        const dateStr = `${nowTime.getDate() < 10 ? '0'+nowTime.getDate() : nowTime.getDate()}/${nowTime.getMonth()+1 < 10 ? '0'+(nowTime.getMonth()+1) : nowTime.getMonth()+1}/${nowTime.getFullYear()}`;
+                        const timeString = `${nowTime.getHours() < 10 ? '0'+nowTime.getHours() : nowTime.getHours()}:${nowTime.getMinutes() < 10 ? '0'+nowTime.getMinutes() : nowTime.getMinutes()}`;
+                        
+                        try {
+                          const newOrder = {
                           id: `DON-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
-                          recipient: selectedLead.name,
+                          recipientName: selectedLead.name,
                           phone: selectedLead.phone || 'Chưa cập nhật',
                           address: selectedLead.giftAddress,
                           gift: selectedLead._rawGiftName || 'Quà tặng',
-                          status: 'Đã tạo đơn',
+                          status: 'PACKED',
                         };
                         
-                        await api.post('/order', newOrder);
+                        // Gọi API tạo đơn
+                        const createdRes = await api.post('/order', newOrder);
+                        
+                        // Format dữ liệu local để hiển thị liền luôn trên UI (không cần reload)
+                        const displayOrder = {
+                          id: newOrder.id,
+                          recipient: selectedLead.name,
+                          phone: selectedLead.phone || 'Chưa cập nhật',
+                          gift: newOrder.gift,
+                          status: 'Đã đóng gói',
+                          date: `${timeString} - ${dateStr}`
+                        };
+                        setOrders((prev) => [displayOrder, ...prev]);
 
                         // Trừ kho quà
                         if (selectedLead.selectedGift) {
@@ -857,10 +869,9 @@ export default function CSKHBoardPage() {
                           }
                         }
 
-                        const now2 = new Date();
-                        const timeStr2 = `${now2.getHours()}:${now2.getMinutes() < 10 ? '0'+now2.getMinutes() : now2.getMinutes()}`;
                         // Ghi lịch sử vào LeadHistory
                         await api.post(`/lead/${selectedLead.id}/history`, { action: 'NOTE', note: `Đã lên đơn gói quà: ${selectedLead._rawGiftName}\nTới địa chỉ: ${selectedLead.giftAddress}` }).catch(() => {});
+
                         
                         const updatedLead = {
                           ...selectedLead, 

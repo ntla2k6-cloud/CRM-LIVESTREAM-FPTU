@@ -83,7 +83,7 @@ const exportLabelWord = (ordersToExport: any[]) => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = \`Tem_Don_${new Date().toLocaleDateString('vi-VN').replace(/\\//g,'-')}.doc\`;
+  a.download = `Tem_Don_${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.doc`;
   a.click();
   URL.revokeObjectURL(url);
 };
