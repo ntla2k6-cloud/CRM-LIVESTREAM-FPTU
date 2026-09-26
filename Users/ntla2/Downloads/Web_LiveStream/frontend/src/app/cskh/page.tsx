@@ -657,7 +657,11 @@ export default function CSKHBoardPage() {
                           {["LEAD MỚI", "ĐANG TƯ VẤN", "ĐANG CÂN NHẮC", "CHỐT ĐĂNG KÝ"].map((status, idx) => (
                             <div 
                               key={status}
-                              onClick={() => { setSelectedLead({ ...selectedLead, col: idx }); setActiveDropdown(null); }}
+                              onClick={() => {
+                                const statusMap = ['NEW', 'CONTACTED', 'CONSULTING', 'REGISTERED'];
+                                setSelectedLead({ ...selectedLead, col: idx, status: statusMap[idx] }); 
+                                setActiveDropdown(null); 
+                              }}
                               className={`px-3 py-2 text-sm cursor-pointer transition-colors ${selectedLead.col === idx ? 'bg-[#005691] text-white font-bold' : 'text-slate-700 hover:bg-slate-50'}`}
                             >
                               {status}
@@ -831,7 +835,9 @@ export default function CSKHBoardPage() {
                         setTimeout(() => setToastMsg(null), 3000);
                         return;
                       }
+                      setIsSubmitting(true);
 
+                      try {
                         const nowTime = new Date();
                         const dateStr = `${nowTime.getDate() < 10 ? '0'+nowTime.getDate() : nowTime.getDate()}/${nowTime.getMonth()+1 < 10 ? '0'+(nowTime.getMonth()+1) : nowTime.getMonth()+1}/${nowTime.getFullYear()}`;
                         const timeString = `${nowTime.getHours() < 10 ? '0'+nowTime.getHours() : nowTime.getHours()}:${nowTime.getMinutes() < 10 ? '0'+nowTime.getMinutes() : nowTime.getMinutes()}`;
@@ -891,6 +897,8 @@ export default function CSKHBoardPage() {
                       } catch (e) {
                         console.error(e);
                         alert("Có lỗi xảy ra khi tạo đơn hàng!");
+                      } finally {
+                        setIsSubmitting(false);
                       }
                     }}
                     className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg text-xs font-bold text-white transition-colors"

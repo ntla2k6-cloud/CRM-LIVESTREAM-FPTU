@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useState, useEffect } from "react";
 import { TaskAPI } from "@/lib/api";
 
@@ -58,7 +58,8 @@ export default function TasklyKanban() {
 
   const addTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTaskTitle.trim()) return;
+    if (!newTaskTitle.trim() || isSubmitting) return;
+    setIsSubmitting(true);
 
     try {
       await TaskAPI.create({ title: newTaskTitle, status: "TODO" });

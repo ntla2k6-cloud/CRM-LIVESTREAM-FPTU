@@ -25,6 +25,11 @@ export class ShiftController {
     return this.shiftService.update(id, updateShiftDto);
   }
 
+  @Delete('assignment/:assignmentId')
+  removeStaff(@Param('assignmentId') assignmentId: string) {
+    return this.shiftService.removeAssignment(assignmentId);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.shiftService.remove(id);
@@ -33,10 +38,5 @@ export class ShiftController {
   @Post(':id/assign')
   assignStaff(@Param('id') id: string, @Body() body: any) {
     return this.shiftService.assignStaff(id, body);
-  }
-
-  @Delete('assignment/:assignmentId')
-  removeStaff(@Param('assignmentId') assignmentId: string) {
-    return this.shiftService.removeAssignment(assignmentId);
   }
 }

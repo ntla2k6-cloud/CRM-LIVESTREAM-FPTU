@@ -35,7 +35,7 @@ let DashboardService = class DashboardService {
             const d = new Date();
             d.setDate(d.getDate() - i);
             const dateStr = d.toLocaleDateString('vi-VN', { weekday: 'short' });
-            const dayLeads = leadsData.filter(l => l.createdAt.getDate() === d.getDate());
+            const dayLeads = leadsData.filter(l => l.createdAt.toLocaleDateString() === d.toLocaleDateString());
             chartData.push({
                 date: dateStr,
                 total: dayLeads.length,

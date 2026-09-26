@@ -35,6 +35,9 @@ export default function LiveControlPage() {
   const params = typeof window !== 'undefined' ? window.location.pathname.split('/').pop() : 'demo';
   const [sessionData, setSessionData] = useState<any>(null);
   const [questions, setQuestions] = useState<any[]>([]);
+  const questionsRef = useRef<any[]>([]);
+  useEffect(() => { questionsRef.current = questions; }, [questions]);
+
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<any>(null);
 
@@ -128,7 +131,7 @@ export default function LiveControlPage() {
       // Chấm điểm Minigame từ Socket
       setActiveQuestion((currentActiveQ) => {
         if (currentActiveQ) {
-          const qObj = questions.find(q => q.id === currentActiveQ);
+          const qObj = questionsRef.current.find(q => q.id === currentActiveQ);
           if (qObj && qObj.answer) {
             const isCorrect = newComment.text.toLowerCase().includes(qObj.answer.toLowerCase());
             setStats(prev => ({ total: prev.total + 1, correct: prev.correct + (isCorrect ? 1 : 0) }));
@@ -150,7 +153,7 @@ export default function LiveControlPage() {
     return () => {
       socket.disconnect();
     };
-  }, [questions]);
+  }, [params]);
 
   // Timer Engine
   useEffect(() => {

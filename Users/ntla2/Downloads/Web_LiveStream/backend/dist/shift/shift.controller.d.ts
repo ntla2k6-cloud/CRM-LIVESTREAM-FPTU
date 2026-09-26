@@ -105,6 +105,13 @@ export declare class ShiftController {
         endTime: Date | null;
         campaignId: string | null;
     }>;
+    removeStaff(assignmentId: string): Promise<{
+        id: number;
+        liveSessionId: string;
+        bonus: number;
+        rateOverride: number | null;
+        staffId: number;
+    }>;
     remove(id: string): Promise<{
         description: string | null;
         id: string;
@@ -123,13 +130,6 @@ export declare class ShiftController {
         campaignId: string | null;
     }>;
     assignStaff(id: string, body: any): Promise<{
-        id: number;
-        liveSessionId: string;
-        bonus: number;
-        rateOverride: number | null;
-        staffId: number;
-    }>;
-    removeStaff(assignmentId: string): Promise<{
         id: number;
         liveSessionId: string;
         bonus: number;

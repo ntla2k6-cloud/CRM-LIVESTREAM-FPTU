@@ -6,7 +6,7 @@ import {
 
 export default function AnalyticsPage() {
   const [activeSession, setActiveSession] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'MINIGAME' | 'GENERAL' | 'TIKTOK_STATS'>('MINIGAME');
+  const [activeTab, setActiveTab] = useState<'MINIGAME' | 'GENERAL' | 'TIKTOK_STATS' | 'ALL_COMMENTS'>('MINIGAME');
   const [showSessionFilter, setShowSessionFilter] = useState(false);
   const [sessionFilter, setSessionFilter] = useState('Tất cả');
   

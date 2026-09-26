@@ -58,14 +58,14 @@ export class MinigameService {
             customerId: customer.id,
             commentId: comment.id,
             userAnswer: data.content,
-            isCorrect: true,
+            status: 'CORRECT',
             responseSpeed: speedMs
           }
         });
 
         // 4. Lấy Top Leaderboard
         const topAnswers = await this.prisma.answer.findMany({
-          where: { questionId: activeQuestion.id, isCorrect: true },
+          where: { questionId: activeQuestion.id, status: 'CORRECT' },
           orderBy: { responseSpeed: 'asc' },
           take: 10,
           include: { customer: true }

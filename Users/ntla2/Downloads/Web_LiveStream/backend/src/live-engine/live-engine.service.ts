@@ -62,9 +62,8 @@ export class LiveEngineService {
     if (!customerId) {
       const newCustomer = await this.prisma.customer.create({
         data: {
-          name: tiktokUsername,
-          tiktokAccount: tiktokUsername,
-          aiIntent: 'NEUTRAL' // can be passed to AI logic later
+          fullName: tiktokUsername,
+          tiktokAccount: tiktokUsername
         }
       });
       customerId = newCustomer.id;

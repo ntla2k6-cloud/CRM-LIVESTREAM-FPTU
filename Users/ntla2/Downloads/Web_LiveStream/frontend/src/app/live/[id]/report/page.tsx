@@ -280,7 +280,7 @@ export default function PostLiveReportPage({ params }: { params: { id: string } 
                 </tr>
               </thead>
               <tbody>
-                {reportData.comments.map(cmt => (
+                {reportData.comments.map((cmt: any) => (
                   <tr key={cmt.id} className="border-b border-slate-100 hover:bg-slate-50/50">
                     <td className="p-4 text-sm text-slate-500 font-medium">{cmt.time}</td>
                     <td className="p-4 text-sm font-bold text-slate-900">{cmt.user}</td>
@@ -317,7 +317,7 @@ export default function PostLiveReportPage({ params }: { params: { id: string } 
                 </tr>
               </thead>
               <tbody>
-                {reportData.leads.map(lead => (
+                {reportData.leads.map((lead: any) => (
                   <tr key={lead.id} className="border-b border-slate-100 hover:bg-slate-50/50">
                     <td className="p-4 text-sm text-slate-500 font-medium">{lead.time}</td>
                     <td className="p-4 text-sm font-bold text-slate-900">{lead.user}</td>
@@ -360,7 +360,7 @@ export default function PostLiveReportPage({ params }: { params: { id: string } 
                 </tr>
               </thead>
               <tbody>
-                {reportData.winners.map(win => (
+                {reportData.winners.map((win: any) => (
                   <tr key={win.rank} className={`border-b border-slate-100 hover:bg-slate-50/50 ${win.type === 'Chính thức' ? 'bg-green-50/30' : 'opacity-80'}`}>
                     <td className="p-4 font-black text-xl text-slate-400">#{win.rank}</td>
                     <td className="p-4 text-sm font-bold text-slate-900">{win.user}</td>

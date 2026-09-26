@@ -16,12 +16,12 @@ export declare class DashboardController {
             hot: number;
         }[];
         recentActivities: {
-            customer: {
-                fullName: string | null;
-            };
             id: string;
             status: string;
             createdAt: Date;
+            customer: {
+                fullName: string | null;
+            };
         }[];
     }>;
     getAnalytics(sessionId: string): Promise<{

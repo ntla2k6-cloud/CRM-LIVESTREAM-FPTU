@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     const cleanUsername = username.replace('@', '').trim();
     
     // Khởi tạo connection
-    const tiktokLiveConnection = new TikTokLiveConnection(cleanUsername);
+    const tiktokLiveConnection = new TikTokLiveConnection(cleanUsername, {});
     
     // Thử kết nối (Promise)
     const state = await tiktokLiveConnection.connect();

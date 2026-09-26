@@ -1,4 +1,4 @@
-﻿import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
@@ -31,7 +31,7 @@ export class DashboardService {
       d.setDate(d.getDate() - i);
       const dateStr = d.toLocaleDateString('vi-VN', { weekday: 'short' });
       
-      const dayLeads = leadsData.filter(l => l.createdAt.getDate() === d.getDate());
+      const dayLeads = leadsData.filter(l => l.createdAt.toLocaleDateString() === d.toLocaleDateString());
       chartData.push({
         date: dateStr,
         total: dayLeads.length,

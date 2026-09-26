@@ -29,14 +29,14 @@ let ShiftController = class ShiftController {
     update(id, updateShiftDto) {
         return this.shiftService.update(id, updateShiftDto);
     }
+    removeStaff(assignmentId) {
+        return this.shiftService.removeAssignment(assignmentId);
+    }
     remove(id) {
         return this.shiftService.remove(id);
     }
     assignStaff(id, body) {
         return this.shiftService.assignStaff(id, body);
-    }
-    removeStaff(assignmentId) {
-        return this.shiftService.removeAssignment(assignmentId);
     }
 };
 __decorate([
@@ -68,6 +68,13 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ShiftController.prototype, "update", null);
 __decorate([
+    Delete('assignment/:assignmentId'),
+    __param(0, Param('assignmentId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ShiftController.prototype, "removeStaff", null);
+__decorate([
     Delete(':id'),
     __param(0, Param('id')),
     __metadata("design:type", Function),
@@ -82,13 +89,6 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], ShiftController.prototype, "assignStaff", null);
-__decorate([
-    Delete('assignment/:assignmentId'),
-    __param(0, Param('assignmentId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], ShiftController.prototype, "removeStaff", null);
 ShiftController = __decorate([
     Controller('shift'),
     __metadata("design:paramtypes", [ShiftService])
