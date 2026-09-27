@@ -8,7 +8,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var LiveEngineService_1;
-import { Injectable, ConflictException, Logger } from '@nestjs/common';
+import { Injectable, ConflictException, Logger, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { PipelineService } from '../comment-engine/pipeline.service.js';
 import { TiktokCommentSource } from '../comment-engine/tiktok-comment-source.js';
@@ -118,7 +118,7 @@ let LiveEngineService = LiveEngineService_1 = class LiveEngineService {
             return liveSession;
         }
         catch (e) {
-            throw new Error(`Lỗi kết nối TikTok: ${e.message}`);
+            throw new BadRequestException(`Lỗi kết nối TikTok: ${e.message}`);
         }
     }
     async getAnalytics(liveSessionId) {

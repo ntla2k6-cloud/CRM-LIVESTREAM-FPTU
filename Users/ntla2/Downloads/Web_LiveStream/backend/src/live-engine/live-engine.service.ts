@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, Logger } from '@nestjs/common';
+import { Injectable, ConflictException, Logger, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { PipelineService } from '../comment-engine/pipeline.service.js';
 import { TiktokCommentSource } from '../comment-engine/tiktok-comment-source.js';
@@ -121,7 +121,7 @@ export class LiveEngineService {
 
       return liveSession;
     } catch (e: any) {
-      throw new Error(`Lỗi kết nối TikTok: ${e.message}`);
+      throw new BadRequestException(`Lỗi kết nối TikTok: ${e.message}`);
     }
   }
 
