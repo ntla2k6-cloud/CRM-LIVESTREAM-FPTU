@@ -62,6 +62,13 @@ let LiveEngineService = LiveEngineService_1 = class LiveEngineService {
         source.onGift((data) => {
             this.eventsGateway.server.to(liveSessionId).emit('gift:new', data);
         });
+        source.onDisconnected(async () => {
+            await this.prisma.liveSession.update({
+                where: { id: liveSessionId },
+                data: { status: 'COMPLETED', endTime: new Date() }
+            }).catch(() => { });
+            this.eventsGateway.server.to(liveSessionId).emit('live:ended');
+        });
         await source.connect(tiktokUsername);
         return source.getStatus();
     }
@@ -75,6 +82,44 @@ let LiveEngineService = LiveEngineService_1 = class LiveEngineService {
     getTiktokStatus(liveSessionId) {
         const source = this.sources.get(liveSessionId);
         return source ? source.getStatus() : 'DISCONNECTED';
+    }
+    async resolveLiveSession(input) {
+        let username = input;
+        if (input.includes('tiktok.com')) {
+            const match = input.match(/@([a-zA-Z0-9_.-]+)/);
+            if (match)
+                username = match[1];
+        }
+        username = username.replace('@', '').trim();
+        const { TikTokLiveConnection } = await import('tiktok-live-connector');
+        const connection = new TikTokLiveConnection(username, {});
+        try {
+            const state = await connection.connect();
+            connection.disconnect();
+            const roomInfo = state.roomInfo;
+            if (!roomInfo)
+                throw new Error('Không thể lấy thông tin phiên LIVE.');
+            const liveData = {
+                platformLiveId: state.roomId,
+                title: roomInfo.title || 'Phiên LIVE TikTok',
+                creatorUsername: roomInfo.owner?.display_id || username,
+                creatorDisplayName: roomInfo.owner?.nickname || username,
+                creatorAvatar: roomInfo.owner?.avatar_thumb?.url_list?.[0] || '',
+                viewerCount: roomInfo.viewer_count || 0,
+                likeCount: roomInfo.like_count || 0,
+                status: roomInfo.status === 2 ? 'LIVE_NOW' : 'COMPLETED',
+                liveUrl: `https://www.tiktok.com/@${roomInfo.owner?.display_id || username}/live`
+            };
+            const liveSession = await this.prisma.liveSession.upsert({
+                where: { platformLiveId: liveData.platformLiveId },
+                update: { ...liveData },
+                create: { ...liveData, platform: 'tiktok' }
+            });
+            return liveSession;
+        }
+        catch (e) {
+            throw new Error(`Lỗi kết nối TikTok: ${e.message}`);
+        }
     }
 };
 LiveEngineService = LiveEngineService_1 = __decorate([

@@ -5,9 +5,18 @@ export declare class ShiftService {
     create(data: any): Promise<{
         description: string | null;
         id: string;
+        platform: string | null;
+        likeCount: number;
         status: string;
         createdAt: Date;
         color: string | null;
+        platformLiveId: string | null;
+        liveUrl: string | null;
+        creatorUsername: string | null;
+        creatorDisplayName: string | null;
+        creatorAvatar: string | null;
+        viewerCount: number;
+        shareCount: number;
         liveId: string | null;
         title: string;
         project: string | null;
@@ -74,9 +83,18 @@ export declare class ShiftService {
     } & {
         description: string | null;
         id: string;
+        platform: string | null;
+        likeCount: number;
         status: string;
         createdAt: Date;
         color: string | null;
+        platformLiveId: string | null;
+        liveUrl: string | null;
+        creatorUsername: string | null;
+        creatorDisplayName: string | null;
+        creatorAvatar: string | null;
+        viewerCount: number;
+        shareCount: number;
         liveId: string | null;
         title: string;
         project: string | null;
@@ -91,9 +109,18 @@ export declare class ShiftService {
     update(id: string, data: any): Promise<{
         description: string | null;
         id: string;
+        platform: string | null;
+        likeCount: number;
         status: string;
         createdAt: Date;
         color: string | null;
+        platformLiveId: string | null;
+        liveUrl: string | null;
+        creatorUsername: string | null;
+        creatorDisplayName: string | null;
+        creatorAvatar: string | null;
+        viewerCount: number;
+        shareCount: number;
         liveId: string | null;
         title: string;
         project: string | null;
@@ -108,9 +135,18 @@ export declare class ShiftService {
     remove(id: string): Promise<{
         description: string | null;
         id: string;
+        platform: string | null;
+        likeCount: number;
         status: string;
         createdAt: Date;
         color: string | null;
+        platformLiveId: string | null;
+        liveUrl: string | null;
+        creatorUsername: string | null;
+        creatorDisplayName: string | null;
+        creatorAvatar: string | null;
+        viewerCount: number;
+        shareCount: number;
         liveId: string | null;
         title: string;
         project: string | null;

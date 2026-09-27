@@ -1,3 +1,4 @@
+import { TikTokLiveConnection } from 'tiktok-live-connector';
 export class TiktokCommentSource {
     connection = null;
     status = 'DISCONNECTED';
@@ -10,8 +11,7 @@ export class TiktokCommentSource {
         }
         this.status = 'CONNECTING';
         try {
-            const { WebcastPushConnection } = require('tiktok-live-connector');
-            this.connection = new WebcastPushConnection(targetId);
+            this.connection = new TikTokLiveConnection(targetId, {});
             this.connection.on('chat', (data) => {
                 if (this.commentCallback) {
                     this.commentCallback({
@@ -42,6 +42,8 @@ export class TiktokCommentSource {
             this.connection.on('disconnected', () => {
                 console.log('[TikTokSource] Mất kết nối');
                 this.status = 'DISCONNECTED';
+                if (this.disconnectCallback)
+                    this.disconnectCallback();
             });
             await this.connection.connect();
             this.status = 'CONNECTED';
@@ -71,6 +73,10 @@ export class TiktokCommentSource {
     }
     onLike(callback) {
         this.likeCallback = callback;
+    }
+    disconnectCallback;
+    onDisconnected(callback) {
+        this.disconnectCallback = callback;
     }
     getStatus() {
         return this.status;

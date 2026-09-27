@@ -20,4 +20,30 @@ export declare class LiveEngineService {
     connectToTiktok(liveSessionId: string, tiktokUsername: string): Promise<"DISCONNECTED" | "CONNECTING" | "CONNECTED" | "ERROR">;
     disconnectFromTiktok(liveSessionId: string): void;
     getTiktokStatus(liveSessionId: string): "DISCONNECTED" | "CONNECTING" | "CONNECTED" | "ERROR";
+    resolveLiveSession(input: string): Promise<{
+        description: string | null;
+        id: string;
+        platform: string | null;
+        likeCount: number;
+        status: string;
+        createdAt: Date;
+        color: string | null;
+        platformLiveId: string | null;
+        liveUrl: string | null;
+        creatorUsername: string | null;
+        creatorDisplayName: string | null;
+        creatorAvatar: string | null;
+        viewerCount: number;
+        shareCount: number;
+        liveId: string | null;
+        title: string;
+        project: string | null;
+        day: number | null;
+        time: string | null;
+        registered: string | null;
+        scheduledAt: Date | null;
+        startTime: Date | null;
+        endTime: Date | null;
+        campaignId: string | null;
+    }>;
 }

@@ -5,9 +5,18 @@ export declare class LiveSessionService {
     create(createLiveSessionDto: any): Promise<{
         description: string | null;
         id: string;
+        platform: string | null;
+        likeCount: number;
         status: string;
         createdAt: Date;
         color: string | null;
+        platformLiveId: string | null;
+        liveUrl: string | null;
+        creatorUsername: string | null;
+        creatorDisplayName: string | null;
+        creatorAvatar: string | null;
+        viewerCount: number;
+        shareCount: number;
         liveId: string | null;
         title: string;
         project: string | null;
@@ -34,9 +43,18 @@ export declare class LiveSessionService {
     } & {
         description: string | null;
         id: string;
+        platform: string | null;
+        likeCount: number;
         status: string;
         createdAt: Date;
         color: string | null;
+        platformLiveId: string | null;
+        liveUrl: string | null;
+        creatorUsername: string | null;
+        creatorDisplayName: string | null;
+        creatorAvatar: string | null;
+        viewerCount: number;
+        shareCount: number;
         liveId: string | null;
         title: string;
         project: string | null;
@@ -86,9 +104,18 @@ export declare class LiveSessionService {
     } & {
         description: string | null;
         id: string;
+        platform: string | null;
+        likeCount: number;
         status: string;
         createdAt: Date;
         color: string | null;
+        platformLiveId: string | null;
+        liveUrl: string | null;
+        creatorUsername: string | null;
+        creatorDisplayName: string | null;
+        creatorAvatar: string | null;
+        viewerCount: number;
+        shareCount: number;
         liveId: string | null;
         title: string;
         project: string | null;
@@ -103,9 +130,18 @@ export declare class LiveSessionService {
     update(id: string, updateLiveSessionDto: any): import(".prisma/client").Prisma.Prisma__LiveSessionClient<{
         description: string | null;
         id: string;
+        platform: string | null;
+        likeCount: number;
         status: string;
         createdAt: Date;
         color: string | null;
+        platformLiveId: string | null;
+        liveUrl: string | null;
+        creatorUsername: string | null;
+        creatorDisplayName: string | null;
+        creatorAvatar: string | null;
+        viewerCount: number;
+        shareCount: number;
         liveId: string | null;
         title: string;
         project: string | null;
@@ -120,9 +156,18 @@ export declare class LiveSessionService {
     remove(id: string): import(".prisma/client").Prisma.Prisma__LiveSessionClient<{
         description: string | null;
         id: string;
+        platform: string | null;
+        likeCount: number;
         status: string;
         createdAt: Date;
         color: string | null;
+        platformLiveId: string | null;
+        liveUrl: string | null;
+        creatorUsername: string | null;
+        creatorDisplayName: string | null;
+        creatorAvatar: string | null;
+        viewerCount: number;
+        shareCount: number;
         liveId: string | null;
         title: string;
         project: string | null;

@@ -1,6 +1,6 @@
 import { CommentSource, CommentPayload } from './comment-source.interface.js';
 
-import { WebcastPushConnection } from 'tiktok-live-connector';
+import { TikTokLiveConnection } from 'tiktok-live-connector';
 
 export class TiktokCommentSource implements CommentSource {
   private connection: any = null;
@@ -17,7 +17,7 @@ export class TiktokCommentSource implements CommentSource {
     this.status = 'CONNECTING';
 
     try {
-      this.connection = new WebcastPushConnection(targetId);
+      this.connection = new TikTokLiveConnection(targetId, {});
 
       this.connection.on('chat', (data: any) => {
         if (this.commentCallback) {
@@ -51,6 +51,7 @@ export class TiktokCommentSource implements CommentSource {
       this.connection.on('disconnected', () => {
         console.log('[TikTokSource] Mất kết nối');
         this.status = 'DISCONNECTED';
+        if (this.disconnectCallback) this.disconnectCallback();
       });
 
       await this.connection.connect();
@@ -83,6 +84,12 @@ export class TiktokCommentSource implements CommentSource {
 
   onLike(callback: (payload: any) => void): void {
     this.likeCallback = callback;
+  }
+
+  private disconnectCallback?: () => void;
+
+  onDisconnected(callback: () => void): void {
+    this.disconnectCallback = callback;
   }
 
   getStatus() {

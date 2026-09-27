@@ -49,12 +49,17 @@ export default function LiveControlPage() {
 
   useEffect(() => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    fetch(`${baseUrl}/live-session`)
+    fetch(`${baseUrl}/live-session/${params}`)
       .then(res => res.json())
-      .then(data => {
-        if (data.length > 0) {
-          const current = data.find((s: any) => s.id === params) || data[0];
+      .then(current => {
+        if (current && current.id) {
           setSessionData(current);
+          if (current.creatorUsername) {
+            setTiktokUsername(current.creatorUsername);
+          }
+          if (current.status === 'COMPLETED') {
+            setTiktokStatus('disconnected'); // or 'completed'
+          }
           const apiQuestions = current.questions?.map((q: any) => ({
             id: q.id,
             code: q.code,
@@ -70,6 +75,29 @@ export default function LiveControlPage() {
       })
       .catch(() => setQuestions(MOCK_QUESTIONS));
   }, [params]);
+
+  // Auto connect
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const autoConnect = urlParams.get('autoConnect');
+    const uName = urlParams.get('tiktokUsername') || tiktokUsername;
+    if (autoConnect === 'true' && uName && tiktokStatus === 'disconnected') {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      setTiktokStatus('connecting');
+      fetch(`${baseUrl}/live-engine/connect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ liveSessionId: params, tiktokUsername: uName })
+      }).then(res => {
+        if (!res.ok) throw new Error('Failed');
+        setTiktokStatus('connected');
+        // Xóa param trên URL để tránh reload connect lại
+        window.history.replaceState(null, '', window.location.pathname);
+      }).catch(e => {
+        setTiktokStatus('error');
+      });
+    }
+  }, [params, tiktokUsername, tiktokStatus]);
 
   const activeQ = questions.find(q => q.id === activeQuestion);
 
@@ -240,16 +268,42 @@ export default function LiveControlPage() {
       {/* LEFT PANEL: KỊCH BẢN, TRIVIA & KEYWORDS */}
       <div className="w-[500px] border-r border-slate-200 bg-white flex flex-col h-full shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10 shrink-0">
         <div className="p-6 border-b border-slate-100 bg-white/50 backdrop-blur-sm sticky top-0 z-20">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="flex items-center gap-1.5 bg-red-50 text-red-600 px-2.5 py-1 rounded-full text-[10px] font-black border border-red-100 shadow-sm uppercase">
-              <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping"></span> ĐANG PHÁT LIVE
-            </span>
-            <span className="text-[11px] font-bold text-slate-400">#LIVE</span>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black shadow-sm uppercase ${
+                sessionData?.status === 'COMPLETED' ? 'bg-slate-100 text-slate-500 border border-slate-200' : 'bg-red-50 text-red-600 border border-red-100'
+              }`}>
+                {sessionData?.status === 'COMPLETED' ? (
+                  <>ĐÃ KẾT THÚC</>
+                ) : (
+                  <><span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping"></span> ĐANG PHÁT LIVE</>
+                )}
+              </span>
+              <span className="text-[11px] font-bold text-slate-400">#{sessionData?.platform || 'TIKTOK'}</span>
+            </div>
+            {sessionData?.liveUrl && (
+              <a href={sessionData.liveUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-[#005691] hover:underline">
+                Mở TikTok LIVE
+              </a>
+            )}
           </div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">{sessionData?.title || 'Đang tải...'}</h1>
-          <p className="text-[12px] text-slate-500 mt-1 font-medium flex items-center gap-2">
-            <Users size={12} /> Mắt xem: {sessionData ? '1,402' : '...'} • Quản trị viên
-          </p>
+          <div className="flex items-center gap-4 mb-3">
+            {sessionData?.creatorAvatar && (
+              <img src={sessionData.creatorAvatar} alt="avatar" className="w-12 h-12 rounded-full border border-slate-200" />
+            )}
+            <div>
+              <h1 className="text-lg font-bold text-slate-900 tracking-tight line-clamp-2 leading-tight">
+                {sessionData?.title || 'Đang tải...'}
+              </h1>
+              <p className="text-[12px] font-bold text-slate-500 mt-0.5">
+                @{sessionData?.creatorUsername || 'creator'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 text-[12px] text-slate-500 font-medium">
+            <span className="flex items-center gap-1.5"><Users size={14} className="text-blue-500" /> {(sessionData?.viewerCount || 0).toLocaleString()} người xem</span>
+            <span className="flex items-center gap-1.5"><Heart size={14} className="text-red-500" /> {(sessionData?.likeCount || 0).toLocaleString()} tim</span>
+          </div>
         </div>
 
         {/* Left Tabs */}
@@ -442,18 +496,20 @@ export default function LiveControlPage() {
           {activeTabRight === 'COMMENTS' && (
             <div className="absolute inset-0 p-8 flex flex-col">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-2"><MessageSquare size={14} className="text-[#005691]" /> Comment trực tiếp từ TikTok/FB</h3>
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-2"><MessageSquare size={14} className="text-[#005691]" /> Comment trực tiếp</h3>
                 
-                <div className="flex items-center gap-2">
-                  <input 
-                    type="text" 
-                    placeholder="@tiktok_id" 
-                    value={tiktokUsername}
-                    onChange={(e) => setTiktokUsername(e.target.value)}
-                    disabled={tiktokStatus === 'connected' || tiktokStatus === 'connecting'}
-                    className="px-3 py-1.5 rounded-lg text-xs border border-slate-300 focus:outline-none focus:border-[#F58220]"
-                  />
-                  {tiktokStatus === 'connected' ? (
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-3 w-3">
+                      {tiktokStatus === 'connected' && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>}
+                      <span className={`relative inline-flex rounded-full h-3 w-3 ${tiktokStatus === 'connected' ? 'bg-green-500' : tiktokStatus === 'connecting' ? 'bg-yellow-500 animate-pulse' : 'bg-slate-300'}`}></span>
+                    </span>
+                    <span className="text-[10px] font-black uppercase text-slate-500">
+                      {tiktokStatus === 'connected' ? 'AI ĐANG LẮNG NGHE' : tiktokStatus === 'connecting' ? 'ĐANG KẾT NỐI' : 'NGẮT KẾT NỐI'}
+                    </span>
+                  </div>
+                  
+                  {tiktokStatus === 'connected' && (
                     <button onClick={async () => { 
                       setTiktokStatus('disconnected'); 
                       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -462,28 +518,8 @@ export default function LiveControlPage() {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ liveSessionId: params })
                       });
-                    }} className="bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-600 transition-colors">
-                      Ngắt kết nối
-                    </button>
-                  ) : (
-                    <button onClick={async () => { 
-                      setTiktokStatus('connecting'); 
-                      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-                      try {
-                        const res = await fetch(`${baseUrl}/live-engine/connect`, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ liveSessionId: params, tiktokUsername })
-                        });
-                        if (!res.ok) throw new Error('Realtime comment source chưa khả dụng hoặc Lỗi kết nối');
-                        setTiktokStatus('connected');
-                      } catch(e: any) {
-                        setTiktokStatus('error');
-                        setToastMessage(e.message || 'Không thể xác thực TikTok');
-                        setTimeout(() => setToastMessage(null), 3000);
-                      }
-                    }} className="bg-[#00A859] text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors">
-                      {tiktokStatus === 'connecting' ? 'Đang kết nối...' : 'Bắt Live TikTok'}
+                    }} className="text-xs font-bold text-red-500 hover:text-red-700 underline transition-colors">
+                      Dừng
                     </button>
                   )}
                 </div>

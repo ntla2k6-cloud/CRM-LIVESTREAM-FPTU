@@ -107,6 +107,16 @@ model LiveSession {
   campaignId String?
   campaign   Campaign? @relation(fields: [campaignId], references: [id])
 
+  platform           String?   @default("tiktok")
+  platformLiveId     String?   @unique
+  liveUrl            String?
+  creatorUsername    String?
+  creatorDisplayName String?
+  creatorAvatar      String?
+  viewerCount        Int       @default(0)
+  likeCount          Int       @default(0)
+  shareCount         Int       @default(0)
+
   // Thông tin lịch (tích hợp từ bảng Shift cũ)
   liveId      String?   @unique
   title       String

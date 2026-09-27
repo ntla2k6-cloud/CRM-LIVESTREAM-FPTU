@@ -35,6 +35,9 @@ let LiveEngineController = class LiveEngineController {
     async connectTiktok(body) {
         return this.liveEngineService.connectToTiktok(body.liveSessionId, body.tiktokUsername);
     }
+    async resolveLiveSession(body) {
+        return this.liveEngineService.resolveLiveSession(body.input);
+    }
     async disconnectTiktok(body) {
         return this.liveEngineService.disconnectFromTiktok(body.liveSessionId);
     }
@@ -63,6 +66,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], LiveEngineController.prototype, "connectTiktok", null);
+__decorate([
+    Post('resolve'),
+    __param(0, Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], LiveEngineController.prototype, "resolveLiveSession", null);
 __decorate([
     Post('disconnect'),
     __param(0, Body()),

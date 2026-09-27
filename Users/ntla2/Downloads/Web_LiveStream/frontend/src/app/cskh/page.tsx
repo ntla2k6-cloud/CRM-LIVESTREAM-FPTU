@@ -842,8 +842,7 @@ export default function CSKHBoardPage() {
                         const dateStr = `${nowTime.getDate() < 10 ? '0'+nowTime.getDate() : nowTime.getDate()}/${nowTime.getMonth()+1 < 10 ? '0'+(nowTime.getMonth()+1) : nowTime.getMonth()+1}/${nowTime.getFullYear()}`;
                         const timeString = `${nowTime.getHours() < 10 ? '0'+nowTime.getHours() : nowTime.getHours()}:${nowTime.getMinutes() < 10 ? '0'+nowTime.getMinutes() : nowTime.getMinutes()}`;
                         
-                        try {
-                          const newOrder = {
+                        const newOrder = {
                           id: `DON-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
                           recipientName: selectedLead.name,
                           phone: selectedLead.phone || 'Chưa cập nhật',

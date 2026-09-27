@@ -1,4 +1,4 @@
-﻿import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { LiveEngineService } from './live-engine.service.js';
 import { PipelineService } from '../comment-engine/pipeline.service.js';
 
@@ -37,6 +37,11 @@ export class LiveEngineController {
   @Post('connect')
   async connectTiktok(@Body() body: { liveSessionId: string; tiktokUsername: string }) {
     return this.liveEngineService.connectToTiktok(body.liveSessionId, body.tiktokUsername);
+  }
+
+  @Post('resolve')
+  async resolveLiveSession(@Body() body: { input: string }) {
+    return this.liveEngineService.resolveLiveSession(body.input);
   }
   
   @Post('disconnect')

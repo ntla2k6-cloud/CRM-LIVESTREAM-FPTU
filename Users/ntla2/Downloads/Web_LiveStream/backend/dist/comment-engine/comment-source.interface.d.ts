@@ -15,5 +15,6 @@ export interface CommentSource {
     onComment(callback: (payload: CommentPayload) => void): void;
     onGift(callback: (payload: any) => void): void;
     onLike(callback: (payload: any) => void): void;
+    onDisconnected(callback: () => void): void;
     getStatus(): 'DISCONNECTED' | 'CONNECTING' | 'CONNECTED' | 'ERROR';
 }
