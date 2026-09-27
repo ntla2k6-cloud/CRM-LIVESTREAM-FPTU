@@ -1,8 +1,6 @@
-import NextAuth from "next-auth";
+﻿import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
-
 import { prisma } from '@/lib/prisma';
 
 const handler = NextAuth({
@@ -21,16 +19,40 @@ const handler = NextAuth({
   pages: {
     signIn: '/login',
   },
+  events: {
+    async createUser({ user }) {
+      try {
+        const isAdmin = user.email === 'ntla2k6@gmail.com';
+        const finalRole = isAdmin ? 'ADMIN' : 'GUEST';
+        
+        if (isAdmin) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { role: 'ADMIN', status: 'ACTIVE' }
+          });
+        }
+        
+        // Luôn tạo Staff tương ứng
+        await prisma.staff.create({
+          data: {
+            name: user.name || 'User Mới',
+            email: user.email,
+            role: finalRole,
+            status: isAdmin ? 'Sẵn sàng' : 'PENDING',
+            avatar: user.image,
+            rate: 150000,
+            color: 'bg-slate-500'
+          }
+        });
+      } catch (e) {
+        console.error("Error creating staff for new user", e);
+      }
+    }
+  },
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
         (session.user as any).role = (user as any).role || "GUEST";
-        
-        // Force ADMIN role for ntla2k6@gmail.com
-        if (session.user.email === 'ntla2k6@gmail.com') {
-          (session.user as any).role = 'ADMIN';
-        }
-        
         (session.user as any).id = user.id;
       }
       return session;

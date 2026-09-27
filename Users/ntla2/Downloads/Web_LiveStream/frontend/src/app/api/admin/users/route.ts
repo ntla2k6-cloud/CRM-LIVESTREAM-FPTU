@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-
-
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// GET: Lấy toàn bộ user đã đăng nhập (nhân sự)
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const users = await prisma.user.findMany({
@@ -27,22 +26,23 @@ export async function GET() {
   }
 }
 
-// PATCH: Cập nhật role + thông tin bổ sung
 export async function PATCH(req: NextRequest) {
   try {
     const { userId, role, phone, department } = await req.json();
     if (!userId) return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
 
+    // Cập nhật User
     const updated = await prisma.user.update({
       where: { id: userId },
       data: {
         ...(role && { role }),
         ...(phone !== undefined && { phone }),
         ...(department !== undefined && { department }),
+        ...(role && role !== 'GUEST' ? { status: 'ACTIVE' } : {})
       }
     });
 
-    // --- ĐỒNG BỘ SANG BẢNG STAFF (XẾP LỊCH) ---
+    // Đồng bộ sang Staff
     if (updated.email) {
       const staffRoleMap: Record<string, string> = {
         'VJ_HOST': 'VJ',
@@ -60,9 +60,14 @@ export async function PATCH(req: NextRequest) {
       if (existingStaff) {
         await prisma.staff.update({
           where: { id: existingStaff.id },
-          data: { role: mappedRole, phone: updated.phone || existingStaff.phone, name: updated.name || existingStaff.name }
+          data: { 
+            role: mappedRole, 
+            phone: updated.phone || existingStaff.phone, 
+            name: updated.name || existingStaff.name,
+            status: updated.role !== 'GUEST' ? 'Sẵn sàng' : 'PENDING'
+          }
         });
-      } else if (updated.role !== 'GUEST') {
+      } else {
         await prisma.staff.create({
           data: {
             name: updated.name || 'Người dùng mới',
@@ -71,7 +76,7 @@ export async function PATCH(req: NextRequest) {
             phone: updated.phone || null,
             rate: 150000,
             color: 'bg-blue-500',
-            status: 'Sẵn sàng'
+            status: updated.role !== 'GUEST' ? 'Sẵn sàng' : 'PENDING'
           }
         });
       }
