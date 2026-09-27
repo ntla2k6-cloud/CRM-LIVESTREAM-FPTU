@@ -121,6 +121,64 @@ let LiveEngineService = LiveEngineService_1 = class LiveEngineService {
             throw new Error(`Lỗi kết nối TikTok: ${e.message}`);
         }
     }
+    async getAnalytics(liveSessionId) {
+        const totalComments = await this.prisma.liveComment.count({ where: { liveSessionId } });
+        const uniqueCommenters = await this.prisma.liveComment.groupBy({
+            by: ['username'],
+            where: { liveSessionId },
+        });
+        const totalLeads = await this.prisma.lead.count({ where: { liveSessionId } });
+        const hotLeads = await this.prisma.lead.count({ where: { liveSessionId, intent: 'HOT' } });
+        const topCommentersData = await this.prisma.liveComment.groupBy({
+            by: ['username', 'avatar'],
+            where: { liveSessionId },
+            _count: { id: true },
+            orderBy: { _count: { id: 'desc' } },
+            take: 20,
+        });
+        const topComments = await this.prisma.liveComment.findMany({
+            where: { liveSessionId },
+            orderBy: [
+                { likeCount: 'desc' },
+                { replyCount: 'desc' }
+            ],
+            take: 20,
+        });
+        const recentComments = await this.prisma.liveComment.findMany({
+            where: { liveSessionId },
+            select: { content: true },
+            orderBy: { serverTimestamp: 'desc' },
+            take: 1000
+        });
+        const wordCount = {};
+        const stopWords = ['là', 'và', 'của', 'cho', 'em', 'chị', 'ơi', 'ạ', 'có', 'không', 'để', 'được', 'thì', 'mà'];
+        recentComments.forEach(c => {
+            const words = c.content.toLowerCase().split(/\s+/);
+            words.forEach(w => {
+                const clean = w.replace(/[^a-z0-9àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/g, '');
+                if (clean.length > 2 && !stopWords.includes(clean)) {
+                    wordCount[clean] = (wordCount[clean] || 0) + 1;
+                }
+            });
+        });
+        const topKeywords = Object.entries(wordCount)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 20)
+            .map(([keyword, count]) => ({ keyword, count }));
+        return {
+            totalComments,
+            uniqueUsers: uniqueCommenters.length,
+            totalLeads,
+            hotLeads,
+            topKeywords,
+            topCommenters: topCommentersData.map(c => ({
+                username: c.username,
+                avatar: c.avatar,
+                count: c._count.id
+            })),
+            topComments
+        };
+    }
 };
 LiveEngineService = LiveEngineService_1 = __decorate([
     Injectable(),

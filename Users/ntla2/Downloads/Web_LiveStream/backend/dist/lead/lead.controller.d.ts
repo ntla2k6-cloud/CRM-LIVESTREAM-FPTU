@@ -4,11 +4,11 @@ export declare class LeadController {
     constructor(leadService: LeadService);
     create(createLeadDto: any): Promise<{
         id: string;
+        updatedAt: Date;
         liveSessionId: string | null;
         customerId: string | null;
         status: string;
         createdAt: Date;
-        updatedAt: Date;
         campaignId: string | null;
         assignedCskhId: string | null;
         firstCommentId: string | null;
@@ -20,6 +20,7 @@ export declare class LeadController {
     findAll(): import(".prisma/client").Prisma.PrismaPromise<({
         customer: {
             id: string;
+            updatedAt: Date;
             tiktokAccount: string | null;
             fullName: string | null;
             phone: string | null;
@@ -28,15 +29,14 @@ export declare class LeadController {
             location: string | null;
             interestedMajor: string | null;
             createdAt: Date;
-            updatedAt: Date;
         } | null;
     } & {
         id: string;
+        updatedAt: Date;
         liveSessionId: string | null;
         customerId: string | null;
         status: string;
         createdAt: Date;
-        updatedAt: Date;
         campaignId: string | null;
         assignedCskhId: string | null;
         firstCommentId: string | null;
@@ -48,6 +48,7 @@ export declare class LeadController {
     findOne(id: string): import(".prisma/client").Prisma.Prisma__LeadClient<({
         customer: {
             id: string;
+            updatedAt: Date;
             tiktokAccount: string | null;
             fullName: string | null;
             phone: string | null;
@@ -56,15 +57,14 @@ export declare class LeadController {
             location: string | null;
             interestedMajor: string | null;
             createdAt: Date;
-            updatedAt: Date;
         } | null;
     } & {
         id: string;
+        updatedAt: Date;
         liveSessionId: string | null;
         customerId: string | null;
         status: string;
         createdAt: Date;
-        updatedAt: Date;
         campaignId: string | null;
         assignedCskhId: string | null;
         firstCommentId: string | null;
@@ -75,11 +75,11 @@ export declare class LeadController {
     }) | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
     update(id: string, updateLeadDto: any): import(".prisma/client").Prisma.Prisma__LeadClient<{
         id: string;
+        updatedAt: Date;
         liveSessionId: string | null;
         customerId: string | null;
         status: string;
         createdAt: Date;
-        updatedAt: Date;
         campaignId: string | null;
         assignedCskhId: string | null;
         firstCommentId: string | null;
@@ -90,11 +90,11 @@ export declare class LeadController {
     }, never, import("@prisma/client/runtime/library").DefaultArgs>;
     remove(id: string): import(".prisma/client").Prisma.Prisma__LeadClient<{
         id: string;
+        updatedAt: Date;
         liveSessionId: string | null;
         customerId: string | null;
         status: string;
         createdAt: Date;
-        updatedAt: Date;
         campaignId: string | null;
         assignedCskhId: string | null;
         firstCommentId: string | null;

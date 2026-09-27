@@ -4,11 +4,11 @@ export declare class OrderController {
     constructor(orderService: OrderService);
     create(createOrderDto: any): Promise<{
         id: string;
+        updatedAt: Date;
         liveSessionId: string | null;
         status: string;
         phone: string;
         createdAt: Date;
-        updatedAt: Date;
         winnerId: string | null;
         senderName: string;
         senderAddress: string;
@@ -103,11 +103,11 @@ export declare class OrderController {
     } | null>;
     update(id: string, updateOrderDto: any): Promise<{
         id: string;
+        updatedAt: Date;
         liveSessionId: string | null;
         status: string;
         phone: string;
         createdAt: Date;
-        updatedAt: Date;
         winnerId: string | null;
         senderName: string;
         senderAddress: string;
@@ -125,11 +125,11 @@ export declare class OrderController {
     }>;
     remove(id: string): Promise<{
         id: string;
+        updatedAt: Date;
         liveSessionId: string | null;
         status: string;
         phone: string;
         createdAt: Date;
-        updatedAt: Date;
         winnerId: string | null;
         senderName: string;
         senderAddress: string;

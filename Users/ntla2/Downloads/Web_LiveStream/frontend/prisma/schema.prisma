@@ -203,17 +203,26 @@ model LiveComment {
   content           String
   likeCount         Int     @default(0)
   replyCount        Int     @default(0)
+  parentCommentId   String?
 
-  category    String  @default("CHAT") // QUIZ, ADMISSION, LEAD, QUESTION, SPAM, CHAT
-  isProcessed Boolean @default(false)
+  category         String  @default("CHAT") // QUIZ, ADMISSION, LEAD, QUESTION, SPAM, CHAT
+  isProcessed      Boolean @default(false)
+  processingStatus String  @default("NEW") // NEW, PROCESSED, ERROR
+  priority         Int     @default(0)
+  
   rawPayload  String? // Store as JSON string or use Prisma Json if using PG
   aiIntent    String?
 
   serverTimestamp DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   answers Answer[]
 
   @@unique([platform, platformCommentId])
+  @@index([liveSessionId, serverTimestamp])
+  @@index([liveSessionId, platformUserId])
+  @@index([category])
+  @@index([aiIntent])
 }
 
 model Question {

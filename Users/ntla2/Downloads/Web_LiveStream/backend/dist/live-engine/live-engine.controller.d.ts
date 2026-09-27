@@ -61,4 +61,42 @@ export declare class LiveEngineController {
     getStatus(liveSessionId: string): Promise<{
         status: "DISCONNECTED" | "CONNECTING" | "CONNECTED" | "ERROR";
     }>;
+    getAnalytics(liveSessionId: string): Promise<{
+        totalComments: number;
+        uniqueUsers: number;
+        totalLeads: number;
+        hotLeads: number;
+        topKeywords: {
+            keyword: string;
+            count: number;
+        }[];
+        topCommenters: {
+            username: string;
+            avatar: string | null;
+            count: number;
+        }[];
+        topComments: {
+            id: string;
+            platform: string;
+            platformCommentId: string;
+            platformUserId: string | null;
+            username: string;
+            displayName: string | null;
+            avatar: string | null;
+            content: string;
+            likeCount: number;
+            replyCount: number;
+            parentCommentId: string | null;
+            category: string;
+            isProcessed: boolean;
+            processingStatus: string;
+            priority: number;
+            rawPayload: string | null;
+            aiIntent: string | null;
+            serverTimestamp: Date;
+            updatedAt: Date;
+            liveSessionId: string;
+            customerId: string | null;
+        }[];
+    }>;
 }

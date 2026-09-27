@@ -69,11 +69,11 @@ export declare class LiveSessionService {
     findOne(id: string): import(".prisma/client").Prisma.Prisma__LiveSessionClient<({
         leads: {
             id: string;
+            updatedAt: Date;
             liveSessionId: string | null;
             customerId: string | null;
             status: string;
             createdAt: Date;
-            updatedAt: Date;
             campaignId: string | null;
             assignedCskhId: string | null;
             firstCommentId: string | null;
@@ -93,11 +93,15 @@ export declare class LiveSessionService {
             content: string;
             likeCount: number;
             replyCount: number;
+            parentCommentId: string | null;
             category: string;
             isProcessed: boolean;
+            processingStatus: string;
+            priority: number;
             rawPayload: string | null;
             aiIntent: string | null;
             serverTimestamp: Date;
+            updatedAt: Date;
             liveSessionId: string;
             customerId: string | null;
         }[];

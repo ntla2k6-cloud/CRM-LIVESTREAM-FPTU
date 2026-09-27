@@ -6,11 +6,11 @@ export declare class OrderService {
     constructor(prisma: PrismaService, emailService: EmailService);
     create(data: any): Promise<{
         id: string;
+        updatedAt: Date;
         liveSessionId: string | null;
         status: string;
         phone: string;
         createdAt: Date;
-        updatedAt: Date;
         winnerId: string | null;
         senderName: string;
         senderAddress: string;
@@ -97,11 +97,11 @@ export declare class OrderService {
     }>;
     update(id: string, data: any): Promise<{
         id: string;
+        updatedAt: Date;
         liveSessionId: string | null;
         status: string;
         phone: string;
         createdAt: Date;
-        updatedAt: Date;
         winnerId: string | null;
         senderName: string;
         senderAddress: string;
@@ -119,11 +119,11 @@ export declare class OrderService {
     }>;
     remove(id: string): Promise<{
         id: string;
+        updatedAt: Date;
         liveSessionId: string | null;
         status: string;
         phone: string;
         createdAt: Date;
-        updatedAt: Date;
         winnerId: string | null;
         senderName: string;
         senderAddress: string;

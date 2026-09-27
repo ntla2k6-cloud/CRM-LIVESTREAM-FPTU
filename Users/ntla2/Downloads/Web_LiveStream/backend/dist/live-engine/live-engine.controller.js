@@ -44,6 +44,9 @@ let LiveEngineController = class LiveEngineController {
     async getStatus(liveSessionId) {
         return { status: this.liveEngineService.getTiktokStatus(liveSessionId) };
     }
+    async getAnalytics(liveSessionId) {
+        return this.liveEngineService.getAnalytics(liveSessionId);
+    }
 };
 __decorate([
     Post('winner'),
@@ -87,6 +90,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], LiveEngineController.prototype, "getStatus", null);
+__decorate([
+    Get('analytics/:liveSessionId'),
+    __param(0, Param('liveSessionId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], LiveEngineController.prototype, "getAnalytics", null);
 LiveEngineController = __decorate([
     Controller('live-engine'),
     __metadata("design:paramtypes", [LiveEngineService,

@@ -53,4 +53,9 @@ export class LiveEngineController {
   async getStatus(@Param('liveSessionId') liveSessionId: string) {
     return { status: this.liveEngineService.getTiktokStatus(liveSessionId) };
   }
+
+  @Get('analytics/:liveSessionId')
+  async getAnalytics(@Param('liveSessionId') liveSessionId: string) {
+    return this.liveEngineService.getAnalytics(liveSessionId);
+  }
 }
