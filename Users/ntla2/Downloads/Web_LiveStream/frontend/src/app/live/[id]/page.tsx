@@ -470,15 +470,17 @@ export default function LiveControlPage() {
                       setTiktokStatus('connecting'); 
                       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
                       try {
-                        await fetch(`${baseUrl}/live-engine/connect`, {
+                        const res = await fetch(`${baseUrl}/live-engine/connect`, {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ liveSessionId: params, tiktokUsername })
                         });
+                        if (!res.ok) throw new Error('Realtime comment source chưa khả dụng hoặc Lỗi kết nối');
                         setTiktokStatus('connected');
-                      } catch(e) {
+                      } catch(e: any) {
                         setTiktokStatus('error');
-                        alert('Lỗi kết nối');
+                        setToastMessage(e.message || 'Không thể xác thực TikTok');
+                        setTimeout(() => setToastMessage(null), 3000);
                       }
                     }} className="bg-[#00A859] text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors">
                       {tiktokStatus === 'connecting' ? 'Đang kết nối...' : 'Bắt Live TikTok'}
