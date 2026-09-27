@@ -78,12 +78,12 @@ export default function LiveControlPage() {
 
   // 1. Socket.IO & Timer Engine
   useEffect(() => {
-    // Kết nối Socket
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
     socket = io(socketUrl);
 
-    socket.emit('joinLiveSession', params);
+    socket.emit('joinSession', params);
 
+    // TikTok events
     socket.on('tiktokStatus', (data: any) => {
       setTiktokStatus(data.status);
       if (data.status === 'error') {
@@ -91,63 +91,56 @@ export default function LiveControlPage() {
       }
     });
 
-    socket.on('tiktokEvent', (data: any) => {
-      setToastMessage(`TikTok: ${data.text}`);
+    socket.on('gift:new', (data: any) => {
+      setToastMessage(`TikTok: ${data.uniqueId} đã gửi quà!`);
       setTimeout(() => setToastMessage(null), 3000);
     });
     
-    socket.on('newComment', (dbComment: any) => {
-      const hasPhone = /\d{9,11}/.test(dbComment.content);
-      const isHighIntent = dbComment.aiIntent !== 'NEUTRAL' || /(tư vấn|quan tâm|muốn học)/i.test(dbComment.content);
-      
+    // Server-side Engine Events
+    socket.on('comment:new', (dbComment: any) => {
       const newComment = {
-        id: dbComment.id,
+        id: dbComment.platformCommentId || dbComment.id,
         name: dbComment.username,
         text: dbComment.content,
-        time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-        isPhone: hasPhone,
-        isHighIntent: isHighIntent
+        time: new Date(dbComment.serverTimestamp || Date.now()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        category: dbComment.category,
+        isPhone: dbComment.category === 'LEAD',
+        isHighIntent: dbComment.category === 'ADMISSION'
       };
-
       setComments(prev => [newComment, ...prev].slice(0, 100));
-      
-      if (hasPhone || isHighIntent) {
-        setLeads(prev => {
-          if (prev.find(l => l.name === newComment.name)) return prev;
-          setNewLeadAlert(true);
-          setTimeout(() => setNewLeadAlert(false), 3000);
-          return [{ 
-            id: newComment.id, 
-            name: newComment.name, 
-            phone: hasPhone ? newComment.text.match(/\d{9,11}/)?.[0] : 'Chưa có', 
-            intent: hasPhone ? 'HOT' : 'WARM',
-            text: newComment.text,
-            time: newComment.time, 
-            status: 'Chưa gọi' 
-          }, ...prev];
+    });
+
+    socket.on('lead:new', (newLead: any) => {
+      setNewLeadAlert(true);
+      setTimeout(() => setNewLeadAlert(false), 3000);
+      setLeads(prev => [{
+        id: newLead.id,
+        name: newLead.customer?.tiktokAccount || newLead.customerId,
+        phone: newLead.customer?.phone || 'Chưa có',
+        intent: newLead.intent || 'WARM',
+        text: newLead.intent, // Trích xuất từ backend
+        time: new Date().toLocaleTimeString(),
+        status: 'NEW'
+      }, ...prev]);
+    });
+
+    socket.on('lead:updated', (updatedLead: any) => {
+      setLeads(prev => prev.map(l => l.id === updatedLead.id ? {
+        ...l,
+        intent: updatedLead.intent,
+        score: updatedLead.leadScore
+      } : l));
+    });
+
+    socket.on('quiz:answer', (data: any) => {
+      setStats(prev => ({ total: prev.total + 1, correct: prev.correct + (data.isCorrect ? 1 : 0) }));
+      if (data.isCorrect) {
+        setLeaderboard(prev => {
+          if (prev.find(u => u.name === data.username)) return prev;
+          const speedSec = (Math.max(0.1, data.responseSpeed / 1000)).toFixed(1);
+          return [...prev, { name: data.username, speed: speedSec, text: data.answer }].sort((a, b) => parseFloat(a.speed) - parseFloat(b.speed));
         });
       }
-      
-      // Chấm điểm Minigame từ Socket
-      setActiveQuestion((currentActiveQ) => {
-        if (currentActiveQ) {
-          const qObj = questionsRef.current.find(q => q.id === currentActiveQ);
-          if (qObj && qObj.answer) {
-            const isCorrect = newComment.text.toLowerCase().includes(qObj.answer.toLowerCase());
-            setStats(prev => ({ total: prev.total + 1, correct: prev.correct + (isCorrect ? 1 : 0) }));
-            if (isCorrect) {
-              setLeaderboard(prev => {
-                if (prev.find(u => u.name === newComment.name)) return prev;
-                // Tính tốc độ (chỉ tương đối vì ko có startTime chính xác tuyệt đối ở đây, dùng Date.now làm fallback)
-                const speedMs = newComment.timestamp - Date.now() + 10000; 
-                const speedSec = (Math.max(0.1, Math.abs(speedMs) / 1000)).toFixed(1);
-                return [...prev, { name: newComment.name, speed: speedSec, text: newComment.text }].sort((a, b) => parseFloat(a.speed) - parseFloat(b.speed));
-              });
-            }
-          }
-        }
-        return currentActiveQ;
-      });
     });
 
     return () => {
@@ -461,11 +454,33 @@ export default function LiveControlPage() {
                     className="px-3 py-1.5 rounded-lg text-xs border border-slate-300 focus:outline-none focus:border-[#F58220]"
                   />
                   {tiktokStatus === 'connected' ? (
-                    <button onClick={() => { setTiktokStatus('disconnected'); socket.emit('stopTiktokConnection', params); }} className="bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-600 transition-colors">
+                    <button onClick={async () => { 
+                      setTiktokStatus('disconnected'); 
+                      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+                      await fetch(`${baseUrl}/live-engine/disconnect`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ liveSessionId: params })
+                      });
+                    }} className="bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-600 transition-colors">
                       Ngắt kết nối
                     </button>
                   ) : (
-                    <button onClick={() => { setTiktokStatus('connecting'); socket.emit('startTiktokConnection', { liveSessionId: params, tiktokUsername }); }} className="bg-[#00A859] text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors">
+                    <button onClick={async () => { 
+                      setTiktokStatus('connecting'); 
+                      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+                      try {
+                        await fetch(`${baseUrl}/live-engine/connect`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ liveSessionId: params, tiktokUsername })
+                        });
+                        setTiktokStatus('connected');
+                      } catch(e) {
+                        setTiktokStatus('error');
+                        alert('Lỗi kết nối');
+                      }
+                    }} className="bg-[#00A859] text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors">
                       {tiktokStatus === 'connecting' ? 'Đang kết nối...' : 'Bắt Live TikTok'}
                     </button>
                   )}

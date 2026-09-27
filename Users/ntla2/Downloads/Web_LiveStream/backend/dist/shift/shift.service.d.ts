@@ -31,13 +31,13 @@ export declare class ShiftService {
         assignments: ({
             staff: {
                 id: number;
+                avatar: string | null;
                 name: string;
                 status: string;
                 phone: string | null;
                 role: string;
                 email: string | null;
                 rate: number;
-                avatar: string | null;
                 color: string | null;
                 joinDate: string | null;
             };
@@ -54,13 +54,13 @@ export declare class ShiftService {
         assignments: ({
             staff: {
                 id: number;
+                avatar: string | null;
                 name: string;
                 status: string;
                 phone: string | null;
                 role: string;
                 email: string | null;
                 rate: number;
-                avatar: string | null;
                 color: string | null;
                 joinDate: string | null;
             };

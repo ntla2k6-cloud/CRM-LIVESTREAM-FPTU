@@ -5,12 +5,14 @@ export declare class LeadService {
     create(createLeadDto: any): Promise<{
         id: string;
         liveSessionId: string | null;
-        customerId: string;
+        customerId: string | null;
         status: string;
         createdAt: Date;
         updatedAt: Date;
         campaignId: string | null;
         assignedCskhId: string | null;
+        firstCommentId: string | null;
+        latestCommentId: string | null;
         source: string;
         leadScore: number;
         intent: string | null;
@@ -27,16 +29,18 @@ export declare class LeadService {
             interestedMajor: string | null;
             createdAt: Date;
             updatedAt: Date;
-        };
+        } | null;
     } & {
         id: string;
         liveSessionId: string | null;
-        customerId: string;
+        customerId: string | null;
         status: string;
         createdAt: Date;
         updatedAt: Date;
         campaignId: string | null;
         assignedCskhId: string | null;
+        firstCommentId: string | null;
+        latestCommentId: string | null;
         source: string;
         leadScore: number;
         intent: string | null;
@@ -53,16 +57,18 @@ export declare class LeadService {
             interestedMajor: string | null;
             createdAt: Date;
             updatedAt: Date;
-        };
+        } | null;
     } & {
         id: string;
         liveSessionId: string | null;
-        customerId: string;
+        customerId: string | null;
         status: string;
         createdAt: Date;
         updatedAt: Date;
         campaignId: string | null;
         assignedCskhId: string | null;
+        firstCommentId: string | null;
+        latestCommentId: string | null;
         source: string;
         leadScore: number;
         intent: string | null;
@@ -70,12 +76,14 @@ export declare class LeadService {
     update(id: string, updateLeadDto: any): import(".prisma/client").Prisma.Prisma__LeadClient<{
         id: string;
         liveSessionId: string | null;
-        customerId: string;
+        customerId: string | null;
         status: string;
         createdAt: Date;
         updatedAt: Date;
         campaignId: string | null;
         assignedCskhId: string | null;
+        firstCommentId: string | null;
+        latestCommentId: string | null;
         source: string;
         leadScore: number;
         intent: string | null;
@@ -83,12 +91,14 @@ export declare class LeadService {
     remove(id: string): import(".prisma/client").Prisma.Prisma__LeadClient<{
         id: string;
         liveSessionId: string | null;
-        customerId: string;
+        customerId: string | null;
         status: string;
         createdAt: Date;
         updatedAt: Date;
         campaignId: string | null;
         assignedCskhId: string | null;
+        firstCommentId: string | null;
+        latestCommentId: string | null;
         source: string;
         leadScore: number;
         intent: string | null;

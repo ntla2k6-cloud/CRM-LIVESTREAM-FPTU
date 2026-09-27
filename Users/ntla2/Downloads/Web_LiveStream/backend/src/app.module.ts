@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+﻿import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/roles.guard.js';
 import { AppController } from './app.controller.js';
@@ -14,9 +14,14 @@ import { GiftModule } from './gift/gift.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 import { LiveEngineModule } from './live-engine/live-engine.module.js';
 import { TaskModule } from './task/task.module.js';
+import { CommentEngineModule } from './comment-engine/comment-engine.module.js';
 
 @Module({
-  imports: [PrismaModule, MinigameModule, StaffModule, LiveSessionModule, LeadModule, ShiftModule, OrderModule, GiftModule, DashboardModule, LiveEngineModule, TaskModule],
+  imports: [
+    PrismaModule, MinigameModule, StaffModule, LiveSessionModule, 
+    LeadModule, ShiftModule, OrderModule, GiftModule, DashboardModule, 
+    LiveEngineModule, TaskModule, CommentEngineModule
+  ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: RolesGuard }],
 })

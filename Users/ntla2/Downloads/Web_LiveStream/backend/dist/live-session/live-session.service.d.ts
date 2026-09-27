@@ -52,21 +52,32 @@ export declare class LiveSessionService {
         leads: {
             id: string;
             liveSessionId: string | null;
-            customerId: string;
+            customerId: string | null;
             status: string;
             createdAt: Date;
             updatedAt: Date;
             campaignId: string | null;
             assignedCskhId: string | null;
+            firstCommentId: string | null;
+            latestCommentId: string | null;
             source: string;
             leadScore: number;
             intent: string | null;
         }[];
         comments: {
             id: string;
-            tiktokUserId: string | null;
+            platform: string;
+            platformCommentId: string;
+            platformUserId: string | null;
             username: string;
+            displayName: string | null;
+            avatar: string | null;
             content: string;
+            likeCount: number;
+            replyCount: number;
+            category: string;
+            isProcessed: boolean;
+            rawPayload: string | null;
             aiIntent: string | null;
             serverTimestamp: Date;
             liveSessionId: string;

@@ -7,27 +7,35 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Injectable, ConflictException } from '@nestjs/common';
+var LiveEngineService_1;
+import { Injectable, ConflictException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
-let LiveEngineService = class LiveEngineService {
+import { PipelineService } from '../comment-engine/pipeline.service.js';
+import { TiktokCommentSource } from '../comment-engine/tiktok-comment-source.js';
+import { EventsGateway } from '../websocket/events.gateway.js';
+let LiveEngineService = LiveEngineService_1 = class LiveEngineService {
     prisma;
-    constructor(prisma) {
+    pipeline;
+    eventsGateway;
+    logger = new Logger(LiveEngineService_1.name);
+    sources = new Map();
+    constructor(prisma, pipeline, eventsGateway) {
         this.prisma = prisma;
+        this.pipeline = pipeline;
+        this.eventsGateway = eventsGateway;
     }
     async processWinner(liveSessionId, questionId, customerId, giftId) {
         return await this.prisma.$transaction(async (tx) => {
             const existingWinner = await tx.winner.findFirst({
                 where: { questionId }
             });
-            if (existingWinner) {
+            if (existingWinner)
                 throw new ConflictException('Câu hỏi này đã có người trúng thưởng!');
-            }
             const gift = await tx.gift.findUnique({
                 where: { id: giftId }
             });
-            if (!gift || gift.stock <= 0) {
+            if (!gift || gift.stock <= 0)
                 throw new ConflictException('Quà tặng này đã hết hàng!');
-            }
             await tx.gift.update({
                 where: { id: giftId },
                 data: { stock: { decrement: 1 } }
@@ -44,74 +52,36 @@ let LiveEngineService = class LiveEngineService {
             return winner;
         });
     }
-    async processComment(liveSessionId, tiktokUsername, comment) {
-        const customer = await this.prisma.customer.findFirst({
-            where: { tiktokAccount: tiktokUsername }
-        });
-        let customerId = customer?.id;
-        if (!customerId) {
-            const newCustomer = await this.prisma.customer.create({
-                data: {
-                    fullName: tiktokUsername,
-                    tiktokAccount: tiktokUsername
-                }
-            });
-            customerId = newCustomer.id;
-        }
-        return await this.prisma.liveComment.create({
-            data: {
-                liveSessionId,
-                customerId,
-                username: tiktokUsername,
-                content: comment,
-                aiIntent: 'NEUTRAL'
-            }
-        });
-    }
-    activeConnections = new Map();
-    async connectToTiktok(liveSessionId, tiktokUsername, server) {
+    async connectToTiktok(liveSessionId, tiktokUsername) {
         this.disconnectFromTiktok(liveSessionId);
-        const { WebcastPushConnection } = require('tiktok-live-connector');
-        const connection = new WebcastPushConnection(tiktokUsername);
-        connection.on('chat', async (data) => {
-            console.log(`[TikTok ${tiktokUsername}] ${data.uniqueId}: ${data.comment}`);
-            try {
-                const savedComment = await this.processComment(liveSessionId, data.uniqueId, data.comment);
-                server.to(liveSessionId).emit('newComment', savedComment);
-            }
-            catch (err) {
-                console.error('Lỗi khi xử lý comment TikTok:', err.message);
-            }
+        const source = new TiktokCommentSource();
+        this.sources.set(liveSessionId, source);
+        source.onComment(async (payload) => {
+            await this.pipeline.processComment(liveSessionId, payload);
         });
-        connection.on('gift', (data) => {
-            if (data.giftType === 1 && !data.repeatEnd) {
-            }
-            else {
-                server.to(liveSessionId).emit('tiktokEvent', { type: 'gift', text: `${data.uniqueId} đã tặng ${data.giftName}` });
-            }
+        source.onGift((data) => {
+            this.eventsGateway.server.to(liveSessionId).emit('gift:new', data);
         });
-        try {
-            await connection.connect();
-            console.log(`Connected to TikTok Live: ${tiktokUsername}`);
-            this.activeConnections.set(liveSessionId, connection);
-        }
-        catch (err) {
-            console.error(`Lỗi kết nối TikTok Live:`, err);
-            throw err;
-        }
+        await source.connect(tiktokUsername);
+        return source.getStatus();
     }
     disconnectFromTiktok(liveSessionId) {
-        const connection = this.activeConnections.get(liveSessionId);
-        if (connection) {
-            connection.disconnect();
-            this.activeConnections.delete(liveSessionId);
-            console.log(`Disconnected TikTok for session ${liveSessionId}`);
+        const source = this.sources.get(liveSessionId);
+        if (source) {
+            source.disconnect();
+            this.sources.delete(liveSessionId);
         }
     }
+    getTiktokStatus(liveSessionId) {
+        const source = this.sources.get(liveSessionId);
+        return source ? source.getStatus() : 'DISCONNECTED';
+    }
 };
-LiveEngineService = __decorate([
+LiveEngineService = LiveEngineService_1 = __decorate([
     Injectable(),
-    __metadata("design:paramtypes", [PrismaService])
+    __metadata("design:paramtypes", [PrismaService,
+        PipelineService,
+        EventsGateway])
 ], LiveEngineService);
 export { LiveEngineService };
 //# sourceMappingURL=live-engine.service.js.map

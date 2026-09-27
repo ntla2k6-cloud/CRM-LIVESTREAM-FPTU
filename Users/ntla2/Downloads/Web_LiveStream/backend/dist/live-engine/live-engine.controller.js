@@ -10,18 +10,36 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { LiveEngineService } from './live-engine.service.js';
+import { PipelineService } from '../comment-engine/pipeline.service.js';
 let LiveEngineController = class LiveEngineController {
     liveEngineService;
-    constructor(liveEngineService) {
+    pipelineService;
+    constructor(liveEngineService, pipelineService) {
         this.liveEngineService = liveEngineService;
+        this.pipelineService = pipelineService;
     }
     async declareWinner(body) {
         return this.liveEngineService.processWinner(body.liveSessionId, body.questionId, body.customerId, body.giftId);
     }
     async handleIncomingComment(body) {
-        return this.liveEngineService.processComment(body.liveSessionId, body.tiktokUsername, body.comment);
+        return this.pipelineService.processComment(body.liveSessionId, {
+            platform: 'manual',
+            platformCommentId: Math.random().toString(),
+            username: body.tiktokUsername,
+            content: body.comment,
+            timestamp: new Date()
+        });
+    }
+    async connectTiktok(body) {
+        return this.liveEngineService.connectToTiktok(body.liveSessionId, body.tiktokUsername);
+    }
+    async disconnectTiktok(body) {
+        return this.liveEngineService.disconnectFromTiktok(body.liveSessionId);
+    }
+    async getStatus(liveSessionId) {
+        return { status: this.liveEngineService.getTiktokStatus(liveSessionId) };
     }
 };
 __decorate([
@@ -38,9 +56,31 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], LiveEngineController.prototype, "handleIncomingComment", null);
+__decorate([
+    Post('connect'),
+    __param(0, Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], LiveEngineController.prototype, "connectTiktok", null);
+__decorate([
+    Post('disconnect'),
+    __param(0, Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], LiveEngineController.prototype, "disconnectTiktok", null);
+__decorate([
+    Get('status/:liveSessionId'),
+    __param(0, Param('liveSessionId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], LiveEngineController.prototype, "getStatus", null);
 LiveEngineController = __decorate([
     Controller('live-engine'),
-    __metadata("design:paramtypes", [LiveEngineService])
+    __metadata("design:paramtypes", [LiveEngineService,
+        PipelineService])
 ], LiveEngineController);
 export { LiveEngineController };
 //# sourceMappingURL=live-engine.controller.js.map

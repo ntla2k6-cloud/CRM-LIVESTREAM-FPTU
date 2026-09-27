@@ -1,17 +1,10 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth/next';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
-    // We cannot easily use getServerSession here if we don't import the authOptions.
-    // Wait, the authOptions are exported from oute.ts. Let's just check the session token cookie.
-    
-    // Instead of parsing the session manually, let's just let the client pass their email or use getServerSession.
-    // Wait, let's just find the user by their session token directly from the database!
-    
     const sessionToken = req.cookies.get('next-auth.session-token')?.value || req.cookies.get('__Secure-next-auth.session-token')?.value;
     
     if (!sessionToken) {

@@ -1,7 +1,9 @@
 import { LiveEngineService } from './live-engine.service.js';
+import { PipelineService } from '../comment-engine/pipeline.service.js';
 export declare class LiveEngineController {
     private readonly liveEngineService;
-    constructor(liveEngineService: LiveEngineService);
+    private readonly pipelineService;
+    constructor(liveEngineService: LiveEngineService, pipelineService: PipelineService);
     declareWinner(body: {
         liveSessionId: string;
         questionId: string;
@@ -20,14 +22,15 @@ export declare class LiveEngineController {
         liveSessionId: string;
         tiktokUsername: string;
         comment: string;
-    }): Promise<{
-        id: string;
-        tiktokUserId: string | null;
-        username: string;
-        content: string;
-        aiIntent: string | null;
-        serverTimestamp: Date;
+    }): Promise<void>;
+    connectTiktok(body: {
         liveSessionId: string;
-        customerId: string | null;
+        tiktokUsername: string;
+    }): Promise<"DISCONNECTED" | "CONNECTING" | "CONNECTED" | "ERROR">;
+    disconnectTiktok(body: {
+        liveSessionId: string;
+    }): Promise<void>;
+    getStatus(liveSessionId: string): Promise<{
+        status: "DISCONNECTED" | "CONNECTING" | "CONNECTED" | "ERROR";
     }>;
 }
