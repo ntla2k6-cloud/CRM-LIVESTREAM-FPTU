@@ -694,9 +694,12 @@ export default function SchedulePage() {
       </div>
 
       {/* SHIFT DRAWER (ASSIGN) */}
-      <div className={`absolute top-0 right-0 w-[520px] h-full bg-white shadow-[-10px_0_40px_rgba(0,0,0,0.1)] border-l border-slate-200 transition-transform duration-500 z-50 flex flex-col ${selectedShift ? 'translate-x-0' : 'translate-x-full'}`}>
-        {selectedShift && (
-          <>
+      {selectedShift && (
+        <div className="fixed inset-0 z-[100] flex justify-end">
+          {/* Nền Overlay */}
+          <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity" onClick={() => setSelectedShift(null)} />
+          
+          <div className="w-[520px] h-full bg-white flex flex-col shadow-2xl animate-in slide-in-from-right relative z-10 border-l border-slate-200">
             {/* Drawer Header */}
             <div className="px-6 pt-5 pb-0 border-b border-slate-100 bg-slate-50 shrink-0">
               <div className="flex items-center justify-between mb-4">
@@ -880,7 +883,7 @@ export default function SchedulePage() {
                   </div>
 
                   {/* Nút đăng ký cho thành viên */}
-                  {!isAdminOrProducer && myStaffId && (
+                  {myStaffId && (
                     <div className="p-4 bg-orange-50 border border-orange-200 rounded-2xl">
                       <p className="text-xs font-bold text-slate-600 mb-3">Bạn đăng ký ca này không?</p>
                       {(registrations[selectedShift.id] || []).includes(myStaffId) ? (
@@ -971,10 +974,9 @@ export default function SchedulePage() {
                 <button onClick={() => setSelectedShift(null)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl transition-all text-sm">Đóng</button>
               )}
             </div>
-          </>
-        )}
-      </div>
-
+          </div>
+        </div>
+      )}
     </div>
   );
 }
