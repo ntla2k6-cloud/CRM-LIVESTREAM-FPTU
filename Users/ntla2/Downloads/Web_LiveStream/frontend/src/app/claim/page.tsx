@@ -222,7 +222,7 @@ function ClaimForm() {
 
 export default function ClaimPage() {
   return (
-    <div className="min-h-screen bg-slate-50 font-sans selection:bg-orange-200 selection:text-orange-900">
+    <div className="h-full overflow-y-auto bg-slate-50 font-sans selection:bg-orange-200 selection:text-orange-900">
       <Suspense fallback={<div className="flex justify-center mt-20"><Loader2 className="animate-spin text-[#F58220]" /></div>}>
         <ClaimForm />
       </Suspense>

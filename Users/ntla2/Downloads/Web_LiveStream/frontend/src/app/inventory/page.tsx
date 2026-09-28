@@ -317,7 +317,7 @@ export default function InventoryPage() {
         </div>
 
         {/* CONTENT */}
-        <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-8 flex flex-col gap-5">
+        <div className="flex-1 overflow-auto px-4 md:px-8 pb-8 flex flex-col gap-5">
 
           {activeTab === 'STOCK' ? (
             /* ═══ STOCK TAB ═══ */
@@ -341,7 +341,7 @@ export default function InventoryPage() {
 
               {/* Gift Table */}
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex-1 flex flex-col overflow-hidden">
-                <div className="grid grid-cols-12 gap-4 p-4 border-b border-slate-100 bg-slate-50/80 text-xs font-black text-slate-500 uppercase tracking-wider">
+                <div className="grid min-w-[900px] grid-cols-12 gap-4 p-4 border-b border-slate-100 bg-slate-50/80 text-xs font-black text-slate-500 uppercase tracking-wider">
                   <div className="col-span-1 text-center">SKU</div>
                   <div className="col-span-4">Tên Quà Tặng</div>
                   <div className="col-span-2 text-center">Tồn Kho</div>
@@ -349,9 +349,9 @@ export default function InventoryPage() {
                   <div className="col-span-2">Đơn Giá</div>
                   <div className="col-span-1 text-center">Sửa</div>
                 </div>
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-auto">
                   {gifts.filter(g => (g.name||'').toLowerCase().includes(search.toLowerCase()) || (g.sku||'').toLowerCase().includes(search.toLowerCase())).map(gift => (
-                    <div key={gift.id} className="grid grid-cols-12 gap-4 p-4 border-b border-slate-100 hover:bg-slate-50 items-center transition-colors">
+                    <div key={gift.id} className="grid min-w-[900px] grid-cols-12 gap-4 p-4 border-b border-slate-100 hover:bg-slate-50 items-center transition-colors">
                       <div className="col-span-1 text-center font-bold text-slate-400 text-xs">{gift.sku}</div>
                       <div className="col-span-4 flex flex-col gap-1">
                         <span className="font-bold text-sm text-slate-900 truncate">{gift.name}</span>
@@ -431,7 +431,7 @@ export default function InventoryPage() {
               </div>
 
               {/* Table header */}
-              <div className="grid grid-cols-12 gap-3 p-4 border-b border-slate-100 bg-slate-50/80 text-xs font-black text-slate-500 uppercase tracking-wider">
+              <div className="grid min-w-[900px] grid-cols-12 gap-3 p-4 border-b border-slate-100 bg-slate-50/80 text-xs font-black text-slate-500 uppercase tracking-wider">
                 <div className="col-span-2">Mã Đơn / Ngày</div>
                 <div className="col-span-3">Người nhận</div>
                 <div className="col-span-3">Địa chỉ giao</div>
@@ -440,7 +440,7 @@ export default function InventoryPage() {
               </div>
 
               {/* Table rows */}
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-auto">
                 {filteredOrders.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-16 text-slate-400">
                     <Package size={40} className="mb-3 opacity-30" />
@@ -448,7 +448,7 @@ export default function InventoryPage() {
                   </div>
                 )}
                 {filteredOrders.map(order => (
-                  <div key={order.id} className="grid grid-cols-12 gap-3 p-4 border-b border-slate-100 hover:bg-slate-50 items-start transition-colors group">
+                  <div key={order.id} className="grid min-w-[900px] grid-cols-12 gap-3 p-4 border-b border-slate-100 hover:bg-slate-50 items-start transition-colors group">
                     <div className="col-span-2">
                       <span className="font-black text-sm text-[#005691] block">{order.id}</span>
                       <span className="text-xs font-medium text-slate-400">{order.date}</span>
@@ -543,7 +543,7 @@ export default function InventoryPage() {
               </div>
               <button onClick={() => setSelectedGift(null)} className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center hover:bg-slate-300 transition-colors"><X size={15} /></button>
             </div>
-            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+            <div className="flex-1 overflow-auto p-5 space-y-4">
               {[
                 { label: 'Tên Quà Tặng', key: 'name', type: 'text', placeholder: 'VD: Áo Thun...' },
                 { label: 'Mã SKU', key: 'sku', type: 'text', placeholder: 'VD: Q-AO-01' },
@@ -604,7 +604,7 @@ export default function InventoryPage() {
               <button onClick={() => setSelectedOrder(null)} className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center hover:bg-slate-300 transition-colors"><X size={15} /></button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5 space-y-5">
+            <div className="flex-1 overflow-auto p-5 space-y-5">
               {/* Recipient Info */}
               <div className="space-y-3 p-4 bg-slate-50 border border-slate-200 rounded-xl">
                 <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider">👤 Người nhận</h4>

@@ -135,7 +135,7 @@ export default function SchedulePage() {
       setSelectedShift(null);
     } catch (err) {
       console.error(err);
-      alert('Có lỗi xảy ra khi lưu ca trực!');
+      alert(`Lỗi: ${err.message || 'Có lỗi xảy ra khi lưu ca trực!'}`);
     }
   };
 
@@ -183,7 +183,7 @@ export default function SchedulePage() {
       }));
     } catch (e: any) {
       console.error(e);
-      alert(e.message || 'Có lỗi khi lưu đăng ký ca trực!');
+      alert(`Lỗi: ${e.message}`);
       // Revert optimistic update on failure by refetching
       const [shiftRes] = await Promise.all([ShiftAPI.getAll()]);
       const regs: Record<number, number[]> = {};
@@ -342,7 +342,7 @@ export default function SchedulePage() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-8 relative min-h-0">
+      <div className="flex-1 overflow-auto p-8 relative min-h-0">
         <div className="max-w-[1400px] mx-auto">
           
           {/* TAB 1: CALENDAR VIEW */}
@@ -357,7 +357,7 @@ export default function SchedulePage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-7 gap-3">
+              <div className="grid min-w-[800px] grid-cols-7 gap-3">
                 {['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'].map(day => (
                   <div key={day} className="text-center font-black text-[11px] text-slate-400 uppercase tracking-widest py-3 border-b-2 border-slate-100 mb-2">
                     {day}
@@ -383,7 +383,7 @@ export default function SchedulePage() {
                         </div>
                       </div>
                       
-                      <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar pr-1">
+                      <div className="flex-1 space-y-2 overflow-auto custom-scrollbar pr-1">
                         {dayShifts.map((shift, idx) => {
                           const assignedStaff = shift.assigned?.map((id: string) => staffList.find(s => s.id === id)).filter(Boolean) || [];
                           const maxAvatars = 3;
@@ -699,7 +699,7 @@ export default function SchedulePage() {
           {/* Nền Overlay */}
           <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity" onClick={() => setSelectedShift(null)} />
           
-          <div className="w-[520px] h-full bg-white flex flex-col shadow-2xl animate-in slide-in-from-right relative z-10 border-l border-slate-200">
+          <div className="w-full sm:w-[520px] h-full bg-white flex flex-col max-w-full shadow-2xl animate-in slide-in-from-right relative z-10 border-l border-slate-200">
             {/* Drawer Header */}
             <div className="px-6 pt-5 pb-0 border-b border-slate-100 bg-slate-50 shrink-0">
               <div className="flex items-center justify-between mb-4">
@@ -729,7 +729,7 @@ export default function SchedulePage() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 bg-white space-y-5 min-h-0">
+            <div className="flex-1 overflow-auto p-6 bg-white space-y-5 min-h-0">
               
               {/* PHẦN THÔNG TIN CA — chỉ Admin/Producer chỉnh sửa */}
               {isAdminOrProducer && (
@@ -840,7 +840,7 @@ export default function SchedulePage() {
                       <h4 className="text-[11px] font-black text-slate-400 uppercase mb-3 flex items-center gap-2">
                         <span className="flex-1 h-px bg-slate-200"></span> Nguồn nhân sự trống <span className="flex-1 h-px bg-slate-200"></span>
                       </h4>
-                      <div className="space-y-4 max-h-[200px] overflow-y-auto pr-1">
+                      <div className="space-y-4 max-h-[200px] overflow-auto pr-1">
                         {STAFF_ROLES.map(role => {
                           const availableStaff = staffList.filter(s => s.role === role.name && !selectedShift.assigned?.includes(s.id));
                           if (availableStaff.length === 0) return null;

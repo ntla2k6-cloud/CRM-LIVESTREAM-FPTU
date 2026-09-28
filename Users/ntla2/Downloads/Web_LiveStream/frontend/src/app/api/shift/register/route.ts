@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     }
 
     const shift = await prisma.liveSession.findUnique({
-      where: { id: shiftId }
+      where: { id: String(shiftId) }
     });
 
     if (!shift) {

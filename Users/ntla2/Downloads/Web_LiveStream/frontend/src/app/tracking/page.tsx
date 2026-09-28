@@ -143,7 +143,7 @@ export default function TrackingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F0F4F8] flex flex-col font-sans">
+    <div className="h-full overflow-y-auto bg-[#F0F4F8] flex flex-col font-sans relative">
 
       {/* HEADER */}
       <header className="bg-white shadow-sm sticky top-0 z-50">

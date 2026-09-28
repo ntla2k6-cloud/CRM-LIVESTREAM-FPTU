@@ -84,7 +84,7 @@ export default function TasklyKanban() {
   };
 
   return (
-    <div className="p-8 min-h-screen bg-gray-50 text-black">
+    <div className="p-8 h-full overflow-y-auto bg-gray-50 text-black">
       <h1 className="text-3xl font-bold mb-8 text-gray-800">Taskly Kanban</h1>
       
       <form onSubmit={addTask} className="mb-8 flex gap-4">

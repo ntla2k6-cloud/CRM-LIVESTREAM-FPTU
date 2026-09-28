@@ -467,7 +467,7 @@ export default function CSKHBoardPage() {
       )}
 
       {/* LEAD DETAIL DRAWER (SLIDE-OUT) */}
-      <div className={`absolute top-0 right-0 w-[500px] h-full bg-white shadow-[-10px_0_40px_rgba(0,0,0,0.1)] border-l border-slate-200 transition-transform duration-500 z-50 flex flex-col ${selectedLead ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`absolute top-0 right-0 w-full sm:w-[500px] h-full bg-white shadow-[-10px_0_40px_rgba(0,0,0,0.1)] border-l border-slate-200 transition-transform duration-500 z-50 flex flex-col ${selectedLead ? 'translate-x-0' : 'translate-x-full'}`}>
         {selectedLead && (
           <>
             <div className="h-[88px] flex items-center justify-between px-6 border-b border-slate-100 bg-slate-50 shrink-0">

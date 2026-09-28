@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center relative overflow-hidden font-sans">
+    <div className="h-full overflow-y-auto bg-slate-50 flex flex-col justify-center items-center relative overflow-hidden font-sans">
       
       {/* Background decoration */}
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#F58220] rounded-full blur-[120px] opacity-20"></div>

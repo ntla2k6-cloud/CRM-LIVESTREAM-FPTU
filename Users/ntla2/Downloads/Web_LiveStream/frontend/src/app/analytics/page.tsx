@@ -119,7 +119,7 @@ export default function AnalyticsPage() {
 
           </div>
           
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          <div className="flex-1 overflow-auto p-4 space-y-3">
             {sessions.filter(s => {
               if (sessionFilter === 'Có bình luận') return s.comments > 0;
               if (sessionFilter === 'Chưa có bình luận') return s.comments === 0;
@@ -168,7 +168,7 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-8 pb-8">
+          <div className="flex-1 overflow-auto px-8 pb-8">
             
             {activeTab === 'TIKTOK_STATS' && (
               <div className="bg-[#18191a] rounded-3xl p-6 text-white shadow-xl">
@@ -351,7 +351,7 @@ export default function AnalyticsPage() {
             {(activeTab === 'MINIGAME' || activeTab === 'GENERAL' || activeTab === 'ALL_COMMENTS') && (
               <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[500px]">
                 {/* TABLE HEADER */}
-                <div className="grid grid-cols-12 gap-4 p-4 border-b border-slate-100 bg-slate-50/80 text-xs font-black text-slate-500 uppercase tracking-wider">
+                <div className="grid min-w-[900px] grid-cols-12 gap-4 p-4 border-b border-slate-100 bg-slate-50/80 text-xs font-black text-slate-500 uppercase tracking-wider">
                   <div className="col-span-2">Thời gian</div>
                   <div className="col-span-3">Tài khoản TikTok</div>
                   <div className="col-span-4">Nội dung Comment</div>
@@ -362,7 +362,7 @@ export default function AnalyticsPage() {
                 <div className="flex flex-col flex-1">
                   {activeTab === 'MINIGAME' ? (
                     minigameComments.map((cmt, i) => (
-                      <div key={i} className="grid grid-cols-12 gap-4 p-4 border-b border-slate-100 hover:bg-slate-50 items-center transition-colors">
+                      <div key={i} className="grid min-w-[900px] grid-cols-12 gap-4 p-4 border-b border-slate-100 hover:bg-slate-50 items-center transition-colors">
                         <div className="col-span-2 text-xs font-bold text-slate-400">{cmt.time}</div>
                         <div className="col-span-3 text-sm font-bold text-slate-800">{cmt.user}</div>
                         <div className="col-span-4 text-sm font-semibold text-slate-600">"{cmt.answer}"</div>
@@ -378,7 +378,7 @@ export default function AnalyticsPage() {
                     ))
                   ) : activeTab === 'GENERAL' ? (
                     generalComments.map((cmt, i) => (
-                      <div key={i} className="grid grid-cols-12 gap-4 p-4 border-b border-slate-100 hover:bg-slate-50 items-center transition-colors">
+                      <div key={i} className="grid min-w-[900px] grid-cols-12 gap-4 p-4 border-b border-slate-100 hover:bg-slate-50 items-center transition-colors">
                         <div className="col-span-2 text-xs font-bold text-slate-400">{cmt.time}</div>
                         <div className="col-span-3 text-sm font-bold text-slate-800">{cmt.user}</div>
                         <div className="col-span-4 text-sm font-semibold text-slate-600">"{cmt.text}"</div>
@@ -391,7 +391,7 @@ export default function AnalyticsPage() {
                     ))
                   ) : (
                     [...minigameComments.map(c => ({...c, _type: 'minigame'})), ...generalComments.map(c => ({...c, _type: 'general'}))].sort((a,b) => a.time.localeCompare(b.time)).map((cmt, i) => (
-                      <div key={i} className="grid grid-cols-12 gap-4 p-4 border-b border-slate-100 hover:bg-slate-50 items-center transition-colors">
+                      <div key={i} className="grid min-w-[900px] grid-cols-12 gap-4 p-4 border-b border-slate-100 hover:bg-slate-50 items-center transition-colors">
                         <div className="col-span-2 text-xs font-bold text-slate-400">{cmt.time}</div>
                         <div className="col-span-3 text-sm font-bold text-slate-800">{cmt.user}</div>
                         <div className="col-span-4 text-sm font-semibold text-slate-600">"{cmt.answer || cmt.text}"</div>

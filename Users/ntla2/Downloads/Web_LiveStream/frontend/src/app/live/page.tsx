@@ -37,7 +37,7 @@ export default function LivePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+    <div className="h-full overflow-y-auto bg-slate-50 flex flex-col items-center justify-center p-4">
       <div className="max-w-2xl w-full bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
         
         <div className="bg-slate-900 p-8 text-center relative overflow-hidden">
