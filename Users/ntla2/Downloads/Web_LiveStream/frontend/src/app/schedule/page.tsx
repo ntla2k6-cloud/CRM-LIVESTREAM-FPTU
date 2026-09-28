@@ -28,13 +28,27 @@ const getRoleBadge = (roleName: string) => {
 export default function SchedulePage() {
   const [activeTab, setActiveTab] = useState<'CALENDAR' | 'PAYROLL'>('CALENDAR');
   
-  // MOCK ROLE — Dùng để demo phân quyền (sẽ thay bằng auth thật khi có backend)
-  const [currentRole, setCurrentRole] = useState<'admin' | 'producer' | 'member'>('admin');
-  const [showRoleSwitch, setShowRoleSwitch] = useState(false);
-  const isAdminOrProducer = currentRole === 'admin' || currentRole === 'producer';
+  // REAL AUTH
+  const [sessionUser, setSessionUser] = useState<any>(null);
+  const [sessionStaff, setSessionStaff] = useState<any>(null);
   
-  // My mock user info
-  const myStaffId = currentRole === 'member' ? '8' : null; 
+  React.useEffect(() => {
+    fetch('/api/auth/me')
+      .then(res => res.json())
+      .then(data => {
+        if (data.authenticated) {
+          setSessionUser(data.user);
+          setSessionStaff(data.staff);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  const isAdminOrProducer = sessionUser?.role === 'ADMIN' || sessionUser?.role === 'MANAGER' || sessionStaff?.role === 'Producer';
+  
+  // Current user's staff ID
+  const myStaffId = sessionStaff?.id ? Number(sessionStaff.id) : null; 
+  
   
   // API STATES
   const [staffList, setStaffList] = useState<any[]>([]);
@@ -96,7 +110,7 @@ export default function SchedulePage() {
   const handleSaveShift = async () => {
     if (!selectedShift) return;
     try {
-      const isExisting = shifts.find(s => s.id === selectedShift.id && typeof selectedShift.id === 'number' && selectedShift.id < 1000000000);
+      const isExisting = typeof selectedShift.id === 'string' && shifts.some(s => s.id === selectedShift.id);
       
       const payload = {
         title: selectedShift.title,
@@ -139,22 +153,51 @@ export default function SchedulePage() {
     }
   };
 
-  const handleToggleRegistration = async (shiftId: any, staffId: any) => {
-    let newUpdated: any[] = [];
+  const handleToggleRegistration = async (shiftId: any, staffId: any, isRegistered: boolean) => {
+    // Optimistic UI Update
     setRegistrations(prev => {
       const current = prev[shiftId] || [];
-      const updated = current.includes(staffId)
+      const updated = isRegistered
         ? current.filter(id => id !== staffId)
         : [...current, staffId];
-      newUpdated = updated;
       return { ...prev, [shiftId]: updated };
     });
     
     try {
-      await ShiftAPI.update(shiftId, { registered: newUpdated });
-    } catch (e) {
+      const action = isRegistered ? 'cancel' : 'register';
+      const res = await fetch('/api/shift/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shiftId, action })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Có lỗi khi lưu đăng ký ca trực!');
+      }
+      
+      // Update with authoritative data from server
+      setRegistrations(prev => ({
+        ...prev,
+        [shiftId]: data.registered.map(Number)
+      }));
+    } catch (e: any) {
       console.error(e);
-      alert('Có lỗi khi lưu đăng ký ca trực!');
+      alert(e.message || 'Có lỗi khi lưu đăng ký ca trực!');
+      // Revert optimistic update on failure by refetching
+      const [shiftRes] = await Promise.all([ShiftAPI.getAll()]);
+      const regs: Record<number, number[]> = {};
+      shiftRes.forEach((s: any) => {
+        if (s.registered) {
+          try {
+            const parsed = typeof s.registered === 'string' ? JSON.parse(s.registered) : s.registered;
+            regs[s.id] = parsed.map(Number);
+          } catch {
+            regs[s.id] = [];
+          }
+        }
+      });
+      setRegistrations(regs);
     }
   };
   
@@ -243,7 +286,7 @@ export default function SchedulePage() {
   };
 
   return (
-    <div className="flex h-full flex-col bg-slate-50 font-sans relative overflow-hidden">
+    <div className="flex-1 flex flex-col min-h-0 bg-slate-50 font-sans relative overflow-hidden h-full">
       
       {/* HEADER */}
       <div className="h-[88px] bg-white border-b border-slate-200 px-8 flex items-center justify-between shrink-0 shadow-sm z-10">
@@ -256,34 +299,15 @@ export default function SchedulePage() {
         
         <div className="flex gap-4 items-center">
 
-          {/* ROLE SWITCHER — Demo only */}
           <div className="relative">
-            <button 
-              onClick={() => setShowRoleSwitch(!showRoleSwitch)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-bold transition-colors ${
-                currentRole === 'admin' ? 'bg-purple-50 border-purple-200 text-purple-700' :
-                currentRole === 'producer' ? 'bg-blue-50 border-blue-200 text-blue-700' :
-                'bg-slate-100 border-slate-200 text-slate-600'
-              }`}
-            >
+            <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-bold transition-colors ${
+              sessionUser?.role === 'ADMIN' ? 'bg-purple-50 border-purple-200 text-purple-700' :
+              sessionUser?.role === 'MANAGER' ? 'bg-blue-50 border-blue-200 text-blue-700' :
+              'bg-slate-100 border-slate-200 text-slate-600'
+            }`}>
               <Shield size={14} />
-              {currentRole === 'admin' ? 'Admin' : currentRole === 'producer' ? 'Producer' : 'Thành viên'}
-              <ChevronDown size={12} />
-            </button>
-            {showRoleSwitch && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowRoleSwitch(false)} />
-                <div className="absolute top-full right-0 mt-1 w-40 bg-white border border-slate-200 rounded-xl shadow-xl z-50 py-1 text-xs">
-                  <div className="px-3 py-1 text-[10px] font-black text-slate-400 uppercase">Demo vai trò</div>
-                  {([['admin', 'Admin (Toàn quyền)'], ['producer', 'Producer'], ['member', 'Thành viên']]) .map(([r, label]) => (
-                    <div key={r} onClick={() => { setCurrentRole(r as any); setShowRoleSwitch(false); }}
-                      className={`px-3 py-2 font-bold cursor-pointer hover:bg-slate-50 flex items-center justify-between ${currentRole === r ? 'text-[#005691]' : 'text-slate-700'}`}>
-                      {label} {currentRole === r && <CheckCircle2 size={12} />}
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
+              {sessionUser?.role === 'ADMIN' ? 'Admin' : sessionUser?.role === 'MANAGER' ? 'Manager' : sessionStaff?.role || 'Thành viên'}
+            </div>
           </div>
           
           <div className="flex bg-slate-100 p-1 rounded-xl">
@@ -318,7 +342,7 @@ export default function SchedulePage() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-8 relative">
+      <div className="flex-1 overflow-y-auto p-8 relative min-h-0">
         <div className="max-w-[1400px] mx-auto">
           
           {/* TAB 1: CALENDAR VIEW */}
@@ -702,7 +726,7 @@ export default function SchedulePage() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 bg-white space-y-5">
+            <div className="flex-1 overflow-y-auto p-6 bg-white space-y-5 min-h-0">
               
               {/* PHẦN THÔNG TIN CA — chỉ Admin/Producer chỉnh sửa */}
               {isAdminOrProducer && (
@@ -860,12 +884,12 @@ export default function SchedulePage() {
                     <div className="p-4 bg-orange-50 border border-orange-200 rounded-2xl">
                       <p className="text-xs font-bold text-slate-600 mb-3">Bạn đăng ký ca này không?</p>
                       {(registrations[selectedShift.id] || []).includes(myStaffId) ? (
-                        <button onClick={() => handleToggleRegistration(selectedShift.id, myStaffId)}
+                        <button onClick={() => handleToggleRegistration(selectedShift.id, myStaffId, true)}
                           className="w-full py-2.5 bg-red-50 border border-red-200 text-red-600 font-bold text-sm rounded-xl flex items-center justify-center gap-2 hover:bg-red-100 transition-colors">
                           <X size={16} /> Hủy đăng ký ca này
                         </button>
                       ) : (
-                        <button onClick={() => handleToggleRegistration(selectedShift.id, myStaffId)}
+                        <button onClick={() => handleToggleRegistration(selectedShift.id, myStaffId, false)}
                           className="w-full py-2.5 bg-[#F58220] text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 hover:bg-[#e07010] transition-colors shadow-md">
                           <CheckCircle2 size={16} /> Đăng ký tham gia ca này
                         </button>
