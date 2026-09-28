@@ -53,7 +53,7 @@ export class LiveSessionService {
   async getHistory(id: string) {
     const comments = await this.prisma.liveComment.findMany({
       where: { liveSessionId: id },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { serverTimestamp: 'asc' },
     });
     
     const leads = await this.prisma.lead.findMany({
