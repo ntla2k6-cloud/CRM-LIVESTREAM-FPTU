@@ -15,6 +15,11 @@ export class LiveSessionController {
     return this.liveSessionService.findAll();
   }
 
+  @Get(':id/history')
+  getHistory(@Param('id') id: string) {
+    return this.liveSessionService.getHistory(id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.liveSessionService.findOne(id);

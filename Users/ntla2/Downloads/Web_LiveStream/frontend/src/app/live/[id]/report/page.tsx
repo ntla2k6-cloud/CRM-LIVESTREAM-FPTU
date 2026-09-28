@@ -20,7 +20,7 @@ export default function PostLiveReportPage({ params }: { params: { id: string } 
   }, [params.id]);
 
   // Mock Data cho Dashboard Báo cáo (Dữ liệu nền)
-  const baseReportData = {
+  const baseReportData = process.env.NEXT_PUBLIC_MOCK_MODE === 'true' ? {
     totalViewers: "12,450",
     peakViewers: "3,200",
     totalComments: "8,942",
@@ -49,6 +49,15 @@ export default function PostLiveReportPage({ params }: { params: { id: string } 
     leads: [
       { id: 1, time: '20:16:01', user: '@minh_fptu', info: '0912345678', type: 'SĐT Trực tiếp', status: 'Đã tư vấn', note: 'Quan tâm ngành SE' },
     ],
+    winners: []
+  } : {
+    totalViewers: "0",
+    peakViewers: "0",
+    totalComments: "0",
+    totalLeads: 0,
+    totalGames: 0,
+    topKeywords: [],
+    leadsList: [],
     winners: []
   };
 

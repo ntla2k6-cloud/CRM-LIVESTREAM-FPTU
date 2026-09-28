@@ -49,4 +49,25 @@ export class LiveSessionService {
       where: { id }
     });
   }
+
+  async getHistory(id: string) {
+    const comments = await this.prisma.liveComment.findMany({
+      where: { liveSessionId: id },
+      orderBy: { createdAt: 'asc' },
+    });
+    
+    const leads = await this.prisma.lead.findMany({
+      where: { liveSessionId: id },
+      include: { customer: true },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const winners = await this.prisma.winner.findMany({
+      where: { liveSessionId: id },
+      include: { customer: true, gift: true },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return { comments, leads, winners };
+  }
 }
