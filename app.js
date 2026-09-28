@@ -12255,3 +12255,5 @@ window.submitAccountForm = async function() {
         document.getElementById('acc-submit-btn').disabled = false;
     }
 };
+
+window.VS_VERSION = 'AUTO_DEPLOY_TEST_001';
