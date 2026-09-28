@@ -1,0 +1,386 @@
+{
+  "roles": [
+    {
+      "id": "ADMIN",
+      "name": "Quản trị viên",
+      "code": "ADMIN",
+      "isSystem": true
+    },
+    {
+      "id": "MARKETING",
+      "name": "Marketing",
+      "code": "MARKETING",
+      "isSystem": false
+    },
+    {
+      "id": "GIAO_VU",
+      "name": "Giáo vụ",
+      "code": "GIAO_VU",
+      "isSystem": false
+    },
+    {
+      "id": "GIAO_VIEN",
+      "name": "Giáo viên",
+      "code": "GIAO_VIEN",
+      "isSystem": false
+    },
+    {
+      "id": "HOC_VIEN",
+      "name": "Học viên",
+      "code": "HOC_VIEN",
+      "isSystem": false
+    }
+  ],
+  "permissions": [
+    {
+      "id": "dashboard.view",
+      "code": "dashboard.view"
+    },
+    {
+      "id": "marketing.view",
+      "code": "marketing.view"
+    },
+    {
+      "id": "marketing.manage",
+      "code": "marketing.manage"
+    },
+    {
+      "id": "leads.view",
+      "code": "leads.view"
+    },
+    {
+      "id": "leads.create",
+      "code": "leads.create"
+    },
+    {
+      "id": "leads.update",
+      "code": "leads.update"
+    },
+    {
+      "id": "news.view",
+      "code": "news.view"
+    },
+    {
+      "id": "news.create",
+      "code": "news.create"
+    },
+    {
+      "id": "news.update",
+      "code": "news.update"
+    },
+    {
+      "id": "news.delete",
+      "code": "news.delete"
+    },
+    {
+      "id": "analytics.view",
+      "code": "analytics.view"
+    },
+    {
+      "id": "student.view",
+      "code": "student.view"
+    },
+    {
+      "id": "student.create",
+      "code": "student.create"
+    },
+    {
+      "id": "student.update",
+      "code": "student.update"
+    },
+    {
+      "id": "course.view",
+      "code": "course.view"
+    },
+    {
+      "id": "course.create",
+      "code": "course.create"
+    },
+    {
+      "id": "course.update",
+      "code": "course.update"
+    },
+    {
+      "id": "class.view",
+      "code": "class.view"
+    },
+    {
+      "id": "class.create",
+      "code": "class.create"
+    },
+    {
+      "id": "class.update",
+      "code": "class.update"
+    },
+    {
+      "id": "schedule.view",
+      "code": "schedule.view"
+    },
+    {
+      "id": "schedule.create",
+      "code": "schedule.create"
+    },
+    {
+      "id": "schedule.update",
+      "code": "schedule.update"
+    },
+    {
+      "id": "attendance.view",
+      "code": "attendance.view"
+    },
+    {
+      "id": "attendance.manage",
+      "code": "attendance.manage"
+    },
+    {
+      "id": "makeup.view",
+      "code": "makeup.view"
+    },
+    {
+      "id": "makeup.manage",
+      "code": "makeup.manage"
+    },
+    {
+      "id": "rating.view",
+      "code": "rating.view"
+    },
+    {
+      "id": "rating.manage",
+      "code": "rating.manage"
+    },
+    {
+      "id": "class.view_assigned",
+      "code": "class.view_assigned"
+    },
+    {
+      "id": "student.view_assigned",
+      "code": "student.view_assigned"
+    },
+    {
+      "id": "student.self.view",
+      "code": "student.self.view"
+    },
+    {
+      "id": "course.self.view",
+      "code": "course.self.view"
+    },
+    {
+      "id": "class.self.view",
+      "code": "class.self.view"
+    },
+    {
+      "id": "schedule.self.view",
+      "code": "schedule.self.view"
+    },
+    {
+      "id": "attendance.self.view",
+      "code": "attendance.self.view"
+    },
+    {
+      "id": "rating.self.view",
+      "code": "rating.self.view"
+    },
+    {
+      "id": "payment.self.view",
+      "code": "payment.self.view"
+    },
+    {
+      "id": "notification.self.view",
+      "code": "notification.self.view"
+    },
+    {
+      "id": "profile.self.view",
+      "code": "profile.self.view"
+    }
+  ],
+  "rolePermissions": [
+    {
+      "roleId": "MARKETING",
+      "permissionId": "dashboard.view"
+    },
+    {
+      "roleId": "MARKETING",
+      "permissionId": "marketing.view"
+    },
+    {
+      "roleId": "MARKETING",
+      "permissionId": "marketing.manage"
+    },
+    {
+      "roleId": "MARKETING",
+      "permissionId": "leads.view"
+    },
+    {
+      "roleId": "MARKETING",
+      "permissionId": "leads.create"
+    },
+    {
+      "roleId": "MARKETING",
+      "permissionId": "leads.update"
+    },
+    {
+      "roleId": "MARKETING",
+      "permissionId": "news.view"
+    },
+    {
+      "roleId": "MARKETING",
+      "permissionId": "news.create"
+    },
+    {
+      "roleId": "MARKETING",
+      "permissionId": "news.update"
+    },
+    {
+      "roleId": "MARKETING",
+      "permissionId": "news.delete"
+    },
+    {
+      "roleId": "MARKETING",
+      "permissionId": "analytics.view"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "dashboard.view"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "student.view"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "student.create"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "student.update"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "course.view"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "course.create"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "course.update"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "class.view"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "class.create"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "class.update"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "schedule.view"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "schedule.create"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "schedule.update"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "attendance.view"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "attendance.manage"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "makeup.view"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "makeup.manage"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "rating.view"
+    },
+    {
+      "roleId": "GIAO_VU",
+      "permissionId": "rating.manage"
+    },
+    {
+      "roleId": "GIAO_VIEN",
+      "permissionId": "dashboard.view"
+    },
+    {
+      "roleId": "GIAO_VIEN",
+      "permissionId": "schedule.view"
+    },
+    {
+      "roleId": "GIAO_VIEN",
+      "permissionId": "attendance.view"
+    },
+    {
+      "roleId": "GIAO_VIEN",
+      "permissionId": "attendance.manage"
+    },
+    {
+      "roleId": "GIAO_VIEN",
+      "permissionId": "rating.view"
+    },
+    {
+      "roleId": "GIAO_VIEN",
+      "permissionId": "rating.manage"
+    },
+    {
+      "roleId": "GIAO_VIEN",
+      "permissionId": "class.view_assigned"
+    },
+    {
+      "roleId": "GIAO_VIEN",
+      "permissionId": "student.view_assigned"
+    },
+    {
+      "roleId": "HOC_VIEN",
+      "permissionId": "student.self.view"
+    },
+    {
+      "roleId": "HOC_VIEN",
+      "permissionId": "course.self.view"
+    },
+    {
+      "roleId": "HOC_VIEN",
+      "permissionId": "class.self.view"
+    },
+    {
+      "roleId": "HOC_VIEN",
+      "permissionId": "schedule.self.view"
+    },
+    {
+      "roleId": "HOC_VIEN",
+      "permissionId": "attendance.self.view"
+    },
+    {
+      "roleId": "HOC_VIEN",
+      "permissionId": "rating.self.view"
+    },
+    {
+      "roleId": "HOC_VIEN",
+      "permissionId": "payment.self.view"
+    },
+    {
+      "roleId": "HOC_VIEN",
+      "permissionId": "notification.self.view"
+    },
+    {
+      "roleId": "HOC_VIEN",
+      "permissionId": "profile.self.view"
+    }
+  ]
+}

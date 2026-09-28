@@ -1,0 +1,1527 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "passwordHash": "$2b$10$ugicfAfFbSFxZOgvI6wjxudyK9T7TMe33ecipJ.i/1bM/lXtdypDi",
+    "displayName": "Quan Tri Vien",
+    "role": "admin"
+  },
+  {
+    "id": 1777364428100,
+    "username": "myduyen_gv",
+    "passwordHash": "$2b$10$uHCcH44kA2MybQYZiCXLYeDWVYeLRdff1oTEPqJ721ALejr3.6qv2",
+    "displayName": "Phan Phạm Mỹ Duyên",
+    "role": "staff"
+  },
+  {
+    "id": 1778388259003,
+    "username": "hongngoc_gv",
+    "passwordHash": "$2b$10$Y3nkKKnprTD3VIj2yQSXsunfVGxrbzg2kq17HRXB/KIFwfFXG1i/y",
+    "displayName": "Nguyễn Thị Hồng Ngọc",
+    "role": "staff"
+  },
+  {
+    "id": 1781291447703,
+    "username": "hv0001",
+    "passwordHash": "$2b$10$v/5K6Ud858KVDxbrf/BMbufyMOfzx3NDgSUuv1mIQlfHZCwfUXin6",
+    "displayName": "TRẦN HOÀNG THẢO NHI (2-1)",
+    "role": "student",
+    "linkedStudentId": "1777707495960"
+  },
+  {
+    "id": 1781291447948,
+    "username": "hv0002",
+    "passwordHash": "$2b$10$68jJAJoiAaHtU90I3mqYrOnZA438wzlQRhup74vx9HKwi9zp/HVmm",
+    "displayName": "Duy Anh",
+    "role": "student",
+    "linkedStudentId": "1777708469967"
+  },
+  {
+    "id": 1781291448170,
+    "username": "hv0003",
+    "passwordHash": "$2b$10$9TE/.Z0jTjGigIljnlQ03.d2k8RMlxJDkrLVt6THMvJ98hJwk4qOK",
+    "displayName": "Khuê",
+    "role": "student",
+    "linkedStudentId": "1777709246081"
+  },
+  {
+    "id": 1781291448390,
+    "username": "hv0004",
+    "passwordHash": "$2b$10$Snv46vzH8CEz8eBHpG66suqOdODqsl2Weg.yCK3lGSC5ZjFCuJlQS",
+    "displayName": "Tuệ Minh",
+    "role": "student",
+    "linkedStudentId": "1777818270681"
+  },
+  {
+    "id": 1781291448607,
+    "username": "hv0005",
+    "passwordHash": "$2b$10$.eFsiMFWf1jWFOBcE0AriORdVv0OYb8q/nSy30MShAd2zOR5qB3yO",
+    "displayName": "Phương Thi",
+    "role": "student",
+    "linkedStudentId": "1777818723115"
+  },
+  {
+    "id": 1781291448824,
+    "username": "hv0006",
+    "passwordHash": "$2b$10$UO.E9cnIQ3MwXYGXXiXLSeXZkQ2.L9aSjbxbF.5rjFuHewhv0grcm",
+    "displayName": "Ý An",
+    "role": "student",
+    "linkedStudentId": "1777819407631"
+  },
+  {
+    "id": 1781291449042,
+    "username": "hv0007",
+    "passwordHash": "$2b$10$jUmx3oCr0rlofs183XQCE.8pRJqd5XsbP69XysZq8BnlugbbwZTiO",
+    "displayName": "Lê Nhã Kim",
+    "role": "student",
+    "linkedStudentId": "1777820517628"
+  },
+  {
+    "id": 1781291449260,
+    "username": "hv0008",
+    "passwordHash": "$2b$10$C1oyAVYe4n6TtjVZHKMVxey4JcqsT2.kObSqbLyG/f9lQbB8rhZd6",
+    "displayName": "Rhum",
+    "role": "student",
+    "linkedStudentId": "1777898350703"
+  },
+  {
+    "id": 1781291449476,
+    "username": "hv0009",
+    "passwordHash": "$2b$10$3UdUTVPyAzJCm.8NwKKjdulGzJi4s3t8CzpYrQSOZ6KcZ7qIdw4zK",
+    "displayName": "Mạnh Quân",
+    "role": "student",
+    "linkedStudentId": "1777898625604"
+  },
+  {
+    "id": 1781291449695,
+    "username": "hv0010",
+    "passwordHash": "$2b$10$wQwcoDQ2JrIbAbVMUoDYQ.UP7YLTua6s7lgsKe7I/oFl4Kk6UHhqy",
+    "displayName": "Gia Khang",
+    "role": "student",
+    "linkedStudentId": "1777898855677"
+  },
+  {
+    "id": 1781291449913,
+    "username": "hv0011",
+    "passwordHash": "$2b$10$jMM.BFaOyJPswB6vsECQouY9gAt9Vd2Q55A233xMTHdLniIb2tQ8.",
+    "displayName": "An Nhiên",
+    "role": "student",
+    "linkedStudentId": "1777899170761"
+  },
+  {
+    "id": 1781291450133,
+    "username": "hv0012",
+    "passwordHash": "$2b$10$doiu2p86mGrrPrp/u/Iwie4eYDQgJoa3Njfs9vTDG5vqm4EgvIRbO",
+    "displayName": "Cao Nguyễn Khánh Thư",
+    "role": "student",
+    "linkedStudentId": "1777899354341"
+  },
+  {
+    "id": 1781291450364,
+    "username": "hv0013",
+    "passwordHash": "$2b$10$OKvWbtBr2T9lavadU5Xs9uNMheaJpQNBs1M6OUBGwfS/iWpS6.sZy",
+    "displayName": "Nguyễn Bách Uy Phong",
+    "role": "student",
+    "linkedStudentId": "1777899550636"
+  },
+  {
+    "id": 1781291450580,
+    "username": "hv0014",
+    "passwordHash": "$2b$10$Q1mORFZZ7DxwsJ74PX0CceIUlVRYpaDkYa9U171toD1vgPZDxt/dy",
+    "displayName": "Anh Hoàng",
+    "role": "student",
+    "linkedStudentId": "1777899962686"
+  },
+  {
+    "id": 1781291450797,
+    "username": "hv0015",
+    "passwordHash": "$2b$10$t9Rll4duRCrEn1H5nF92d.fuTtyWR33pdx/fOA984iqGhrJUphVDm",
+    "displayName": "Đào Minh Hân",
+    "role": "student",
+    "linkedStudentId": "1777900173489"
+  },
+  {
+    "id": 1781291451055,
+    "username": "hv0016",
+    "passwordHash": "$2b$10$LnelHR9zflIHjz6Ftz/fAOqVLwBVJ.kxzBDhbQvgVGp53VCJe7SeO",
+    "displayName": "Phan Hy An",
+    "role": "student",
+    "linkedStudentId": "1777900613167"
+  },
+  {
+    "id": 1781291451279,
+    "username": "hv0017",
+    "passwordHash": "$2b$10$yzdPJ1jMczkvVXSK0cA5L.p2H5XOaZMucq4yWyqJveKJIo1csgx42",
+    "displayName": "Khôi Nguyên",
+    "role": "student",
+    "linkedStudentId": "1777900763256"
+  },
+  {
+    "id": 1781291451496,
+    "username": "hv0018",
+    "passwordHash": "$2b$10$MHGpfSFVBT4BuA93nGACnOiQpv.mGcD7OeASzhP6njYYAIOIqFi2m",
+    "displayName": "Nguyễn Ngọc Tâm Như",
+    "role": "student",
+    "linkedStudentId": "1777966639953"
+  },
+  {
+    "id": 1781291451714,
+    "username": "hv0019",
+    "passwordHash": "$2b$10$edfPpm4q35q88jd3Zl0TOunOKQ2YLi86Drv8GkhWTLSDB47NFR1iC",
+    "displayName": "Đỗ Gia Phúc",
+    "role": "student",
+    "linkedStudentId": "1777967027137"
+  },
+  {
+    "id": 1781291451929,
+    "username": "hv0020",
+    "passwordHash": "$2b$10$HDmzYcFrN9NJG6ueusDXy.F1mWF4wq0M3UIVvS.pYkNcDjTjB8.vO",
+    "displayName": "Mộc An (HV Ngoài)",
+    "role": "student",
+    "linkedStudentId": "1778147733600"
+  },
+  {
+    "id": 1781291452149,
+    "username": "hv0021",
+    "passwordHash": "$2b$10$N3Rz8xHCPlzeSwpx3XwTqeTn12hGb6lsqXenDoxsCKQxbae3DZly.",
+    "displayName": "An Nhiên (HV Ngoài)",
+    "role": "student",
+    "linkedStudentId": "1778148057351"
+  },
+  {
+    "id": 1781291452366,
+    "username": "hv0022",
+    "passwordHash": "$2b$10$ykUOvnAqkXLVa8/JmM/9puuYxlUbp7p.o0lFUpjaXSrCHeOa5TVvq",
+    "displayName": "Gia An",
+    "role": "student",
+    "linkedStudentId": "1778233017852"
+  },
+  {
+    "id": 1781291452580,
+    "username": "hv0023",
+    "passwordHash": "$2b$10$d1lo/z.AOqCZieEtiY.LjO3ksaHOSF6YKnScGsbeS4UoeKsr2Tlza",
+    "displayName": "Bình Minh (Ben)",
+    "role": "student",
+    "linkedStudentId": "1778233291572"
+  },
+  {
+    "id": 1781291452795,
+    "username": "hv0024",
+    "passwordHash": "$2b$10$.MXkaKtBQKO84ckSOAbTne7X3QjZQT7R1ELozuKJICpwYmnGCKttu",
+    "displayName": "Khánh Vy",
+    "role": "student",
+    "linkedStudentId": "1778233475271"
+  },
+  {
+    "id": 1781291453015,
+    "username": "hv0025",
+    "passwordHash": "$2b$10$G1K/O8E9uwKx0tBM491KRuLOKLWdUGl8K3k.py5LbQsaf27x9ZLDS",
+    "displayName": "Trí Nhân",
+    "role": "student",
+    "linkedStudentId": "1778233704605"
+  },
+  {
+    "id": 1781291453238,
+    "username": "hv0026",
+    "passwordHash": "$2b$10$jzF/Id2O1Z1amxqtA/p6zOcFujFuOwTfyUmmJXaJvuE9fZ6m/PIaa",
+    "displayName": "Eva Bui",
+    "role": "student",
+    "linkedStudentId": "1778234046004"
+  },
+  {
+    "id": 1781291453456,
+    "username": "hv0027",
+    "passwordHash": "$2b$10$3TTxE.QB/4boe2IktK5Vq.2DSEhmW0D4EVSpLN1A44o1T1K3pRgcm",
+    "displayName": "Khiết Đăng",
+    "role": "student",
+    "linkedStudentId": "1778294713803"
+  },
+  {
+    "id": 1781291453673,
+    "username": "hv0028",
+    "passwordHash": "$2b$10$Z5yMNsDFFSy4.8ui9ZQku.q9gh/D1PCLpbYkYJ0D5I9zUu41M2Kwe",
+    "displayName": "Như Thảo (Surly)",
+    "role": "student",
+    "linkedStudentId": "1778296668502"
+  },
+  {
+    "id": 1781291453888,
+    "username": "hv0029",
+    "passwordHash": "$2b$10$fcJ3MUv7TBcsO194trBNWeQWOR9OX608iM1G3/t2APFo2JHJK9u92",
+    "displayName": "Phạm Nguyễn Minh Trân",
+    "role": "student",
+    "linkedStudentId": "1778309924539"
+  },
+  {
+    "id": 1781291454101,
+    "username": "hv0030",
+    "passwordHash": "$2b$10$qdVJ4GC8O3tbThkrBc9r7eAsbA/A2KnHHtWM5f79HVU0euOgrasi2",
+    "displayName": "Tuệ Lâm (Kiwi)",
+    "role": "student",
+    "linkedStudentId": "1778310107201"
+  },
+  {
+    "id": 1781291454325,
+    "username": "hv0031",
+    "passwordHash": "$2b$10$KUBwemPDSBXGGTaxR3oYUeFKpIO4..4ZRbMWBsiGJx009rGFDnQYu",
+    "displayName": "Đặng Bảo Ngọc",
+    "role": "student",
+    "linkedStudentId": "1778310327592"
+  },
+  {
+    "id": 1781291454538,
+    "username": "hv0032",
+    "passwordHash": "$2b$10$evM12mdEeffNJhIcyyVTuu.7wiTiGZmog.VYFuOUI2OiSY7CGUake",
+    "displayName": "Naidoo Linh",
+    "role": "student",
+    "linkedStudentId": "1778310554916"
+  },
+  {
+    "id": 1781291454755,
+    "username": "hv0033",
+    "passwordHash": "$2b$10$fW6epBOmOui9lB7ylXbZFOKvYHY1QQHie3Muu2lniSYw809UU2.rq",
+    "displayName": "Nguyễn Lê Khánh Ngân",
+    "role": "student",
+    "linkedStudentId": "1778310946066"
+  },
+  {
+    "id": 1781291454968,
+    "username": "hv0034",
+    "passwordHash": "$2b$10$nj9Ax52trG9BBc6j.z8SpeReW6NHODy37IBbwaG0dYEbogc0xrxaW",
+    "displayName": "Minh Anh (Misa)",
+    "role": "student",
+    "linkedStudentId": "1778311149399"
+  },
+  {
+    "id": 1781291455186,
+    "username": "hv0035",
+    "passwordHash": "$2b$10$Yxmy5/8Amvy1ipVJaZqvceRF9YvwhG36B6ch6T7Q2V5wvc5w1j4pu",
+    "displayName": "Aline",
+    "role": "student",
+    "linkedStudentId": "1778311322335"
+  },
+  {
+    "id": 1781291455394,
+    "username": "hv0036",
+    "passwordHash": "$2b$10$bTUcnx1.w7kYV6GhXhjPge706fg02ak6KTlzXzRxiGd35dO97LGPS",
+    "displayName": "Park Diệp Anh",
+    "role": "student",
+    "linkedStudentId": "1778311555215"
+  },
+  {
+    "id": 1781291455611,
+    "username": "hv0037",
+    "passwordHash": "$2b$10$gnudnZGFH7VzlDRvJzEo7uHZtQkpdr2vUS60dYM361uxlcoxilzjS",
+    "displayName": "Lê Ái Nhi",
+    "role": "student",
+    "linkedStudentId": "1778311718528"
+  },
+  {
+    "id": 1781291455827,
+    "username": "hv0038",
+    "passwordHash": "$2b$10$qrgNKiEsXm.oSWO/.tEQBemdFqTN5r28QAQypVe58TNPIo84A4OZO",
+    "displayName": "Nguyễn Nhật An Vi",
+    "role": "student",
+    "linkedStudentId": "1778311997514"
+  },
+  {
+    "id": 1781291456043,
+    "username": "hv0039",
+    "passwordHash": "$2b$10$ko/n0/2rnACIobnl/QJ9lO.f49c/OFasOEhj2PoRBOTwVGUwSV4h6",
+    "displayName": "Khánh Vân",
+    "role": "student",
+    "linkedStudentId": "1778312561713"
+  },
+  {
+    "id": 1781291456262,
+    "username": "hv0040",
+    "passwordHash": "$2b$10$vm4V9Hp8ZjWkf8UwKjqhaObb23pp2rO0Gosipe92JKTtrlaDphtwW",
+    "displayName": "Bùi Thị Huyền Anh",
+    "role": "student",
+    "linkedStudentId": "1778312875901"
+  },
+  {
+    "id": 1781291456477,
+    "username": "hv0041",
+    "passwordHash": "$2b$10$H7UVL4b/Tz.pjN.3vZr3x.zdw/30oUP1Ji0jCnljh9OH/.yYUnzry",
+    "displayName": "Nguyễn Phương Anh",
+    "role": "student",
+    "linkedStudentId": "1778313105756"
+  },
+  {
+    "id": 1781291456692,
+    "username": "hv0042",
+    "passwordHash": "$2b$10$UVFCIO28HCneEAVS6O8Mc.vzR1UWUHmrzmElFAAVGzF0xlpyRuRpa",
+    "displayName": "Phạm Lâm Anh",
+    "role": "student",
+    "linkedStudentId": "1778313413437"
+  },
+  {
+    "id": 1781291456914,
+    "username": "hv0043",
+    "passwordHash": "$2b$10$npGYFDKCRqFw7Kt1yoC3BuHMA8JKG4JOq0lqMg0AtMRTbyd9Fi0Hq",
+    "displayName": "Lâm Tuệ Vy",
+    "role": "student",
+    "linkedStudentId": "1778313539316"
+  },
+  {
+    "id": 1781291457132,
+    "username": "hv0044",
+    "passwordHash": "$2b$10$giDxF5xRoySlErjIqVYc7exmCZKHA.JF2nDCA3jFDwpNK6NnN58BK",
+    "displayName": "Lê Minh Phương Thảo",
+    "role": "student",
+    "linkedStudentId": "1778313668668"
+  },
+  {
+    "id": 1781291457348,
+    "username": "hv0045",
+    "passwordHash": "$2b$10$2jx4CzqopOlibTy/O/jGXOUA/5JErENuw9/zONNVWgUkj1oA36tfq",
+    "displayName": "Nguyễn Bách Uy Phong",
+    "role": "student",
+    "linkedStudentId": "1778313870244"
+  },
+  {
+    "id": 1781291457567,
+    "username": "hv0046",
+    "passwordHash": "$2b$10$ru6siXgSkxu5Fk7osdK9VuJer/DE0.fe/McwAymHJmsn/Qq55g3m6",
+    "displayName": "Bùi Lê Gia Phúc",
+    "role": "student",
+    "linkedStudentId": "1778314023723"
+  },
+  {
+    "id": 1781291457786,
+    "username": "hv0047",
+    "passwordHash": "$2b$10$5ZM.SxKij0Pjkzy1dZKPVe4URSTUsofOxnKFH1WX.aqsBKFsRqls.",
+    "displayName": "Cao Nguyễn Minh Thư",
+    "role": "student",
+    "linkedStudentId": "1778314241491"
+  },
+  {
+    "id": 1781291457997,
+    "username": "hv0048",
+    "passwordHash": "$2b$10$e4wPcRCggSHUOgGDvZCRY.71PkdVrvMcmROt4BtikfHsJdWQ2SYqC",
+    "displayName": "Nguyễn Ý An",
+    "role": "student",
+    "linkedStudentId": "1778314393843"
+  },
+  {
+    "id": 1781291458215,
+    "username": "hv0049",
+    "passwordHash": "$2b$10$WKGLNMDXNndkTWZQZwQwkeap8Wk/s5bzTD6YDlMCpE7P1PxmnAlCi",
+    "displayName": "Khánh My",
+    "role": "student",
+    "linkedStudentId": "1778314687964"
+  },
+  {
+    "id": 1781291458437,
+    "username": "hv0050",
+    "passwordHash": "$2b$10$F9DAMMzVjfCcuDkds089aObC/UDn1xWWuuG5Wna9GeeH6VlIRghlC",
+    "displayName": "Tuệ Lâm",
+    "role": "student",
+    "linkedStudentId": "1778315083370"
+  },
+  {
+    "id": 1781291458668,
+    "username": "hv0051",
+    "passwordHash": "$2b$10$/BL/8c/Z7CIets2q.XjABeQpIajt7fLxWqotM0/enfcm3zScGoAuC",
+    "displayName": "Phúc Long (Dưa hấu)",
+    "role": "student",
+    "linkedStudentId": "1778315563126"
+  },
+  {
+    "id": 1781291458887,
+    "username": "hv0052",
+    "passwordHash": "$2b$10$cyrMDAjgzEyEiRNJnQ0UIu32dSc/4qsB1U3x/XLJzcIp9/wX/5shK",
+    "displayName": "Nguyễn Lê Đan Khanh",
+    "role": "student",
+    "linkedStudentId": "1778316148881"
+  },
+  {
+    "id": 1781291459109,
+    "username": "hv0053",
+    "passwordHash": "$2b$10$ZCzbYIvqIJXU3V1eFyeequdvC.J5oaQKlZhYqgqhCmcGQOTqFEACC",
+    "displayName": "An Nhiên (HV Ngoài)",
+    "role": "student",
+    "linkedStudentId": "1778316657400"
+  },
+  {
+    "id": 1781291459344,
+    "username": "hv0054",
+    "passwordHash": "$2b$10$uYTKTppecagbV1664PgDwOa.1G4Pqg7urhpHIv1gJQutR5BbWN6fe",
+    "displayName": "Shin",
+    "role": "student",
+    "linkedStudentId": "1778316839392"
+  },
+  {
+    "id": 1781291459559,
+    "username": "hv0055",
+    "passwordHash": "$2b$10$LN478w9ABFkBJZydEmIjguxW/K8TXqnSH6A/RyDYX4SFBTiZat/ei",
+    "displayName": "Lê Phước Khang",
+    "role": "student",
+    "linkedStudentId": "1778317018841"
+  },
+  {
+    "id": 1781291459780,
+    "username": "hv0056",
+    "passwordHash": "$2b$10$shx1CRHaXAPvJFL9UUvjpO.YFY4qr9gbsjvAEh0.L39R2GOT8ZKwm",
+    "displayName": "Lâm Anh",
+    "role": "student",
+    "linkedStudentId": "1778317190271"
+  },
+  {
+    "id": 1781291460002,
+    "username": "hv0057",
+    "passwordHash": "$2b$10$ny3e.WuO94DUfJuHzef55u96YssDWr6TsRdoqItx9rSlpMbtfwXXi",
+    "displayName": "Đức Hoàng",
+    "role": "student",
+    "linkedStudentId": "1778317669614"
+  },
+  {
+    "id": 1781291460217,
+    "username": "hv0058",
+    "passwordHash": "$2b$10$Kg6C7nmvdAMOiMujy.fU5eJv1Vikg4Gm3NZLUsCQEniiDuA/zzonq",
+    "displayName": "Minh Khôi",
+    "role": "student",
+    "linkedStudentId": "1778317805510"
+  },
+  {
+    "id": 1781291460440,
+    "username": "hv0059",
+    "passwordHash": "$2b$10$z4P0aYjRrR4sW1GjAX4qcO2GT7sGHfE/JIgSsegzeTdFPwkBlJQH6",
+    "displayName": "Hoài An",
+    "role": "student",
+    "linkedStudentId": "1778317993127"
+  },
+  {
+    "id": 1781291460661,
+    "username": "hv0060",
+    "passwordHash": "$2b$10$jNnEKBru7tKH1M9LwU92ou3f69HMKO9I0m1Hqz7FVBFuuZVB7fi8G",
+    "displayName": "Nhật Hằng",
+    "role": "student",
+    "linkedStudentId": "1778319605926"
+  },
+  {
+    "id": 1781291460878,
+    "username": "hv0061",
+    "passwordHash": "$2b$10$ZASPzlRL/mubqvxWBceVKOvR4hkzYaVNFhVQV3qnkSCwmkRDdX6km",
+    "displayName": "Bảo Khang",
+    "role": "student",
+    "linkedStudentId": "1778319699316"
+  },
+  {
+    "id": 1781291461096,
+    "username": "hv0062",
+    "passwordHash": "$2b$10$ywnTiuoBDH1wrvtwIB2KcOGWu0JcMA/BBLzWpWHyI.3EC7Ylb3Baa",
+    "displayName": "Minh Nhân",
+    "role": "student",
+    "linkedStudentId": "1778676647663"
+  },
+  {
+    "id": 1781291461311,
+    "username": "hv0063",
+    "passwordHash": "$2b$10$osv21jJN/UAWnBVFJzSvi.WjMkaAVTPYGwwWJ.1fTe9AcYdd4t.Ny",
+    "displayName": "Maya Kelly",
+    "role": "student",
+    "linkedStudentId": "1778679335739"
+  },
+  {
+    "id": 1781291461523,
+    "username": "hv0064",
+    "passwordHash": "$2b$10$HRr3iwfHVeJwIBYTC0m.H.XUaHHyDp/40N7Jf9aK5PKNRSORIZjsi",
+    "displayName": "Trịnh Minh Long",
+    "role": "student",
+    "linkedStudentId": "1778999707406"
+  },
+  {
+    "id": 1781291461781,
+    "username": "hv0065",
+    "passwordHash": "$2b$10$jMindbJ3GWfmHpvR5PNQmeGYx8pfiL7PGeKeWfInGlo1pbK3MTkfu",
+    "displayName": "Khánh An",
+    "role": "student",
+    "linkedStudentId": "1778999877652"
+  },
+  {
+    "id": 1781291461998,
+    "username": "hv0066",
+    "passwordHash": "$2b$10$VYhCSU7mbTjiFJq9foKaFOxdBg0NIMQQIb/vHi78KpwrauQzAFOn2",
+    "displayName": "Thục Nhi",
+    "role": "student",
+    "linkedStudentId": "1779000046826"
+  },
+  {
+    "id": 1781291462248,
+    "username": "hv0067",
+    "passwordHash": "$2b$10$/NnlI1sk4qr5KLXfMqo23Ok2Ri6eZT3Feeddz2jTNIKGDpmDVJxMq",
+    "displayName": "NGUYỄN THỊ HOÀI THƯƠNG (3-1)",
+    "role": "student",
+    "linkedStudentId": "1779006166707"
+  },
+  {
+    "id": 1781291462509,
+    "username": "hv0068",
+    "passwordHash": "$2b$10$0QWybn/4s.USeJEeNyQj0.FfTZChGvsHGAHb2lzYX/NIXNfcWibCW",
+    "displayName": "NHƯ THẢO (SURLY) (1-1)",
+    "role": "student",
+    "linkedStudentId": "1779009967508"
+  },
+  {
+    "id": 1781719826441,
+    "username": "gv0001",
+    "passwordHash": "$2b$10$2/uraKDfE.2DAz9lPMRwmOD7ilPDSpEt0Z6Z9TYF.OsWEuWDmhY6S",
+    "displayName": "Uyên",
+    "role": "teacher",
+    "linkedStaffId": "1781515452891"
+  },
+  {
+    "id": 1781719826663,
+    "username": "gv0003",
+    "passwordHash": "$2b$10$mmwQYi8i8wuq9/vs11hg5.GkF3atUKqFr7owBZnYxE.ZJ9xqmMdnG",
+    "displayName": "Quang",
+    "role": "teacher",
+    "linkedStaffId": "1781719783859"
+  },
+  {
+    "id": 1781719826882,
+    "username": "gv0004",
+    "passwordHash": "$2b$10$Nj9y..VfhTZj//8Izr0rtOXdk0hQgsUswbVv0qb4TesgBjF84LguO",
+    "displayName": "Nguyễn Thị Lan Anh",
+    "role": "admin",
+    "linkedStaffId": "1781719814525"
+  },
+  {
+    "id": 1782808662372,
+    "username": "hv0069",
+    "passwordHash": "$2b$10$2OI6wdz120FNGWVtXGfAqOX7.K2wxC5GoDjntmbz//FH2XOemSwcC",
+    "displayName": "TRẦN HOÀNG THẢO NHI (2-1)",
+    "role": "student",
+    "linkedStudentId": "1777707495960"
+  },
+  {
+    "id": 1782808662621,
+    "username": "hv0070",
+    "passwordHash": "$2b$10$vcIBEQlMMnbOQoz249pEyuLfZHyd.xXeMYTSyhSSXSStUp5DcSnFC",
+    "displayName": "Duy Anh",
+    "role": "student",
+    "linkedStudentId": "1777708469967"
+  },
+  {
+    "id": 1782808662852,
+    "username": "hv0071",
+    "passwordHash": "$2b$10$hj7oIxrq8C4vP.ZkxkAO9.c0yOZd3oTJjCocZpd9kyrBb8z8zclFu",
+    "displayName": "Tuệ Minh",
+    "role": "student",
+    "linkedStudentId": "1777818270681"
+  },
+  {
+    "id": 1782808663091,
+    "username": "hv0072",
+    "passwordHash": "$2b$10$R68oa9WjfFhxZLphdUj1GuQXERKI7TQ6YC2k6tlk/vDRgHsPC8Nqq",
+    "displayName": "Phương Thi",
+    "role": "student",
+    "linkedStudentId": "1777818723115"
+  },
+  {
+    "id": 1782808663346,
+    "username": "hv0073",
+    "passwordHash": "$2b$10$R6OpZlMGjC7/pRpXnyDbWe2sJuh4CKkKuOS59J/XZTaIH6jWjXh5y",
+    "displayName": "Ý An",
+    "role": "student",
+    "linkedStudentId": "1777819407631"
+  },
+  {
+    "id": 1782808663579,
+    "username": "hv0074",
+    "passwordHash": "$2b$10$3JpSuwojaJ3i4CVTvPvMOOT6LnKDgHhh10n.nwu79gI3s.alQOxWq",
+    "displayName": "Lê Nhã Kim",
+    "role": "student",
+    "linkedStudentId": "1777820517628"
+  },
+  {
+    "id": 1782808663865,
+    "username": "hv0075",
+    "passwordHash": "$2b$10$hEgB/O45YOJIebbF.v0PKuuznW0JOJ4QadIqrqh0uCBBQlR5FLqh2",
+    "displayName": "Rhum",
+    "role": "student",
+    "linkedStudentId": "1777898350703"
+  },
+  {
+    "id": 1782808664098,
+    "username": "hv0076",
+    "passwordHash": "$2b$10$3Mnfe.YmMSb/UnWq8RbGiOlO.jglNF4JY/nkUG3nCCuA1v/OUmOQu",
+    "displayName": "Mạnh Quân",
+    "role": "student",
+    "linkedStudentId": "1777898625604"
+  },
+  {
+    "id": 1782808664385,
+    "username": "hv0077",
+    "passwordHash": "$2b$10$qFpT7L8tWZW.SCwVqAv.6e/BJ26A3UmwcDs1hWDLxbuxY6NsubP6m",
+    "displayName": "Gia Khang",
+    "role": "student",
+    "linkedStudentId": "1777898855677"
+  },
+  {
+    "id": 1782808664633,
+    "username": "hv0078",
+    "passwordHash": "$2b$10$teVmqQzCluESqE.ITdxvb.f9kSL11n8.xx7SAzcA2s0uK6.gwadGG",
+    "displayName": "An Nhiên",
+    "role": "student",
+    "linkedStudentId": "1777899170761"
+  },
+  {
+    "id": 1782808664900,
+    "username": "hv0079",
+    "passwordHash": "$2b$10$AmLPI1TMU8bvLn10.7zaP.f3yaWE5tWCcQklqC9rMV0BnZJd5Blpq",
+    "displayName": "Cao Nguyễn Khánh Thư",
+    "role": "student",
+    "linkedStudentId": "1777899354341"
+  },
+  {
+    "id": 1782808665149,
+    "username": "hv0080",
+    "passwordHash": "$2b$10$mO7lAJlWOslnEP9uY6K.CeZIeg4u5MwX55sXChfX2PW0J7Loxk7GW",
+    "displayName": "Anh Hoàng",
+    "role": "student",
+    "linkedStudentId": "1777899962686"
+  },
+  {
+    "id": 1782808665418,
+    "username": "hv0081",
+    "passwordHash": "$2b$10$5iDFqTe522kyFm14OWcOXultp0OwxtZmfJ49Tilh2CNsFLSUASjqm",
+    "displayName": "Đào Minh Hân",
+    "role": "student",
+    "linkedStudentId": "1777900173489"
+  },
+  {
+    "id": 1782808665717,
+    "username": "hv0082",
+    "passwordHash": "$2b$10$51f5Tzegys5HfkIx0DQBc.Nk.lFu71w585Wc.7TqYkQl.oxJ34yjW",
+    "displayName": "Phan Hy An",
+    "role": "student",
+    "linkedStudentId": "1777900613167"
+  },
+  {
+    "id": 1782808665954,
+    "username": "hv0083",
+    "passwordHash": "$2b$10$wins2lebzNjq.w6lCWEYvuq4IdNdwuUexg0JTNYKHEipMrPlQ4xhS",
+    "displayName": "Khôi Nguyên",
+    "role": "student",
+    "linkedStudentId": "1777900763256"
+  },
+  {
+    "id": 1782808666219,
+    "username": "hv0084",
+    "passwordHash": "$2b$10$yLrgBRiGziZL5V9XZNVLiOmb6EGLHH2.JKow9sPxJl.LDUB/4xYfS",
+    "displayName": "Nguyễn Ngọc Tâm Như",
+    "role": "student",
+    "linkedStudentId": "1777966639953"
+  },
+  {
+    "id": 1782808666453,
+    "username": "hv0085",
+    "passwordHash": "$2b$10$8NrIotHKC9FLHocCDoeL9.abGNYdXlpx39k41Pz9YjHvkhUmBPtle",
+    "displayName": "Đỗ Gia Phúc",
+    "role": "student",
+    "linkedStudentId": "1777967027137"
+  },
+  {
+    "id": 1782808666746,
+    "username": "hv0086",
+    "passwordHash": "$2b$10$EvBMbwxvtyQbwLbA8DnYM.VquO25nEmLuN63FblJiFRSI/ZDMKAcC",
+    "displayName": "Mộc An (HV Ngoài)",
+    "role": "student",
+    "linkedStudentId": "1778147733600"
+  },
+  {
+    "id": 1782808666978,
+    "username": "hv0087",
+    "passwordHash": "$2b$10$5y/kH/PhUpwKyYjuADJIweUwJsc1A.DDap88BoH9.jxnVJ9drRyUC",
+    "displayName": "An Nhiên (HV Ngoài)",
+    "role": "student",
+    "linkedStudentId": "1778148057351"
+  },
+  {
+    "id": 1782808667265,
+    "username": "hv0088",
+    "passwordHash": "$2b$10$n9YrpXsUQUoh4JyzlftF4uJnugBm2eNTQMehIs5ifLJgsqOpXCVbe",
+    "displayName": "Khánh Vy",
+    "role": "student",
+    "linkedStudentId": "1778233475271"
+  },
+  {
+    "id": 1782808667552,
+    "username": "hv0089",
+    "passwordHash": "$2b$10$UbecWfObs.IMAYDn3V842O2dia2UxTYIfHMsAqzllD8P07WBLaGcO",
+    "displayName": "Trí Nhân",
+    "role": "student",
+    "linkedStudentId": "1778233704605"
+  },
+  {
+    "id": 1782808667789,
+    "username": "hv0090",
+    "passwordHash": "$2b$10$z1IWQa2.WIzCNiBu/NTR6OO1pkdVVC8Rdre0D/Y7MDuqB.KaQXtb2",
+    "displayName": "Eva Bui",
+    "role": "student",
+    "linkedStudentId": "1778234046004"
+  },
+  {
+    "id": 1782808668072,
+    "username": "hv0091",
+    "passwordHash": "$2b$10$aPcn26JlemnLHva6fAocguvuD.xn5YyYwCWgQxva7R66IWOQ3IRPG",
+    "displayName": "Khiết Đăng",
+    "role": "student",
+    "linkedStudentId": "1778294713803"
+  },
+  {
+    "id": 1782808668309,
+    "username": "hv0092",
+    "passwordHash": "$2b$10$Nlh52kk.szRmGF.NgvrxRuBTKq5eX0o08JGmQlIeQcTclNN8jKnAy",
+    "displayName": "Như Thảo (Surly)",
+    "role": "student",
+    "linkedStudentId": "1778296668502"
+  },
+  {
+    "id": 1782808668575,
+    "username": "hv0093",
+    "passwordHash": "$2b$10$9NImuMv9GYzopQjxs3Uz8ewrwUlyKCHDVrNtJDtiZhwhCDCIsqJMi",
+    "displayName": "Phạm Nguyễn Minh Trân",
+    "role": "student",
+    "linkedStudentId": "1778309924539"
+  },
+  {
+    "id": 1782808668804,
+    "username": "hv0094",
+    "passwordHash": "$2b$10$Ll4dI/lelDDsEJrynpQWHuMILjAeeKvlKBhpleLzztmiplXTP6XuK",
+    "displayName": "Tuệ Lâm (Kiwi)",
+    "role": "student",
+    "linkedStudentId": "1778310107201"
+  },
+  {
+    "id": 1782808669086,
+    "username": "hv0095",
+    "passwordHash": "$2b$10$Z/jFN6F/J2BHvsQQvoLVjO.ZVmI8sg3dcYnrTu/laxCVZtlASaAUa",
+    "displayName": "Đặng Bảo Ngọc",
+    "role": "student",
+    "linkedStudentId": "1778310327592"
+  },
+  {
+    "id": 1782808669321,
+    "username": "hv0096",
+    "passwordHash": "$2b$10$9hJQk92rIZashc44SDlNfO.EJdH0fPYnJof.oQjRwfiUEp9wVXsdS",
+    "displayName": "Naidoo Linh",
+    "role": "student",
+    "linkedStudentId": "1778310554916"
+  },
+  {
+    "id": 1782808669599,
+    "username": "hv0097",
+    "passwordHash": "$2b$10$3ruNckNTjcdHZPD4z9zHielkey81Nqc3MRzei4H2ZDZVRuYOc5Kzi",
+    "displayName": "Nguyễn Lê Khánh Ngân",
+    "role": "student",
+    "linkedStudentId": "1778310946066"
+  },
+  {
+    "id": 1782808669834,
+    "username": "hv0098",
+    "passwordHash": "$2b$10$2lzCHUtBhlxv6WZpxfIog.LqJnOGvv24j0sHlfTuf/iBSxymZ.Yqa",
+    "displayName": "Nguyễn Bảo Minh Anh (Misa)",
+    "role": "student",
+    "linkedStudentId": "1778311149399"
+  },
+  {
+    "id": 1782808670114,
+    "username": "hv0099",
+    "passwordHash": "$2b$10$tSXHTubUpCvR.9l17KLFKOr/yRXQsB/uX0.eGUEhEwESAgFYIJbEO",
+    "displayName": "Chavret An (Aline)",
+    "role": "student",
+    "linkedStudentId": "1778311322335"
+  },
+  {
+    "id": 1782808670345,
+    "username": "hv0100",
+    "passwordHash": "$2b$10$xliOqaCsrGOQwDCrwYKH6eeIO64Q56YqMGMGBXZGHXZ1Q31/5R42K",
+    "displayName": "Park Diệp Anh",
+    "role": "student",
+    "linkedStudentId": "1778311555215"
+  },
+  {
+    "id": 1782808670602,
+    "username": "hv0101",
+    "passwordHash": "$2b$10$Y40QYLAlfWzhTKheNq4DyeOaSkYNiLJIN0yRC/UxqFsJQEn/5M.hy",
+    "displayName": "Lê Ái Nhi",
+    "role": "student",
+    "linkedStudentId": "1778311718528"
+  },
+  {
+    "id": 1782808670840,
+    "username": "hv0102",
+    "passwordHash": "$2b$10$2CNFM/tEG.UOqLkz.GrsKupFn3NDC5xtazvrn9i467b/BngIyh0i.",
+    "displayName": "Nguyễn Nhật An Vi",
+    "role": "student",
+    "linkedStudentId": "1778311997514"
+  },
+  {
+    "id": 1782808671082,
+    "username": "hv0103",
+    "passwordHash": "$2b$10$qou1ZJy89C8T5omAjYrPrOPFInx.sVGtniqaw7qOpRpdZTLPMqIVW",
+    "displayName": "Đặng Khánh Vân",
+    "role": "student",
+    "linkedStudentId": "1778312561713"
+  },
+  {
+    "id": 1782808671319,
+    "username": "hv0104",
+    "passwordHash": "$2b$10$zHMkDl7RRM.H37ntSqgvweVe6WAozEwEGtpoRb2A5xXRqqF0HohdO",
+    "displayName": "Bùi Thị Huyền Anh",
+    "role": "student",
+    "linkedStudentId": "1778312875901"
+  },
+  {
+    "id": 1782808671549,
+    "username": "hv0105",
+    "passwordHash": "$2b$10$0mBDIMshluVqvtS48XZEZ.l70Tw2D9CCQQrtwl2ABDPRoDiRRR49a",
+    "displayName": "Nguyễn Phương Anh",
+    "role": "student",
+    "linkedStudentId": "1778313105756"
+  },
+  {
+    "id": 1782808671785,
+    "username": "hv0106",
+    "passwordHash": "$2b$10$WrE1Q/FqW5HD9tQkw2J9rO4XWmCUazxHGsn1dOwRbHE.yHpWYfz/e",
+    "displayName": "Phạm Lâm Anh",
+    "role": "student",
+    "linkedStudentId": "1778313413437"
+  },
+  {
+    "id": 1782808672031,
+    "username": "hv0107",
+    "passwordHash": "$2b$10$VbUxJv.QqGmS2C2UF4RDWen1w3yyeW2Y8.IKlP/wGKo.FHY8mi9Qi",
+    "displayName": "Lâm Tuệ Vy",
+    "role": "student",
+    "linkedStudentId": "1778313539316"
+  },
+  {
+    "id": 1782808672268,
+    "username": "hv0108",
+    "passwordHash": "$2b$10$AiyuH5.CVzpAWO9r0PSyVuQxk0tLKiTb.jgQ5nzGGJUukvaDdlWcu",
+    "displayName": "Lê Minh Phương Thảo",
+    "role": "student",
+    "linkedStudentId": "1778313668668"
+  },
+  {
+    "id": 1782808672520,
+    "username": "hv0109",
+    "passwordHash": "$2b$10$B0nZOh9.21pVHbiF1IL4tuuXxEqpvPqWoQU3ZP7tVaVg.9g.rtPBe",
+    "displayName": "Bùi Lê Gia Phúc",
+    "role": "student",
+    "linkedStudentId": "1778314023723"
+  },
+  {
+    "id": 1782808672770,
+    "username": "hv0110",
+    "passwordHash": "$2b$10$TEWSc3YYcB/ElmSOaKA9fef0Epy12Jzq8ctrdJaIdHoMvO128GKne",
+    "displayName": "Cao Nguyễn Minh Thư",
+    "role": "student",
+    "linkedStudentId": "1778314241491"
+  },
+  {
+    "id": 1782808673030,
+    "username": "hv0111",
+    "passwordHash": "$2b$10$lYeez6O2qyJuTfdfslMYEur0an0cVEn1mXuTDPK.P6Ed7w/3SDjPW",
+    "displayName": "Nguyễn Ý An",
+    "role": "student",
+    "linkedStudentId": "1778314393843"
+  },
+  {
+    "id": 1782808673258,
+    "username": "hv0112",
+    "passwordHash": "$2b$10$2GDFlvFttRn80F8t9jMwKemY2xxP3OUsAiBl9zuWTvBNwDYbf8o7.",
+    "displayName": "Tuệ Lâm",
+    "role": "student",
+    "linkedStudentId": "1778315083370"
+  },
+  {
+    "id": 1782808673494,
+    "username": "hv0113",
+    "passwordHash": "$2b$10$EtFhU1.298ytsues2ZxIDeTSGgVrF6MSA2Sx0gOEAIoJYtT1BH/9e",
+    "displayName": "Phúc Long (Dưa hấu)",
+    "role": "student",
+    "linkedStudentId": "1778315563126"
+  },
+  {
+    "id": 1782808673725,
+    "username": "hv0114",
+    "passwordHash": "$2b$10$3.qEemo.RVcWxHDEkuimr.BaPm7PjkYhMS4ZGIN9qYAJadeD32.0G",
+    "displayName": "Nguyễn Lê Đan Khanh",
+    "role": "student",
+    "linkedStudentId": "1778316148881"
+  },
+  {
+    "id": 1782808673970,
+    "username": "hv0115",
+    "passwordHash": "$2b$10$tPruN7ThlGVwX4PmGZzkQ.WKKKmtwIkB0CF5/cbW9JBq32BNBpPrO",
+    "displayName": "An Nhiên (HV Ngoài)",
+    "role": "student",
+    "linkedStudentId": "1778316657400"
+  },
+  {
+    "id": 1782808674222,
+    "username": "hv0116",
+    "passwordHash": "$2b$10$FTbzXJmYDQLDiQpuNWPzK.C3dZcY3h1tjlDKuT9xovqUbhwUdW0jW",
+    "displayName": "Lâm Anh",
+    "role": "student",
+    "linkedStudentId": "1778317190271"
+  },
+  {
+    "id": 1782808674481,
+    "username": "hv0117",
+    "passwordHash": "$2b$10$0hWEvjZMQrMIBF0qeZR46uEwHJyrVgDmdz7qL5qnCDnkYUDEPlx3C",
+    "displayName": "Đức Hoàng",
+    "role": "student",
+    "linkedStudentId": "1778317669614"
+  },
+  {
+    "id": 1782808674753,
+    "username": "hv0118",
+    "passwordHash": "$2b$10$G1zXaT8tdC2B4g6iyuK5HugK7K5C8j0k3HB3HSSPqE8NTMRfJ7euK",
+    "displayName": "Minh Khôi",
+    "role": "student",
+    "linkedStudentId": "1778317805510"
+  },
+  {
+    "id": 1782808675005,
+    "username": "hv0119",
+    "passwordHash": "$2b$10$g9.oWq6ggFAz1qnTfMuaEuxkLlNZaipA3ng9G3MDo84PZyEIc/5.C",
+    "displayName": "Hoài An",
+    "role": "student",
+    "linkedStudentId": "1778317993127"
+  },
+  {
+    "id": 1782808675252,
+    "username": "hv0120",
+    "passwordHash": "$2b$10$J5sqChD6NV/L35ljRKrGsOmTHCfBDeJr6N0ozOSqVxRWvKED2whvO",
+    "displayName": "Nhật Hằng",
+    "role": "student",
+    "linkedStudentId": "1778319605926"
+  },
+  {
+    "id": 1782808675500,
+    "username": "hv0121",
+    "passwordHash": "$2b$10$I.xG7mTwWr7ZPW.SUHxa..k9LislZCONzuZ4yXCGAbIbxNaYuyFx.",
+    "displayName": "Bảo Khang",
+    "role": "student",
+    "linkedStudentId": "1778319699316"
+  },
+  {
+    "id": 1782808675743,
+    "username": "hv0122",
+    "passwordHash": "$2b$10$U7TrAbzf9TJGT5x.WQA0aeoir1JywABCR6uAv9SfMc6TN95BCCmdW",
+    "displayName": "Maya Kelly",
+    "role": "student",
+    "linkedStudentId": "1778679335739"
+  },
+  {
+    "id": 1782808675973,
+    "username": "hv0123",
+    "passwordHash": "$2b$10$7vWwfV/m2Q.q0k97GpODie3P9DlA7wHHAtmdXMIw/.DgrMuX9kXB6",
+    "displayName": "Trịnh Minh Long",
+    "role": "student",
+    "linkedStudentId": "1778999707406"
+  },
+  {
+    "id": 1782808676227,
+    "username": "hv0124",
+    "passwordHash": "$2b$10$iL0Pa.cl4y73jmetBlG2LeotDGX1RH1PHgz3to5ahEKzWGOkn75xy",
+    "displayName": "Khánh An",
+    "role": "student",
+    "linkedStudentId": "1778999877652"
+  },
+  {
+    "id": 1782808676467,
+    "username": "hv0125",
+    "passwordHash": "$2b$10$cXj5/ng6fMk.aeMF1QQ29OWdaAga3DgFfQpXHy.kJYt4J1uKSRMBC",
+    "displayName": "Thục Nhi",
+    "role": "student",
+    "linkedStudentId": "1779000046826"
+  },
+  {
+    "id": 1782808676698,
+    "username": "hv0126",
+    "passwordHash": "$2b$10$zG8OJkFeZuHM7ZtyhSd6M.mWfAMcRd.2utAWN010kjTr2fVGMoquu",
+    "displayName": "NGUYỄN THỊ HOÀI THƯƠNG (3-1)",
+    "role": "student",
+    "linkedStudentId": "1779006166707"
+  },
+  {
+    "id": 1782808676960,
+    "username": "hv0127",
+    "passwordHash": "$2b$10$Swt4gtXx5mE31q1854676ehtxOTyW.9/xfZ/5jVG.Jpv0CMDEWoWm",
+    "displayName": "Chu Uyên Thư",
+    "role": "student",
+    "linkedStudentId": "1781837910175"
+  },
+  {
+    "id": 1782808677202,
+    "username": "hv0128",
+    "passwordHash": "$2b$10$.ievzFO6acc7zgqowgB0bOL9hGE0wPhiSy8vpp6kqI3/rer8QwUXO",
+    "displayName": "Như Vũ",
+    "role": "student",
+    "linkedStudentId": "1781838309210"
+  },
+  {
+    "id": 1782808677460,
+    "username": "hv0129",
+    "passwordHash": "$2b$10$h.dvZR6p7VAWQNpwhcWPrur1iTyXb1UPs/819nmcz8LIJVXpAaErm",
+    "displayName": "Đoàn Minh Khang",
+    "role": "student",
+    "linkedStudentId": "1781838506248"
+  },
+  {
+    "id": 1782808677691,
+    "username": "hv0130",
+    "passwordHash": "$2b$10$Fa9VrPyX/M2bNHMbC57dUO76/2t3DQE5ri4mWAalNCgF9RLA.2hcS",
+    "displayName": "Trần Lê Khang Thịnh",
+    "role": "student",
+    "linkedStudentId": "1782444560728"
+  },
+  {
+    "id": 1782808677929,
+    "username": "hv0131",
+    "passwordHash": "$2b$10$S/dMBCMKsfUxygdWkrTf9uV4XiBBIHE8znCP/5hDnZdfAlQIGX5wy",
+    "displayName": "Nguyễn Khánh Phong",
+    "role": "student",
+    "linkedStudentId": "1782445047083"
+  },
+  {
+    "id": 1782808678179,
+    "username": "hv0132",
+    "passwordHash": "$2b$10$9FLzM9zW2w3CczcsuP9FVO17PpNRv5RBzIrKbqd54NReeRvLtnxRq",
+    "displayName": "Nguyễn Thiên Phúc",
+    "role": "student",
+    "linkedStudentId": "1782445750900"
+  },
+  {
+    "id": 1782808678440,
+    "username": "hv0133",
+    "passwordHash": "$2b$10$uAAJd0N8wvlS9UheBD/or.a9r2/8s5GQfkhaELw5WXOYUjNYO2XWS",
+    "displayName": "Nguyễn Thiên Phúc",
+    "role": "student",
+    "linkedStudentId": "1782445752700"
+  },
+  {
+    "id": 1782808678688,
+    "username": "hv0134",
+    "passwordHash": "$2b$10$fEYkD8WN.qkDjpoPDHAHa.Ay2aeivIve3wvvdzlDwrxgzlME9JdHK",
+    "displayName": "Tuệ Minh",
+    "role": "student",
+    "linkedStudentId": "1782456776935"
+  },
+  {
+    "id": 1782808678920,
+    "username": "hv0135",
+    "passwordHash": "$2b$10$PhTKKweQkOgoiSzwU62C9O89oigUPW4SqI/1t7EKmCi.Gv67RF3Tu",
+    "displayName": "Nguyễn Phương Anh",
+    "role": "student",
+    "linkedStudentId": "1782457106685"
+  },
+  {
+    "id": 1782808679156,
+    "username": "hv0136",
+    "passwordHash": "$2b$10$37pX.rQyP41ekyCt2CAfAOyo/.J1uJggGiXt8BYukdUZSVwSf7/.a",
+    "displayName": "Nguyễn Anh Thư",
+    "role": "student",
+    "linkedStudentId": "1782459839697"
+  },
+  {
+    "id": 1782808679389,
+    "username": "hv0137",
+    "passwordHash": "$2b$10$U4ym5uytNYLOvFJWjmflmeoEfiyukRi0aq1/qGfLvAfmsH/fDsMP.",
+    "displayName": "Xuân Di",
+    "role": "student",
+    "linkedStudentId": "1782522869261"
+  },
+  {
+    "id": 1782808679630,
+    "username": "hv0138",
+    "passwordHash": "$2b$10$luY0Jm31akh2IHeeNuUdkeliMpgEz05AU7RV4RhLVJTiGX/97Thge",
+    "displayName": "Đào Tâm Minh",
+    "role": "student",
+    "linkedStudentId": "1782525987709"
+  },
+  {
+    "id": 1782808679872,
+    "username": "hv0139",
+    "passwordHash": "$2b$10$SVTxM29SJwfB5MWLF5Zhxe7.PCLDWOZNEjuhvJ3Row.dV6r25Nxwu",
+    "displayName": "Lê Nguyễn Quỳnh Anh",
+    "role": "student",
+    "linkedStudentId": "1782530856985"
+  },
+  {
+    "id": 1782808680152,
+    "username": "hv0140",
+    "passwordHash": "$2b$10$SpwzKEWlSApAxNLArlReFOnpFGZ6t3CFyrJcIrcpOaVXeHh1gNUZ6",
+    "displayName": "Bảo Nhi",
+    "role": "student",
+    "linkedStudentId": "1782531491328"
+  },
+  {
+    "id": 1782808680382,
+    "username": "hv0141",
+    "passwordHash": "$2b$10$3kDPEvGZ0vB8xTKvy332qey8JWSpqmWN705DaCdtfQAljsIlhaNoC",
+    "displayName": "Nguyễn Minh Khả Nhiên",
+    "role": "student",
+    "linkedStudentId": "1782531940075"
+  },
+  {
+    "id": 1782808680659,
+    "username": "hv0142",
+    "passwordHash": "$2b$10$44rxEyZwRrGwj5DIUzA3lO.2iKvOf67o5YNBmlHQZu6/lsdr6Hqum",
+    "displayName": "Nguyễn Ngọc Bảo Uyên",
+    "role": "student",
+    "linkedStudentId": "1782532285990"
+  },
+  {
+    "id": 1782808680896,
+    "username": "hv0143",
+    "passwordHash": "$2b$10$ydk4GLA5AkxwBiFjbdomOe9SFT5cPjpwR3jdjSweqFdSp2TIaopt6",
+    "displayName": "Nguyễn Ngọc Thiên Kim",
+    "role": "student",
+    "linkedStudentId": "1782532507579"
+  },
+  {
+    "id": 1782808681188,
+    "username": "hv0144",
+    "passwordHash": "$2b$10$8cFJfKWVkpvINF/876/k4efSc8g3BeuQkyRdmIN1hLfdIXdH08yiC",
+    "displayName": "Nguyễn Ngọc Khánh Vy (Bông)",
+    "role": "student",
+    "linkedStudentId": "1782532752328"
+  },
+  {
+    "id": 1782808681479,
+    "username": "hv0145",
+    "passwordHash": "$2b$10$mOTwcCQ3x6ZjWC.WIXtTreAmR5eLvBLWHQ74Ku9FeIjGRNysyAMj6",
+    "displayName": "Bảo Ngân",
+    "role": "student",
+    "linkedStudentId": "1782533514895"
+  },
+  {
+    "id": 1782808681731,
+    "username": "hv0146",
+    "passwordHash": "$2b$10$cnkzdxMf2gFq7BH88SHtXegsJg11kt9p99hLB6AfJSQMyx7DfInva",
+    "displayName": "Chang Kai Li",
+    "role": "student",
+    "linkedStudentId": "1782533889482"
+  },
+  {
+    "id": 1782808681985,
+    "username": "hv0147",
+    "passwordHash": "$2b$10$RQtLeqCq4OZpt1MlRqDlrOn129CN.xFWrDutSPlR0Ytx4KqGsjcRa",
+    "displayName": "Lê Thị Thanh Nhàn",
+    "role": "student",
+    "linkedStudentId": "1782706427820"
+  },
+  {
+    "id": 1782808682252,
+    "username": "hv0148",
+    "passwordHash": "$2b$10$2r3fA0ZbJnGZpsORPq9UqeCbOEvsHn7yOezvd/EkefZcNTW4dcZny",
+    "displayName": "Huỳnh Nguyễn Thảo Anh",
+    "role": "student",
+    "linkedStudentId": "1782706955944"
+  },
+  {
+    "id": 1782808682495,
+    "username": "gv0005",
+    "passwordHash": "$2b$10$Wtgy47j.Xr.mD2jHb1YeBuUwnCC/PGPej0lW4DSOSzIFv7J2g7H1C",
+    "displayName": "Dung",
+    "role": "teacher",
+    "linkedStaffId": "1782808633630"
+  },
+  {
+    "id": 1783584102982,
+    "username": "hv0149",
+    "passwordHash": "$2b$10$f9BrdWMubmk8/grvSlYD0eUA4QUm2GAUGbloqU4pEV2O7w8ly6mbi",
+    "displayName": "Bình Minh (Ben)",
+    "role": "student",
+    "linkedStudentId": "1778233291572"
+  },
+  {
+    "id": 1783584103202,
+    "username": "hv0150",
+    "passwordHash": "$2b$10$boaN1G3B3GAj9JOJnQSBHOt.MA.MYmtGWzeQSvZ0Pk6aEo.xC1VHO",
+    "displayName": "Tuệ Minh",
+    "role": "student",
+    "linkedStudentId": "1782456776935"
+  },
+  {
+    "id": 1783584103428,
+    "username": "hv0151",
+    "passwordHash": "$2b$10$Yq6vqDN7elBoNMGj1oROtOdjgeHbiLa8kPvrAGt1yk2T7vf/8tvrW",
+    "displayName": "Lê Thị Thanh Nhàn",
+    "role": "student",
+    "linkedStudentId": "1782706427820"
+  },
+  {
+    "id": 1783584103659,
+    "username": "hv0152",
+    "passwordHash": "$2b$10$zUBPVhBX.eeVtK7hKx9jveJ1taV3PcfZ6v5KE0JUwjVshuIl6yb86",
+    "displayName": "Trần Ngọc Đan Thư",
+    "role": "student",
+    "linkedStudentId": "1783045467694"
+  },
+  {
+    "id": 1783584103921,
+    "username": "hv0153",
+    "passwordHash": "$2b$10$8UYRDBDuSd9mdzo1IQIoauf/ImGP1/0i1fuQw1Vv4Q7j7Fwkrp9Oa",
+    "displayName": "Thảo Nhi",
+    "role": "student",
+    "linkedStudentId": "1783045930707"
+  },
+  {
+    "id": 1783584104142,
+    "username": "hv0154",
+    "passwordHash": "$2b$10$7JDSqu28.o.7dHXZO/zVGuavcOoLRPnXMAC6ZyCzRUA46l2k0Iomu",
+    "displayName": "Nguyễn Phan Trâm Anh",
+    "role": "student",
+    "linkedStudentId": "1783046079209"
+  },
+  {
+    "id": 1783584104368,
+    "username": "hv0155",
+    "passwordHash": "$2b$10$O5iES6vZL.Kz4vyNHsjSTep7tgqv3zKjTX2rvCr5eiPeRhiz8knA2",
+    "displayName": "Trí Nhân",
+    "role": "student",
+    "linkedStudentId": "1783046270912"
+  },
+  {
+    "id": 1783584104583,
+    "username": "hv0156",
+    "passwordHash": "$2b$10$WAFLLy10DjByke2FTkKUnuhv7LmHN5jfJBHeUQjiqxw9PXE2ZkChG",
+    "displayName": "Trí Nhân",
+    "role": "student",
+    "linkedStudentId": "1783046435015"
+  },
+  {
+    "id": 1783584104798,
+    "username": "hv0157",
+    "passwordHash": "$2b$10$jEQlUYMiROYCHS2kMSckI.h8M/HxSv162JcLQeX0QOyTOX4xPVLfS",
+    "displayName": "Nguyễn Hạnh Phúc Duyên",
+    "role": "student",
+    "linkedStudentId": "1783046588126"
+  },
+  {
+    "id": 1783584105025,
+    "username": "hv0158",
+    "passwordHash": "$2b$10$OXm05nGrokbApik4n4DBT.1.I2kDtT99259xxM7kU4nZd2t8ni8p.",
+    "displayName": "Nguyễn Ngọc Bảo Trâm",
+    "role": "student",
+    "linkedStudentId": "1783046697157"
+  },
+  {
+    "id": 1783584105240,
+    "username": "hv0159",
+    "passwordHash": "$2b$10$YtV/AOBSw85QMeL4Birud.cl7hewGhLJjLcThwuSHTeLggrJd6hwO",
+    "displayName": "Nhã Uyên",
+    "role": "student",
+    "linkedStudentId": "1783046957931"
+  },
+  {
+    "id": 1783584105455,
+    "username": "hv0160",
+    "passwordHash": "$2b$10$2wEkNZi4PXxG.I3JBkK53ew32iX7tT5Ssvbb7BraK4vY2fB0ZHUzC",
+    "displayName": "Nhã Uyên",
+    "role": "student",
+    "linkedStudentId": "1783047090954"
+  },
+  {
+    "id": 1783584105669,
+    "username": "hv0161",
+    "passwordHash": "$2b$10$ME8pg2eoeqbL3KifKc4QluI.4dX3pvB0tgz6WuNF5he2iskkGlfLK",
+    "displayName": "Trịnh Anh Khôi",
+    "role": "student",
+    "linkedStudentId": "1783047402760"
+  },
+  {
+    "id": 1783584105882,
+    "username": "hv0162",
+    "passwordHash": "$2b$10$Fg8zGsOPxwE3GYQZQUxoyuhM/PSvtcV3DcWTmTiev7QHVNHtvmOse",
+    "displayName": "Trịnh Trung Kiên",
+    "role": "student",
+    "linkedStudentId": "1783047535039"
+  },
+  {
+    "id": 1783584106104,
+    "username": "hv0163",
+    "passwordHash": "$2b$10$3Vdyu71d5R0ebrDXCFeVgu3XyfoyoaRaZaUASAXP4dePAYz3C4wuu",
+    "displayName": "Vũ Bình Minh",
+    "role": "student",
+    "linkedStudentId": "1783047716429"
+  },
+  {
+    "id": 1783584106321,
+    "username": "hv0164",
+    "passwordHash": "$2b$10$fioKFyRSBhE3n8/ESRhI7eGIxGziDh1nXMepS/dl3Kwi2Bhk1fjTS",
+    "displayName": "Trần Ngọc Đan Thư",
+    "role": "student",
+    "linkedStudentId": "1783047856060"
+  },
+  {
+    "id": 1783584106534,
+    "username": "hv0165",
+    "passwordHash": "$2b$10$1Yy6azyCKtDkpMxk1ZUC6OJubH00Xb9Y2q9PKQNoS5BmSd4hxUziu",
+    "displayName": "Trần Đan Khuê",
+    "role": "student",
+    "linkedStudentId": "1783048171491"
+  },
+  {
+    "id": 1783584106761,
+    "username": "hv0166",
+    "passwordHash": "$2b$10$afc9JogH5166Q3fqcltZeePo.gZguY5A2XrraCs0UbyUWJJDaX2OK",
+    "displayName": "Trần Đan Khuê",
+    "role": "student",
+    "linkedStudentId": "1783048309545"
+  },
+  {
+    "id": 1783584106977,
+    "username": "hv0167",
+    "passwordHash": "$2b$10$/qz5AUmQcSfN0GH85YnhsOCsEXaliTu.RZDchS/.rdQ8eaCtEdR2q",
+    "displayName": "Trần Đan Khuê",
+    "role": "student",
+    "linkedStudentId": "1783048697550"
+  },
+  {
+    "id": 1783584107193,
+    "username": "hv0168",
+    "passwordHash": "$2b$10$nNlFuAkS0HN.KwVq2n5EhuJsvYTOfm8ICbkXgwltOKrQArYg.kjcm",
+    "displayName": "Nguyễn Võ Mai Phương",
+    "role": "student",
+    "linkedStudentId": "1783048848133"
+  },
+  {
+    "id": 1783584107412,
+    "username": "hv0169",
+    "passwordHash": "$2b$10$MKGynZ5jcsFfISrwvaLFROrdv/U7rOn86GVJDBVfCiujLaVJQ.pwe",
+    "displayName": "Khánh Ngân",
+    "role": "student",
+    "linkedStudentId": "1783049015203"
+  },
+  {
+    "id": 1783584107618,
+    "username": "hv0170",
+    "passwordHash": "$2b$10$M9NU.ZHwW.FJWo8qROmGhOLjaU3iAjRP8FpWoqt78aFBNMEso4JAG",
+    "displayName": "Hà Duyên",
+    "role": "student",
+    "linkedStudentId": "1783049333529"
+  },
+  {
+    "id": 1783584107828,
+    "username": "hv0171",
+    "passwordHash": "$2b$10$yyxziUAKOQM5Ua6Tcz8pMeTxUfsRCxnxZjG69t0wDXPkWqoy7KFEi",
+    "displayName": "Dương Vũ Minh Anh",
+    "role": "student",
+    "linkedStudentId": "1783049596320"
+  },
+  {
+    "id": 1783584108038,
+    "username": "hv0172",
+    "passwordHash": "$2b$10$M6hWv/NYKwObVdjMFaLzBucVX.1K9ZfhMO2ONPzd/BxQhC70jNcE.",
+    "displayName": "Dương Vũ Minh Anh",
+    "role": "student",
+    "linkedStudentId": "1783049772566"
+  },
+  {
+    "id": 1783584108263,
+    "username": "hv0173",
+    "passwordHash": "$2b$10$2danlNSp7RduVwsRQmAp2eY/nZLXIw1ay.MpdN0BbMNKPdHjKDXCy",
+    "displayName": "Dương Vũ Thảo Anh",
+    "role": "student",
+    "linkedStudentId": "1783049940205"
+  },
+  {
+    "id": 1783584108479,
+    "username": "hv0174",
+    "passwordHash": "$2b$10$ot8590PsTQY/8T09zJm89.cDJDqLEOcWRhH7OgQ5jyoioW5GZOKri",
+    "displayName": "Dương Vũ Thảo Anh",
+    "role": "student",
+    "linkedStudentId": "1783050107828"
+  },
+  {
+    "id": 1783584108703,
+    "username": "hv0175",
+    "passwordHash": "$2b$10$pxC/9Zekfeji8ervvpk3B.XS.n60RgzMb8hrlLi4e66niuJk0KgEi",
+    "displayName": "Khánh Ngân",
+    "role": "student",
+    "linkedStudentId": "1783050266187"
+  },
+  {
+    "id": 1783584108922,
+    "username": "hv0176",
+    "passwordHash": "$2b$10$D2Nneq1qvTPgDhQqr8FVb.Bg9G90K5cxZPem6efm3TZ1PSGXrCDm6",
+    "displayName": "Nguyễn Khánh Phong",
+    "role": "student",
+    "linkedStudentId": "1783050393433"
+  },
+  {
+    "id": 1783584109143,
+    "username": "hv0177",
+    "passwordHash": "$2b$10$ErAQV.LMlygfj1ARyl9gdeWEm/zG3Bq0B4afPdH0Mtjv6lONYN.Im",
+    "displayName": "Trần Minh",
+    "role": "student",
+    "linkedStudentId": "1783050681311"
+  },
+  {
+    "id": 1783584109360,
+    "username": "hv0178",
+    "passwordHash": "$2b$10$k3uNAJUWlG/AwlV49WgLa.BeG4c/QgxIZNxkGTEc.8KHn2fJZ7M2e",
+    "displayName": "Gừng",
+    "role": "student",
+    "linkedStudentId": "1783051717848"
+  },
+  {
+    "id": 1783584109580,
+    "username": "hv0179",
+    "passwordHash": "$2b$10$8JHyrMEtmnJAZJrJ6ch2oeCUNf88CkVHMTd/pijHi19BDuNR6aE4O",
+    "displayName": "Như Ý (Gừng)",
+    "role": "student",
+    "linkedStudentId": "1783051837647"
+  },
+  {
+    "id": 1783584109810,
+    "username": "hv0180",
+    "passwordHash": "$2b$10$ltbKS.BSPFeJ7I138rgsE.wqUSqebN3GGLfJbo6XJZpdHwbIcAthm",
+    "displayName": "Tăng Khánh Linh",
+    "role": "student",
+    "linkedStudentId": "1783052029461"
+  },
+  {
+    "id": 1783584110031,
+    "username": "hv0181",
+    "passwordHash": "$2b$10$hQhaV4gPWKtLsjZAmnibF.rDtbO71cJiJ7RX9wB.hO/FYmIDEZP2y",
+    "displayName": "Tăng Khánh Linh",
+    "role": "student",
+    "linkedStudentId": "1783052156341"
+  },
+  {
+    "id": 1783584110264,
+    "username": "hv0182",
+    "passwordHash": "$2b$10$KA.E6srTPGqVrpr5WVF7Ae/nnyHq0DfroZeq60/mU6bjnf5h2L5QK",
+    "displayName": "Nguyễn Trí Anh",
+    "role": "student",
+    "linkedStudentId": "1783052418746"
+  },
+  {
+    "id": 1783584110501,
+    "username": "hv0183",
+    "passwordHash": "$2b$10$Au6rcz6TB43qBivXS2/seOdk6fzH0SGXcZfqG03OjYyade6zoTUaa",
+    "displayName": "Nguyễn Phương Mỹ Anh",
+    "role": "student",
+    "linkedStudentId": "1783052618081"
+  },
+  {
+    "id": 1783584110725,
+    "username": "gv0006",
+    "passwordHash": "$2b$10$BxXRnwPbBYEx7VbFeI4NZeexPygEXFIuxBVyo1trLph2SD3s4gHuO",
+    "displayName": "THIỆU",
+    "role": "teacher",
+    "linkedStaffId": "1783584088506"
+  }
+]

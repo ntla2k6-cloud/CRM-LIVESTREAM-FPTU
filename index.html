@@ -1,0 +1,2579 @@
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon">VS</div>
+      <div class="logo-text">
+        <div class="logo-title">VINSOUL</div>
+        <div class="logo-sub">ÂM NHẠC & NGHỆ THUẬT</div>
+      </div>
+    </div>
+    <div class="sidebar-toggle" onclick="toggleSidebar()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </div>
+  </div>
+
+  <div class="sidebar-search">
+    <input type="text" placeholder="Tìm kiếm..." id="sidebarSearch" onkeyup="filterSidebar()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+  </div>
+
+  <div class="sidebar-inner" id="sidebar-menu">
+    <!-- TIỀM NĂNG -->
+    <div class="nav-section" data-roles="ADMIN,MARKETING">
+      <div class="nav-label">TIỀM NĂNG</div>
+      <div class="nav-item" onclick="showPage('dashboard')"><span class="nav-icon">📊</span> Dashboard MKT</div>
+      <div class="nav-item" onclick="showPage('leads')"><span class="nav-icon">🎯</span> Học viên tiềm năng</div>
+      <div class="nav-item" onclick="startAddLead()"><span class="nav-icon">➕</span> Thêm HV tiềm năng</div>
+    </div>
+
+    <!-- TÀI CHÍNH & BÁO CÁO -->
+    <div class="nav-section" data-roles="ADMIN,MARKETING">
+      <div class="nav-label">TÀI CHÍNH & BÁO CÁO</div>
+      <div class="nav-item" onclick="showPage('revenue')"><span class="nav-icon">💰</span> Doanh thu</div>
+      <div class="nav-item" onclick="showPage('report')"><span class="nav-icon">📈</span> Báo cáo tổng hợp</div>
+    </div>
+
+    <!-- VẬN HÀNH (GIÁO VỤ & ADMIN) -->
+    <div class="nav-section" data-roles="ADMIN,GIAO_VU">
+      <div class="nav-label">VẬN HÀNH</div>
+      <div class="nav-item" onclick="showPage('dashboard')"><span class="nav-icon">🏠</span> Dashboard</div>
+      <div class="nav-item" onclick="showPage('students')"><span class="nav-icon">🎓</span> Học viên</div>
+      <div class="nav-item" onclick="showPage('courses')"><span class="nav-icon">📚</span> Khóa học</div>
+      <div class="nav-item" onclick="showPage('classes')"><span class="nav-icon">🏫</span> Lớp học</div>
+      <div class="nav-item" onclick="showPage('schedule')"><span class="nav-icon">📅</span> Lịch học</div>
+      <div class="nav-item" onclick="showPage('attendance')"><span class="nav-icon">✅</span> Điểm danh</div>
+      <div class="nav-item" onclick="showPage('makeup')"><span class="nav-icon">🔄</span> Bù lịch</div>
+      <div class="nav-item" onclick="showPage('consult')"><span class="nav-icon">💬</span> Tư vấn</div>
+      <div class="nav-item" onclick="showPage('care')"><span class="nav-icon">❤️</span> Chăm sóc HV</div>
+      <div class="nav-item" onclick="showPage('holidays')"><span class="nav-icon">🏖️</span> Lịch nghỉ</div>
+    </div>
+
+    <!-- GIÁO VIÊN -->
+    <div class="nav-section" data-roles="ADMIN,GIAO_VIEN">
+      <div class="nav-label">GIÁO VIÊN</div>
+      <div class="nav-item" onclick="showPage('dashboard')"><span class="nav-icon">🏠</span> Bảng Tin</div>
+      <div class="nav-item" onclick="renderTeacherSchedulePage()"><span class="nav-icon">📅</span> Lịch dạy của tôi</div>
+      <div class="nav-item" onclick="showPage('classes')"><span class="nav-icon">🏫</span> Lớp của tôi</div>
+      <div class="nav-item" onclick="showPage('attendance')"><span class="nav-icon">✅</span> Điểm danh</div>
+    </div>
+
+    <!-- NHÂN SỰ & HỆ THỐNG -->
+    <div class="nav-section" data-roles="ADMIN">
+      <div class="nav-label">HỆ THỐNG</div>
+      <div class="nav-item" onclick="showPage('staff')"><span class="nav-icon">👥</span> Quản lý Nhân sự</div>
+      <div class="nav-item" onclick="showPage('payroll')"><span class="nav-icon">💸</span> Bảng lương</div>
+      <div class="nav-item" onclick="showPage('accounts')"><span class="nav-icon">🔑</span> Quản trị tài khoản</div>
+      <div class="nav-item" onclick="showPage('audit')"><span class="nav-icon">📝</span> Nhật ký</div>
+      <div class="nav-item" onclick="showPage('zalo')"><span class="nav-icon">💬</span> Zalo ZNS</div>
+    </div>
+
+    <!-- STUDENT PORTAL -->
+    <div class="nav-section" data-roles="HOC_VIEN">
+      <div class="nav-label">HỌC VIÊN</div>
+      <div class="nav-item" onclick="showPage('student-portal')"><span class="nav-icon">🏠</span> Dashboard</div>
+      <div class="nav-item" onclick="openMyProfileModal()"><span class="nav-icon">👤</span> Hồ sơ cá nhân</div>
+      <div class="nav-item" onclick="showPage('courses')"><span class="nav-icon">📚</span> Khóa học của tôi</div>
+      <div class="nav-item" onclick="showPage('schedule')"><span class="nav-icon">📅</span> Lịch học</div>
+      <div class="nav-item" onclick="showPage('attendance')"><span class="nav-icon">✅</span> Điểm danh</div>
+      <div class="nav-item" onclick="showPage('news')"><span class="nav-icon">🔔</span> Thông báo</div>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-profile">
+      <div class="user-avatar" id="nav-avatar-img-wrap">
+        <img id="nav-avatar-img" src="" style="display:none;width:100%;height:100%;border-radius:50%;object-fit:cover;">
+        <div id="nav-avatar-text" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:var(--vs-gold);color:#fff;border-radius:50%;font-weight:700;">VS</div>
+      </div>
+      <div class="user-info">
+        <div class="user-name" id="sidebar-user-name">Đang tải...</div>
+        <div class="user-role" id="sidebar-user-role">...</div>
+      </div>
+      <div class="user-logout" onclick="VS_AUTH.logout()" title="Đăng xuất">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </div>
+    </div>
+  </div>
+</aside>
+
+
+<!-- ══════════ MAIN ══════════ -->
+<main class="main">
+
+<!-- ─── DASHBOARD ─── -->
+<div id="page-dashboard" class="page active">
+  <!-- Welcome Banner -->
+  <div class="welcome-banner" style="background:linear-gradient(135deg,var(--navy) 0%,var(--accent) 100%);border-radius:18px;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;">
+    <div>
+      <div class="welcome-title" style="font-size:22px;font-weight:900;color:#fff;margin-bottom:3px;">Xin chào, <span id="dash-username" style="color:var(--gold)">Admin</span> 👋</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.6)" id="dash-datetime"></div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:20px;font-weight:900;color:#fff;letter-spacing:2px;">VINSOUL</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.5);letter-spacing:1px;">ÂM NHẠC & NGHỆ THUẬT</div>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px;">
+    <div class="stat-card" onclick="showPage('students')" style="cursor:pointer;">
+      <div class="stat-accent"></div>
+      <div class="stat-icon-wrap">👥</div>
+      <div class="stat-value" id="stat-total">0</div>
+      <div class="stat-label">Tổng Học Viên</div>
+    </div>
+    <div class="stat-card" onclick="showPage('students')" style="cursor:pointer;">
+      <div class="stat-accent green"></div>
+      <div class="stat-icon-wrap green">✓</div>
+      <div class="stat-value" id="stat-paid">0</div>
+      <div class="stat-label">Đã Thanh Toán</div>
+    </div>
+    <div class="stat-card" onclick="showPage('students')" style="cursor:pointer;">
+      <div class="stat-accent red"></div>
+      <div class="stat-icon-wrap red">⚠</div>
+      <div class="stat-value" id="stat-unpaid">0</div>
+      <div class="stat-label">Chưa Thanh Toán</div>
+    </div>
+    <div class="stat-card" onclick="showPage('staff')" style="cursor:pointer;">
+      <div class="stat-accent purple"></div>
+      <div class="stat-icon-wrap purple">👩‍🏫</div>
+      <div class="stat-value" id="stat-staff">0</div>
+      <div class="stat-label">GV & Nhân Viên</div>
+    </div>
+    <div class="stat-card" onclick="showPage('leads')" style="cursor:pointer;">
+      <div class="stat-accent"></div>
+      <div class="stat-icon-wrap">🎯</div>
+      <div class="stat-value" id="stat-leads">0</div>
+      <div class="stat-label">HV Tiềm Năng</div>
+    </div>
+    <div class="stat-card" style="cursor:default;">
+      <div class="stat-accent" style="background:var(--gold)"></div>
+      <div class="stat-icon-wrap" style="background:rgba(245,166,35,.1);color:var(--gold)">💰</div>
+      <div class="stat-value" id="stat-revenue-month" style="color:var(--gold);font-size:18px;">0đ</div>
+      <div class="stat-label">Doanh Thu Tháng</div>
+    </div>
+  </div>
+
+  <!-- Charts + Content Row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" id="dash-charts-row">
+    <!-- Revenue Chart -->
+    <div class="card">
+      <div class="section-row" style="margin-bottom:14px;">
+        <div class="card-title">Doanh Thu 6 Tháng</div>
+        <button class="btn btn-outline" onclick="showPage('revenue')" style="font-size:10px;padding:5px 10px;">Chi tiết →</button>
+      </div>
+      <div id="dash-chart-revenue" style="height:160px;position:relative;"></div>
+    </div>
+    <!-- Subject breakdown -->
+    <div class="card">
+      <div class="section-row" style="margin-bottom:14px;">
+        <div class="card-title">Học Viên Theo Môn</div>
+      </div>
+      <div id="dash-chart-subject" style="height:160px;position:relative;overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Row -->
+  <div class="dash-bottom" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <!-- Recent students -->
+    <div class="card">
+      <div class="section-row">
+        <div class="card-title">Học Viên Mới Nhất</div>
+        <button class="btn btn-outline" onclick="showPage('students')" style="font-size:10px;padding:5px 10px;">Xem tất cả →</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Họ Tên</th><th>Khóa Học</th><th>Học Phí</th></tr></thead>
+          <tbody id="dashboard-table">
+            <tr><td colspan="3"><div class="empty-state" style="padding:20px"><div class="empty-text">Chưa có học viên</div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Alerts -->
+    <div class="card">
+      <div class="section-row" style="margin-bottom:12px;">
+        <div class="card-title">⚡ Cần Chú Ý</div>
+      </div>
+      <div id="dash-alerts"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ABOUT ─── -->
+<div id="page-about" class="page">
+  <div class="about-hero">
+    <div class="about-tagline">Trung Tâm Âm Nhạc & Nghệ Thuật</div>
+    <div class="about-big-title">VINSOUL<br><span>ACADEMY</span></div>
+    <div class="about-slogan">Đánh Thức Tiềm Năng · Khơi Nguồn Cảm Hứng</div>
+    <div class="about-desc">Vinsoul Academy là trung tâm nghệ thuật chuyên nghiệp, ươm mầm và phát triển tài năng âm nhạc, mỹ thuật và múa cho học viên mọi lứa tuổi.</div>
+  </div>
+  <div class="about-grid">
+    <div class="about-feature"><div class="about-feature-icon">🎵</div><div class="about-feature-title">Âm Nhạc</div><div class="about-feature-desc">Piano, Guitar, Violin, Ukulele, Thanh Nhạc – từ cơ bản đến luyện thi quốc tế.</div></div>
+    <div class="about-feature"><div class="about-feature-icon">🎨</div><div class="about-feature-title">Mỹ Thuật</div><div class="about-feature-desc">Vẽ mầm non, căn bản, ký họa, màu nước, acrylic, digital art và luyện thi.</div></div>
+    <div class="about-feature"><div class="about-feature-icon">🩰</div><div class="about-feature-title">Nghệ Thuật Múa</div><div class="about-feature-desc">Ballet, Dance, Khiêu Vũ, Múa Cổ Trang – rèn thể chất và biểu diễn.</div></div>
+    <div class="about-feature"><div class="about-feature-icon">🏆</div><div class="about-feature-title">Luyện Thi Quốc Tế</div><div class="about-feature-desc">Chứng chỉ âm nhạc quốc tế uy tín với giáo viên chuyên biệt.</div></div>
+    <div class="about-feature"><div class="about-feature-icon">👨‍🏫</div><div class="about-feature-title">Giáo Viên</div><div class="about-feature-desc">Đội ngũ được đào tạo bài bản, giàu kinh nghiệm, nhiệt huyết.</div></div>
+    <div class="about-feature"><div class="about-feature-icon">🎓</div><div class="about-feature-title">Linh Hoạt</div><div class="about-feature-desc">Lớp nhóm, 2-1, 1-1 – phù hợp mọi nhu cầu và mục tiêu.</div></div>
+  </div>
+</div>
+
+<!-- ─── COURSES ─── -->
+<div id="page-courses" class="page">
+  <div class="page-header">
+    <div class="page-title">Các <span>Khóa Học</span></div>
+    <div class="page-sub">Chọn khóa học để xem chi tiết học phí và số buổi</div>
+  </div>
+  <div class="toolbar" style="margin-bottom:14px;">
+    <button class="btn btn-gold vs-hide-student vs-hide-teacher" onclick="startAddCourse()">+ Thêm Khóa Học</button>
+  </div>
+  <div class="courses-grid" id="courses-grid">
+    <div class="course-card" onclick="openCourse('piano')"><span class="course-emoji">🎹</span><div class="course-name">Piano</div><div class="course-count">9 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('guitar')"><span class="course-emoji">🎸</span><div class="course-name">Guitar</div><div class="course-count">9 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('violin')"><span class="course-emoji">🎻</span><div class="course-name">Violin</div><div class="course-count">9 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('ukulele')"><span class="course-emoji">🪕</span><div class="course-name">Ukulele</div><div class="course-count">9 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('ve')"><span class="course-emoji">🎨</span><div class="course-name">Vẽ</div><div class="course-count">Nhiều phân loại</div></div>
+    <div class="course-card" onclick="openCourse('ballet')"><span class="course-emoji">🩰</span><div class="course-name">Ballet</div><div class="course-count">2 nhóm tuổi</div></div>
+    <div class="course-card" onclick="openCourse('dance')"><span class="course-emoji">💃</span><div class="course-name">Dance</div><div class="course-count">3 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('khieuvũ')"><span class="course-emoji">🕺</span><div class="course-name">Khiêu Vũ</div><div class="course-count">3 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('muacotrang')"><span class="course-emoji">👘</span><div class="course-name">Múa Cổ Trang</div><div class="course-count">3 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('thanhnhac')"><span class="course-emoji">🎤</span><div class="course-name">Thanh Nhạc</div><div class="course-count">6 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('luyen-thi')"><span class="course-emoji">🏆</span><div class="course-name">Luyện Thi Quốc Tế</div><div class="course-count">Guitar · Violin · Piano · Vẽ</div></div>
+    <div class="course-card" onclick="openCourse('hocthu')"><span class="course-emoji">⭐</span><div class="course-name">Học Thử</div><div class="course-count">3 loại</div></div>
+    <div class="course-card" onclick="openCourse('camthu')"><span class="course-emoji">🎼</span><div class="course-name">Cảm Thụ Âm Nhạc</div><div class="course-count">Miễn phí · 24 buổi</div></div>
+    <div class="course-card" onclick="openCourse('pianodemhat')"><span class="course-emoji">🎹🎤</span><div class="course-name">Piano Đệm Hát</div><div class="course-count">9 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('trong')"><span class="course-emoji">🥁</span><div class="course-name">Trống</div><div class="course-count">9 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('khac')"><span class="course-emoji">🗂️</span><div class="course-name">Mục Khác</div><div class="course-count">Học thử · Đồ · Sách · Giày · Phòng</div></div>
+    <div id="custom-courses-container" style="display:contents"></div>
+  </div>
+</div>
+
+<!-- ─── STUDENTS LIST ─── -->
+<div id="page-students" class="page">
+  <div class="page-header">
+    <div class="page-title">Danh Sách <span>Học Viên</span></div>
+    <div class="page-sub">Tất cả học viên đã đăng ký tại trung tâm</div>
+  </div>
+  <div class="toolbar">
+    <input class="search-box" id="search-input" type="text" placeholder="🔍  Tìm theo tên, SĐT, môn học..." oninput="renderStudentTable()">
+    <button class="btn btn-gold vs-hide-teacher" onclick="startAddStudent()">+ Thêm Học Viên</button>
+    <button class="btn btn-navy vs-hide-teacher" onclick="startAddClass()" style="background:var(--navy)">🏫 Thêm Lớp</button>
+    <button class="btn btn-outline" onclick="exportXLSX('students')" title="Xuất Excel .xlsx">📊 Xuất Excel</button>
+  </div>
+  <div class="filter-tabs" id="filter-payment-tabs">
+    <button class="filter-tab active" onclick="setStudentFilter('all',this)">Tất Cả</button>
+    <button class="filter-tab" onclick="setStudentFilter('Đã Chuyển Khoản',this)">Đã Chuyển Khoản</button>
+    <button class="filter-tab" onclick="setStudentFilter('Tiền Mặt',this)">Tiền Mặt</button>
+    <button class="filter-tab" onclick="setStudentFilter('Chưa Thanh Toán',this)">Chưa Thanh Toán</button>
+  </div>
+  <div class="filter-tabs" id="filter-subject-tabs" style="margin-top:-4px;flex-wrap:wrap;">
+    <span style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding:5px 4px;align-self:center;flex-shrink:0;">Khóa:</span>
+    <div id="subject-filter-btns" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;"></div>
+  </div>
+  <div class="filter-tabs" id="filter-class-tabs" style="margin-top:-4px;">
+    <span style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding:5px 4px;align-self:center;">Lớp:</span>
+    <div id="class-filter-btns" style="display:contents"></div>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th style="width:36px;text-align:center;">#</th><th style="width:80px;text-align:center;">Mã HV</th><th>Họ Và Tên</th><th>Ngày Sinh</th><th>Phụ Huynh (Zalo)</th><th>SĐT</th><th>Khóa Học</th><th>Tên Lớp</th><th>Thời Gian</th><th>Học Phí</th><th>Số Tiền</th><th>Buổi Học</th><th>Thao Tác</th></tr></thead>
+        <tbody id="student-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ADD/EDIT STUDENT ─── -->
+<div id="page-add-student" class="page">
+  <div class="page-header">
+    <div class="page-title" id="form-title">Thêm <span>Học Viên</span></div>
+    <div class="page-sub">Điền đầy đủ thông tin học viên bên dưới</div>
+  </div>
+  <div class="card">
+    <div class="form-grid">
+      <div class="form-group"><label>Họ và Tên Học Viên *</label><input id="f-name" type="text" placeholder="Nguyễn Văn A"></div>
+      <div class="form-group"><label>Ngày Tháng Năm Sinh</label><input id="f-dob" type="date"></div>
+      <div class="form-group"><label>Họ và Tên Phụ Huynh (Zalo) *</label><input id="f-parent" type="text" placeholder="Nguyễn Thị B"></div>
+      <div class="form-group"><label>Số Điện Thoại Phụ Huynh *</label><input id="f-phone" type="tel" placeholder="0901 234 567"></div>
+      <div class="form-group"><label>Khóa Học *</label>
+                <select id="f-subject" onchange="populatePackages()">
+          <option value="">-- Chọn khóa học --</option>
+          <option>Piano</option><option>Guitar</option><option>Violin</option><option>Ukulele</option>
+          <option>Vẽ Mầm Non</option><option>Vẽ Căn Bản</option>
+          <option>Vẽ - Ký Họa / Màu Nước / Màu Marker</option>
+          <option>Vẽ - Màu Acrylic Canvas / Digital Art</option>
+          <option>Ballet (3-5 tuổi)</option><option>Ballet (6-9 tuổi)</option>
+          <option>Dance</option><option>Khiêu Vũ</option><option>Múa Cổ Trang</option>
+          <option>Thanh Nhạc</option>
+          <option>Luyện Thi - Piano</option><option>Luyện Thi - Guitar</option>
+          <option>Luyện Thi - Violin</option><option>Luyện Thi - Vẽ</option>
+          <option>Cảm Thụ Âm Nhạc</option>
+          <option>Piano Đệm Hát</option>
+          <option>Trống</option>
+          <optgroup label="Khóa Học Tùy Chỉnh" id="f-subject-custom"></optgroup>
+        </select>
+      </div>
+      <div class="form-group"><label>Gói / Loại Lớp</label>
+        <select id="f-package">
+          <option value="">-- Chọn khóa học trước --</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Số Buổi (Tự Động/Tùy Chỉnh)</label>
+        <input id="f-totalSessions" type="number" placeholder="VD: 8, 24" min="1">
+      </div>
+      <div class="form-group"><label>Tên Lớp / Mã Lớp</label>
+        <select id="f-classid" onchange="onClassSelect()">
+          <option value="">-- Chọn lớp (nếu có) --</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Ngày Bắt Đầu *</label><input id="f-start" type="date"></div>
+      <div class="form-group"><label>Ngày Kết Thúc</label><input id="f-end" type="date"></div>
+      <div class="form-group"><label>Nguồn Giới Thiệu</label>
+        <select id="f-source">
+          <option value="">-- Chọn nguồn --</option>
+          <option>Facebook</option>
+          <option>Người quen giới thiệu</option>
+          <option>Đi ngang qua</option>
+          <option>Zalo / Tiktok</option>
+          <option>Khác</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Trạng Thái Học Phí *</label>
+        <select id="f-payment">
+          <option value="">-- Chọn trạng thái --</option>
+          <option>Đã Chuyển Khoản</option><option>Tiền Mặt</option><option>Chưa Thanh Toán</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Số Tiền Đã Nộp (đ)</label><input id="f-amount" type="number" placeholder="VD: 5400000" min="0"></div>
+      <div class="form-group full"><label>Ngày Nộp Tiền</label><input id="f-paydate" type="date"></div>
+      <div class="form-group full"><label>Ghi Chú</label><textarea id="f-note" rows="2" placeholder="Ghi chú thêm nếu có..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" onclick="saveStudent()">💾 Lưu Học Viên</button>
+      <button class="btn btn-outline" onclick="clearStudentForm()">↺ Xóa Trắng</button>
+      <button class="btn btn-outline" onclick="showPage('students')">← Quay Lại</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── STAFF LIST ─── -->
+<div id="page-staff" class="page">
+  <div class="page-header">
+    <div class="page-title">Giáo Viên & <span>Nhân Viên</span></div>
+    <div class="page-sub">Quản lý toàn bộ nhân sự tại trung tâm</div>
+  </div>
+  <div class="toolbar">
+    <input class="search-box" id="staff-search" type="text" placeholder="🔍  Tìm theo tên, SĐT, vị trí..." oninput="renderStaffTable()">
+    <button class="btn btn-gold" onclick="startAddStaff()">+ Thêm Nhân Sự</button>
+    <button class="btn btn-outline" onclick="exportXLSX('staff')" title="Xuất Excel .xlsx">📊 Xuất Excel</button>
+  </div>
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="setStaffFilter('all',this)">Tất Cả</button>
+    <button class="filter-tab" onclick="setStaffFilter('Giáo Viên',this)">Giáo Viên</button>
+    <button class="filter-tab" onclick="setStaffFilter('Nhân Viên',this)">Nhân Viên</button>
+    <button class="filter-tab" onclick="setStaffFilter('Đang hoạt động',this)">Đang Hoạt Động</button>
+    <button class="filter-tab" onclick="setStaffFilter('Offline',this)">Offline</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+              <th>Họ và tên</th>
+              <th>Ngày sinh</th>
+              <th>Điện thoại</th>
+              <th>Vị trí</th>
+              <th>Lương Cứng</th>
+              <th>Rate/1h</th>
+              <th>Rate/1ca</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr></thead>
+        <tbody id="staff-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ADD/EDIT STAFF ─── -->
+<div id="page-add-staff" class="page">
+  <div class="page-header">
+    <div class="page-title" id="staff-form-title">Thêm <span>Nhân Sự</span></div>
+    <div class="page-sub">Điền đầy đủ thông tin giáo viên hoặc nhân viên</div>
+  </div>
+  <div class="card">
+    <div class="form-grid">
+      <div class="form-group"><label>Họ và Tên *</label><input id="sf-name" type="text" placeholder="Nguyễn Văn A"></div>
+      <div class="form-group"><label>Ngày Tháng Năm Sinh</label><input id="sf-dob" type="date"></div>
+      <div class="form-group"><label>Số Điện Thoại *</label><input id="sf-phone" type="tel" placeholder="0901 234 567"></div>
+      <div class="form-group"><label>Vị Trí *</label>
+        <select id="sf-role">
+          <option value="">-- Chọn vị trí --</option>
+          <optgroup label="Giáo Viên">
+            <option>Giáo Viên Piano</option>
+            <option>Giáo Viên Guitar</option>
+            <option>Giáo Viên Violin</option>
+            <option>Giáo Viên Ukulele</option>
+            <option>Giáo Viên Vẽ</option>
+            <option>Giáo Viên Ballet</option>
+            <option>Giáo Viên Dance</option>
+            <option>Giáo Viên Khiêu Vũ</option>
+            <option>Giáo Viên Múa Cổ Trang</option>
+            <option>Giáo Viên Thanh Nhạc</option>
+          </optgroup>
+          <optgroup label="Nhân Viên">
+            <option>Giáo Vụ</option>
+            <option>Marketing</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="form-group"><label>Lương Cứng (Cơ bản)</label><input id="sf-salary" type="number" placeholder="0"></div>
+      <div class="form-group"><label>Đơn giá: Rate/1h</label><input id="sf-hourly" type="number" placeholder="0"></div>
+      <div class="form-group"><label>Đơn giá: Rate/1ca</label><input id="sf-session" type="number" placeholder="0"></div>
+      <div class="form-group"><label>Tình Trạng *</label>
+        <select id="sf-status">
+          <option value="">-- Chọn tình trạng --</option>
+          <option>Đang hoạt động</option>
+          <option>Offline</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>Ghi Chú</label><textarea id="sf-note" rows="2" placeholder="Ghi chú thêm nếu có..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" onclick="saveStaff()">💾 Lưu Nhân Sự</button>
+      <button class="btn btn-outline" onclick="clearStaffForm()">↺ Xóa Trắng</button>
+      <button class="btn btn-outline" onclick="showPage('staff')">← Quay Lại</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── REVENUE ─── -->
+
+<!-- ================= PAGE: SETTINGS ================= -->
+<div id="page-settings" class="page" style="display:none;">
+  <div class="page-header">
+    <div class="page-title">Cài Đặt <span>Hệ Thống</span></div>
+    <div class="page-sub">Quản lý môn học, gói học, và chức vụ nhân sự</div>
+  </div>
+  
+  <div class="card" style="margin-bottom:20px;">
+    <h3 style="margin-top:0;color:var(--navy);font-size:16px;">📚 Quản Lý Môn Học</h3>
+    <div style="display:flex;gap:10px;margin-bottom:15px;">
+      <input type="text" id="set-course-name" placeholder="Tên môn học (VD: Kick Boxing)" style="flex:1;padding:8px 12px;border:1px solid #ccc;border-radius:6px;">
+      <button class="btn btn-navy" onclick="addCustomCourse()">Thêm Môn</button>
+    </div>
+    <div id="settings-courses-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--navy);font-size:16px;">👨‍🏫 Quản Lý Chức Vụ Giáo Viên</h3>
+    <div style="display:flex;gap:10px;margin-bottom:15px;">
+      <input type="text" id="set-role-name" placeholder="Tên chức vụ (VD: Giáo viên Drum)" style="flex:1;padding:8px 12px;border:1px solid #ccc;border-radius:6px;">
+      <button class="btn btn-navy" onclick="addCustomRole()">Thêm Chức Vụ</button>
+    </div>
+    <div id="settings-roles-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+</div>
+<div id="page-revenue" class="page">
+  <div class="page-header">
+    <div class="page-title"><span>Doanh Thu</span> Trung Tâm</div>
+    <div class="page-sub">Thống kê học phí đã thu theo tháng</div>
+  </div>
+  <div class="rev-header-row">
+    <label style="font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:1.5px;margin-right:2px;">Chọn tháng:</label>
+    <select class="rev-month-select" id="rev-month" onchange="renderRevenue()"></select>
+    <select class="rev-month-select" id="rev-year" onchange="renderRevenue()"></select>
+    <button class="btn btn-outline" onclick="setRevToday()">Tháng Hiện Tại</button>
+    <button class="btn btn-outline" onclick="exportXLSX('revenue')" title="Xuất Excel .xlsx">📊 Xuất Excel</button>
+  </div>
+  <div class="rev-total-box">
+    <div class="rev-box-item">
+      <div class="rev-total-label">Tổng Doanh Thu Tháng</div>
+      <div class="rev-total-value" id="rev-total-value">0 đ</div>
+    </div>
+    <div class="rev-box-item">
+      <div class="rev-total-label">Số Học Viên Đã Thu</div>
+      <div style="font-size:22px;font-weight:800;color:rgba(255,255,255,.75);" id="rev-total-count">0</div>
+    </div>
+    <div class="rev-box-item">
+      <div class="rev-total-label">Chưa Thanh Toán</div>
+      <div style="font-size:22px;font-weight:800;color:#f87171;" id="rev-unpaid-count">0</div>
+    </div>
+  </div>
+  <div class="rev-breakdown" id="rev-breakdown"></div>
+  <div class="card">
+    <div class="card-title">Chi Tiết Thu Học Phí Trong Tháng</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Học Viên</th><th>Khóa Học</th><th>Gói / Lớp</th><th>Số Tiền</th><th>Ngày Nộp</th><th>Hình Thức</th></tr></thead>
+        <tbody id="rev-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── LEADS LIST ─── -->
+<div id="page-leads" class="page">
+  <div class="page-header">
+    <div class="page-title">Học Viên <span>Tiềm Năng</span></div>
+    <div class="page-sub">Danh sách khách hàng đang quan tâm & cần tư vấn</div>
+  </div>
+  <div class="toolbar">
+    <input class="search-box" id="lead-search" type="text" placeholder="🔍  Tìm theo tên, SĐT, khóa học..." oninput="renderLeadTable()">
+    <button class="btn btn-gold" onclick="startAddLead()">+ Thêm HV Tiềm Năng</button>
+    <button class="btn btn-outline" onclick="exportXLSX('leads')" title="Xuất Excel .xlsx">📊 Xuất Excel</button>
+  </div>
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="setLeadFilter('all',this)">Tất Cả</button>
+    <button class="filter-tab" onclick="setLeadFilter('Chưa liên hệ',this)">Chưa Liên Hệ</button>
+    <button class="filter-tab" onclick="setLeadFilter('Đã tư vấn',this)">Đã Tư Vấn</button>
+    <button class="filter-tab" onclick="setLeadFilter('Đăng ký học thử',this)" style="background:#fef9c3;color:#713f12;border-color:#fcd34d;">⭐ Học Thử</button>
+    <button class="filter-tab" onclick="setLeadFilter('Đã đăng ký học',this)" style="background:#dcfce7;color:#14532d;border-color:#4ade80;">✅ Đã Đăng Ký</button>
+    <button class="filter-tab" onclick="setLeadFilter('Trực tiếp',this)">Trực Tiếp</button>
+    <button class="filter-tab" onclick="setLeadFilter('Facebook',this)">Facebook</button>
+    <button class="filter-tab" onclick="setLeadFilter('Tiktok',this)">Tiktok</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Họ Tên Học Viên</th><th>Ngày Sinh</th><th>Phụ Huynh (Zalo)</th>
+            <th>SĐT</th><th>Khóa Quan Tâm</th><th>Nguồn Data</th><th>Tình Trạng</th>
+            <th>Học Thử</th><th>Dụng Cụ</th><th>Tổng Thu</th>
+            <th>Ghi Chú</th><th>Thao Tác</th>
+          </tr>
+        </thead>
+        <tbody id="lead-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ADD/EDIT LEAD ─── -->
+<div id="page-add-lead" class="page">
+  <div class="page-header">
+    <div class="page-title" id="lead-form-title">Thêm <span>HV Tiềm Năng</span></div>
+    <div class="page-sub">Thông tin học viên đang quan tâm và cần tư vấn</div>
+  </div>
+  <div class="card">
+    <div class="form-grid">
+      <div class="form-group"><label>Họ và Tên Học Viên *</label><input id="lf-name" type="text" placeholder="Nguyễn Văn A"></div>
+      <div class="form-group"><label>Ngày Tháng Năm Sinh HV</label><input id="lf-dob" type="date"></div>
+      <div class="form-group"><label>Họ và Tên Phụ Huynh (Zalo) *</label><input id="lf-parent" type="text" placeholder="Nguyễn Thị B"></div>
+      <div class="form-group"><label>Số Điện Thoại PH *</label><input id="lf-phone" type="tel" placeholder="0901 234 567"></div>
+      <div class="form-group"><label>Khóa Học Đang Quan Tâm *</label>
+        <select id="lf-course">
+          <option value="">-- Chọn khóa học --</option>
+          <option>Piano</option><option>Guitar</option><option>Violin</option><option>Ukulele</option>
+          <option>Vẽ Mầm Non</option><option>Vẽ Căn Bản</option>
+          <option>Vẽ - Ký Họa / Màu Nước / Màu Marker</option>
+          <option>Vẽ - Màu Acrylic Canvas / Digital Art</option>
+          <option>Ballet (3-5 tuổi)</option><option>Ballet (6-9 tuổi)</option>
+          <option>Dance</option><option>Khiêu Vũ</option><option>Múa Cổ Trang</option>
+          <option>Thanh Nhạc</option>
+          <option>Luyện Thi - Piano</option><option>Luyện Thi - Guitar</option>
+          <option>Luyện Thi - Violin</option><option>Luyện Thi - Vẽ</option>
+          <option>Piano Đệm Hát</option>
+          <option>Trống</option>
+          <option>Cảm Thụ Âm Nhạc</option>
+          <option>Chưa xác định</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Nguồn Data *</label>
+        <select id="lf-source">
+          <option value="">-- Chọn nguồn --</option>
+          <option>Trực tiếp</option>
+          <option>Facebook</option>
+          <option>Tiktok</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>Tình Trạng *</label>
+        <select id="lf-status" onchange="onLeadStatusChange()">
+          <option value="">-- Chọn tình trạng --</option>
+          <option>Chưa liên hệ</option>
+          <option>Đã tư vấn</option>
+          <option>Đăng ký học thử</option>
+          <option>Đã đăng ký học</option>
+        </select>
+      </div>
+      <!-- Học thử -->
+      <div class="form-group" id="lf-hocthu-wrap" style="display:none;"><label>Loại Học Thử</label>
+        <select id="lf-hocthu-type">
+          <option value="">-- Chọn loại --</option>
+          <option value="100000">Học thử nhóm (10:1) – 100.000đ</option>
+          <option value="250000">Học thử 2-1 – 250.000đ</option>
+          <option value="500000">Học thử 1-1 – 500.000đ</option>
+        </select>
+      </div>
+      <div class="form-group" id="lf-hocthu-fee-wrap" style="display:none;"><label>Tiền Học Thử (đ)</label>
+        <input id="lf-hocthu-fee" type="number" placeholder="100000" min="0">
+      </div>
+      <!-- Dụng cụ -->
+      <div class="form-group full" id="lf-dungcu-wrap" style="display:none;">
+        <label>Dụng Cụ / Đồ Mua Thêm (từ Mục Khác)</label>
+        <div id="lf-dungcu-rows" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px;"></div>
+        <button type="button" class="btn btn-outline" onclick="addDungcuRow()" style="font-size:11px;width:fit-content;">+ Thêm dụng cụ</button>
+        <div style="margin-top:8px;font-size:12px;color:var(--muted);">Tổng dụng cụ: <b id="lf-dungcu-total" style="color:var(--gold);">0 đ</b></div>
+      </div>
+      <div class="form-group full"><label>Ghi Chú / Nội Dung Tư Vấn</label>
+        <textarea id="lf-note" rows="3" placeholder="Ghi lại nội dung đã tư vấn, mong muốn của phụ huynh..."></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" onclick="saveLead()">💾 Lưu HV Tiềm Năng</button>
+      <button class="btn btn-outline" onclick="clearLeadForm()">↺ Xóa Trắng</button>
+      <button class="btn btn-outline" onclick="showPage('leads')">← Quay Lại</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─── CLASSES LIST ─── -->
+<div id="page-classes" class="page">
+  <div class="page-header">
+    <div class="page-title">Quản Lý <span>Lớp Học</span></div>
+    <div class="page-sub">Tạo và quản lý các lớp theo mã lớp</div>
+  </div>
+  <div class="toolbar">
+    <input class="search-box" id="class-search" type="text" placeholder="🔍  Tìm theo mã lớp, tên lớp, khóa học..." oninput="renderClassTable()">
+    <button class="btn btn-gold vs-hide-teacher" onclick="startAddClass()">+ Thêm Lớp</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Mã Lớp</th><th>Tên Lớp</th><th>Khóa Học</th><th>Giáo Viên</th><th>Thứ / Giờ Học</th><th>Phòng</th><th>Số HV</th><th>Thao Tác</th></tr></thead>
+        <tbody id="class-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="page-class-detail" class="page"></div>
+
+<!-- ─── ADD/EDIT CLASS ─── -->
+<div id="page-add-class" class="page">
+  <div class="page-header">
+    <div class="page-title" id="class-form-title">Thêm <span>Lớp Học</span></div>
+    <div class="page-sub">Tạo lớp theo mã lớp do admin nhập</div>
+  </div>
+  <div class="card">
+    <div class="form-grid">
+      <div class="form-group"><label>Mã Lớp *</label><input id="cl-code" type="text" placeholder="VD: PIANO-A1, GT-B2..."></div>
+      <div class="form-group"><label>Tên Lớp *</label><input id="cl-name" type="text" placeholder="VD: Lớp Piano Cơ Bản A1"></div>
+      <div class="form-group"><label>Khóa Học *</label>
+        <select id="cl-subject" onchange="autoFillDuration()">
+          <option value="">-- Chọn khóa học --</option>
+          <option>Piano</option><option>Guitar</option><option>Violin</option><option>Ukulele</option>
+          <option>Vẽ Mầm Non</option><option>Vẽ Căn Bản</option>
+          <option>Vẽ - Ký Họa / Màu Nước / Màu Marker</option>
+          <option>Vẽ - Màu Acrylic Canvas / Digital Art</option>
+          <option>Ballet (3-5 tuổi)</option><option>Ballet (6-9 tuổi)</option>
+          <option>Dance</option><option>Khiêu Vũ</option><option>Múa Cổ Trang</option>
+          <option>Thanh Nhạc</option>
+          <option>Luyện Thi - Piano</option><option>Luyện Thi - Guitar</option>
+          <option>Luyện Thi - Violin</option><option>Luyện Thi - Vẽ</option>
+          <option>Cảm Thụ Âm Nhạc</option>
+          <option>Piano Đệm Hát</option>
+          <option>Trống</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Giáo Viên</label><select id="cl-teacher"><option value="">-- Chọn giáo viên --</option></select></div>
+      <div class="form-group"><label>Phòng Học</label><input id="cl-room" type="text" placeholder="VD: Phòng 1, Phòng 2..."></div>
+      <div class="form-group"><label>Thời Lượng (Phút)</label><input id="cl-duration" type="number" placeholder="Mặc định: 60"></div>
+      <div class="form-group"><label>Ghi Chú</label><input id="cl-note" type="text" placeholder="Ghi chú thêm..."></div>
+      <div class="form-group full"><label>Lịch Học (Thứ + Giờ)</label>
+        <div id="cl-schedule-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;"></div>
+        <button type="button" class="btn btn-outline" onclick="addScheduleRow()" style="width:fit-content;font-size:11px;">+ Thêm buổi học</button>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" onclick="saveClass()">💾 Lưu Lớp</button>
+      <button class="btn btn-outline" onclick="clearClassForm()">↺ Xóa Trắng</button>
+      <button class="btn btn-outline" onclick="showPage('classes')">← Quay Lại</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCHEDULE (TKB TỔNG HỢP) ─── -->
+<div id="page-schedule" class="page">
+  <div class="page-header">
+    <div class="page-title">Thời Khóa Biểu <span>Tổng Hợp</span></div>
+    <div class="page-sub">Lịch học tất cả các khóa</div>
+  </div>
+  <div class="toolbar" style="margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+    <div style="display:flex;gap:8px;">
+      <button id="tkb-tab-simple" onclick="switchTKBTab('simple')"
+        style="background:var(--gold);color:#1a1a1a;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;">
+        📋 Lịch Nhanh
+      </button>
+      <button id="tkb-tab-full" onclick="switchTKBTab('full')"
+        style="background:var(--cream2);color:var(--navy);border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;">
+        👥 Đầy Đủ HV
+      </button>
+    </div>
+    <select class="rev-month-select" id="tkb-filter-subject" onchange="renderSchedule()">
+      <option value="all">Tất cả khóa học</option>
+      <option>Piano</option><option>Guitar</option><option>Violin</option><option>Ukulele</option>
+      <option>Vẽ Mầm Non</option><option>Vẽ Căn Bản</option><option>Dance</option>
+      <option>Ballet (3-5 tuổi)</option><option>Ballet (6-9 tuổi)</option>
+      <option>Khiêu Vũ</option><option>Múa Cổ Trang</option><option>Thanh Nhạc</option>
+      <option>Cảm Thụ Âm Nhạc</option>
+      <option>Piano Đệm Hát</option>
+      <option>Trống</option>
+    </select>
+  </div>
+  <div id="schedule-grid"></div>
+</div>
+
+<!-- ─── ĐIỂM DANH ─── -->
+<div id="page-attendance" class="page">
+  <div class="page-header">
+    <div class="page-title">Điểm Danh <span>Học Viên</span></div>
+    <div class="page-sub">Điểm danh theo buổi học – liên kết lớp & học viên</div>
+  </div>
+  <div class="card" style="margin-bottom:14px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;">
+      <div class="form-group">
+        <label>Chọn Lớp *</label>
+        <select id="att-class" onchange="loadAttStudents()">
+          <option value="">-- Chọn lớp --</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Ngày Học *</label>
+        <input type="date" id="att-date">
+      </div>
+      <div class="form-group">
+        <label>Buổi số</label>
+        <input type="number" id="att-session" min="1" placeholder="VD: 5" style="background:var(--cream);">
+      </div>
+      <button class="btn btn-gold" onclick="loadAttStudents()" style="height:42px;">Tải Danh Sách</button>
+    </div>
+  </div>
+  <div id="att-content"></div>
+</div>
+
+<!-- ─── BÙ LỊCH ─── -->
+<div id="page-makeup" class="page">
+  <div class="page-header">
+    <div class="page-title">Quản Lý <span>Bù Lịch</span></div>
+    <div class="page-sub">Theo dõi buổi bù – học viên học đủ số buổi theo khóa đăng ký</div>
+  </div>
+  <div class="toolbar">
+    <input class="search-box" id="makeup-search" type="text" placeholder="🔍 Tìm học viên..." oninput="renderMakeupTable()">
+    <button class="btn btn-gold" onclick="openAddMakeup()">+ Thêm Buổi Bù</button>
+  </div>
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="setMakeupFilter('all',this)">Tất Cả</button>
+    <button class="filter-tab" onclick="setMakeupFilter('pending',this)" style="background:#fff7ed;color:#92400e;border-color:#f59e0b;">⏳ Chưa Bù</button>
+    <button class="filter-tab" onclick="setMakeupFilter('done',this)" style="background:#dcfce7;color:#14532d;border-color:#4ade80;">✅ Đã Bù</button>
+  </div>
+  <!-- Thống kê -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+    <div class="stat-card"><div class="stat-accent"></div><div class="stat-icon-wrap">📋</div><div class="stat-value" id="mk-total">0</div><div class="stat-label">Tổng Buổi Bù</div></div>
+    <div class="stat-card"><div class="stat-accent red"></div><div class="stat-icon-wrap red">⏳</div><div class="stat-value" id="mk-pending">0</div><div class="stat-label">Chưa Bù</div></div>
+    <div class="stat-card"><div class="stat-accent green"></div><div class="stat-icon-wrap green">✅</div><div class="stat-value" id="mk-done">0</div><div class="stat-label">Đã Bù</div></div>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Học Viên</th><th>Lớp</th><th>Ngày Vắng</th><th>Loại Vắng</th><th>Buổi Bù</th><th>Trạng Thái</th><th>Ghi Chú</th><th>Thao Tác</th></tr></thead>
+        <tbody id="makeup-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TƯ VẤN ─── -->
+<div id="page-consult" class="page">
+  <div class="page-header">
+    <div class="page-title">Tư Vấn & <span>Mẫu Tin Nhắn</span></div>
+    <div class="page-sub">Quy trình tư vấn chuẩn + kho mẫu tin nhắn theo từng khóa học</div>
+  </div>
+
+  <!-- Tab chọn -->
+  <div class="filter-tabs" style="margin-bottom:18px;">
+    <button class="filter-tab active" onclick="setConsultTab('process',this)">📋 Quy Trình & Form</button>
+    <button class="filter-tab" onclick="setConsultTab('templates',this)">💬 Tin Nhắn Mẫu</button>
+  </div>
+
+  <!-- Tab 1: Quy trình + Form -->
+  <div id="consult-tab-process">
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title">QUY TRÌNH TƯ VẤN CHUẨN</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">
+        <div style="background:#e0f2fe;border-radius:12px;padding:16px;">
+          <div style="font-size:28px;font-weight:900;color:#0369a1;line-height:1;">1</div>
+          <div style="font-size:11px;font-weight:800;color:#0369a1;margin:6px 0 4px;text-transform:uppercase;letter-spacing:.5px;">TIẾP NHẬN</div>
+          <div style="font-size:11.5px;color:#0c4a6e;line-height:1.6;">Xin tên học viên, độ tuổi, tên phụ huynh (Zalo), môn học quan tâm</div>
+        </div>
+        <div style="background:#fef9c3;border-radius:12px;padding:16px;">
+          <div style="font-size:28px;font-weight:900;color:#a16207;line-height:1;">2</div>
+          <div style="font-size:11px;font-weight:800;color:#a16207;margin:6px 0 4px;text-transform:uppercase;letter-spacing:.5px;">GHI NOTE</div>
+          <div style="font-size:11.5px;color:#78350f;line-height:1.6;">Ghi lại mong muốn, thời gian rảnh, mục tiêu học (thi chứng chỉ / học chơi...)</div>
+        </div>
+        <div style="background:#dcfce7;border-radius:12px;padding:16px;">
+          <div style="font-size:28px;font-weight:900;color:#15803d;line-height:1;">3</div>
+          <div style="font-size:11px;font-weight:800;color:#15803d;margin:6px 0 4px;text-transform:uppercase;letter-spacing:.5px;">GỬI THÔNG TIN</div>
+          <div style="font-size:11.5px;color:#14532d;line-height:1.6;">Copy mẫu tin nhắn phù hợp (bên dưới) và gửi cho phụ huynh qua Zalo</div>
+        </div>
+        <div style="background:#ede9fe;border-radius:12px;padding:16px;">
+          <div style="font-size:28px;font-weight:900;color:#6d28d9;line-height:1;">4</div>
+          <div style="font-size:11px;font-weight:800;color:#6d28d9;margin:6px 0 4px;text-transform:uppercase;letter-spacing:.5px;">BÁO NHÓM</div>
+          <div style="font-size:11.5px;color:#4c1d95;line-height:1.6;">Tổng hợp: Tên HV – Độ tuổi – PH Zalo – Môn học – Ghi chú → gửi vào nhóm chung</div>
+        </div>
+        <div style="background:#fce7f3;border-radius:12px;padding:16px;">
+          <div style="font-size:28px;font-weight:900;color:#be185d;line-height:1;">5</div>
+          <div style="font-size:11px;font-weight:800;color:#be185d;margin:6px 0 4px;text-transform:uppercase;letter-spacing:.5px;">CHỐT & LƯU</div>
+          <div style="font-size:11.5px;color:#831843;line-height:1.6;">Nếu đồng ý: thêm vào mục HV Tiềm Năng → chuyển sang Đã Đăng Ký khi đóng tiền</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form soạn tin báo nhóm nhanh -->
+    <div class="card">
+      <div class="card-title">SOẠN TIN BÁO NHÓM NHANH</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div class="form-group"><label>TÊN HỌC VIÊN</label><input id="cf-name" type="text" placeholder="Nguyễn Văn A"></div>
+        <div class="form-group"><label>ĐỘ TUỔI</label><input id="cf-age" type="text" placeholder="8 tuổi"></div>
+        <div class="form-group"><label>TÊN PH (ZALO)</label><input id="cf-parent" type="text" placeholder="Nguyễn Thị B"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div class="form-group"><label>MÔN HỌC</label>
+          <input id="cf-course" type="text" placeholder="Piano, Guitar, Violin...">
+        </div>
+        <div class="form-group"><label>GHI CHÚ</label>
+          <input id="cf-note" type="text" placeholder="Mục tiêu học, thời gian rảnh...">
+        </div>
+      </div>
+      <button class="btn btn-gold" onclick="generateGroupMsg()" style="margin-bottom:14px;">TẠO TIN BÁO NHÓM</button>
+
+      <!-- Output box -->
+      <div id="cf-output-wrap" style="display:none;">
+        <div style="position:relative;background:#fffbeb;border:1.5px solid #fcd34d;border-radius:12px;padding:16px 48px 16px 16px;">
+          <pre id="cf-output" style="font-size:12.5px;color:#1a1a1a;font-family:'Be Vietnam Pro',sans-serif;line-height:1.8;white-space:pre-wrap;"></pre>
+          <button onclick="copyGroupMsg()" style="position:absolute;top:10px;right:10px;background:var(--navy);color:#fff;border:none;border-radius:7px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;">Copy</button>
+        </div>
+        <div id="cf-copied" style="display:none;margin-top:8px;font-size:12px;color:#16a34a;font-weight:700;">✅ Đã sao chép! Dán vào Zalo nhóm.</div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn" onclick="saveLeadFromForm()" style="background:#16a34a;color:#fff;border:none;font-size:11px;">💾 Lưu vào HV Tiềm Năng</button>
+          <button class="btn btn-outline" onclick="clearConsultForm()" style="font-size:11px;">↺ Xóa Trắng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Tin nhắn mẫu -->
+  <div id="consult-tab-templates" style="display:none;">
+    <div class="toolbar" style="margin-bottom:14px;">
+      <input class="search-box" id="template-search" type="text" placeholder="🔍 Tìm theo tên môn học..." oninput="renderTemplates()">
+      <button class="btn btn-gold" onclick="openAddTemplate()">+ Thêm Tin Nhắn Mẫu</button>
+    </div>
+    <div id="templates-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;"></div>
+  </div>
+</div>
+
+
+  <!-- Staff Attendance Page -->
+  <div id="page-staff-attendance" class="page">
+    <div class="page-header">
+      <div class="page-title">Chấm Công <span>Nhân Viên</span></div>
+      <div class="page-sub">Theo dõi giờ vào/ra – giáo viên tự chấm công cho chính mình</div>
+    </div>
+    <div id="staff-att-content"><div class="empty-state"><div class="empty-icon">🕐</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- Student Portal -->
+  <div id="page-student-portal" class="page">
+    <div id="student-portal-content"><div class="empty-state"><div class="empty-icon">◉</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- Audit Log -->
+  <div id="page-audit" class="page">
+    <div class="page-header"><div class="page-title">Nhật Ký <span>Hệ Thống</span></div></div>
+    <div id="audit-content"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- Zalo Config -->
+  <div id="page-zalo" class="page">
+    <div class="page-header"><div class="page-title">Cấu Hình <span>Zalo ZNS</span></div></div>
+    <div id="zalo-content"><div class="empty-state"><div class="empty-icon">💬</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- Payroll Page -->
+  <div id="page-payroll" class="page">
+    <div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Đang tải...</div></div>
+  </div>
+
+  <!-- Student Care Page -->
+  <div id="page-care" class="page">
+    <div class="page-header">
+      <div class="page-title">Chăm Sóc <span>Học Viên</span></div>
+      <div class="page-sub">Lịch sử liên lạc và nhắc follow-up</div>
+    </div>
+    <div id="care-content"><div class="empty-state"><div class="empty-icon">💬</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- Report Page -->
+  <div id="page-report" class="page">
+    <div class="page-header">
+      <div class="page-title">Báo Cáo <span>Tổng Hợp</span></div>
+      <div class="page-sub">Thống kê doanh thu, học viên, vận hành</div>
+    </div>
+    <div id="report-content"><div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- Room Management Page -->
+  <div id="page-rooms" class="page">
+    <div class="page-header">
+      <div class="page-title">Phòng Học <span>& Ca</span></div>
+      <div class="page-sub">Quản lý phòng học và phân ca dạy</div>
+    </div>
+    <div id="rooms-content"><div class="empty-state"><div class="empty-icon">🏫</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- Student Profile Page -->
+  <div id="page-student-profile" class="page">
+    <div id="student-profile-content"><div class="empty-state"><div class="empty-icon">👤</div><div class="empty-text">Chọn học viên để xem hồ sơ</div></div></div>
+  </div>
+  <!-- ─── QUẢN TRỊ TÀI KHOẢN ─── -->
+  <div id="page-accounts" class="page" style="padding-left:0;width:100%;box-sizing:border-box;">
+    <div class="page-header">
+      <div class="page-title">Quản Trị <span>Tài Khoản</span></div>
+      <div class="page-sub">Cấp phát và phân quyền tài khoản đăng nhập hệ thống</div>
+    </div>
+    <div class="card" style="width:100%;box-sizing:border-box;">
+      <div class="toolbar" style="margin-bottom:18px;">
+        <div style="font-weight:800;font-size:15px;color:var(--navy);">Danh Sách Tài Khoản</div>
+        <button class="btn btn-gold" onclick="openCreateAccountModal()">+ Cấp Tài Khoản Mới</button>
+      </div>
+      <div id="accounts-table-wrap" style="overflow-x:auto;width:100%;"></div>
+    </div>
+  </div>
+
+  <!-- ─── CHĂM SÓC HỌC VIÊN ─── -->
+  <div id="page-care" class="page">
+    <div class="page-header">
+      <div class="page-title">Chăm Sóc <span>Học Viên</span></div>
+      <div class="page-sub">Theo dõi liên lạc và nhắc follow-up học viên cần chú ý</div>
+    </div>
+    <div id="care-content"><div class="empty-state"><div class="empty-icon">💚</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- ─── LỊCH NGHỈ ─── -->
+  <div id="page-holidays" class="page">
+    <div class="page-header">
+      <div class="page-title">Lịch <span>Nghỉ</span></div>
+      <div class="page-sub">Quản lý ngày lễ, Tết và nghỉ đột xuất – tự động thiết lập khi tính ngày kết thúc khóa học</div>
+    </div>
+    <div id="holidays-content"><div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- ─── BẢNG TIN ─── -->
+  <div id="page-news" class="page">
+    <div class="page-header">
+      <div class="page-title">Bảng <span>Tin</span></div>
+      <div class="page-sub">Tin tức, thông báo và hoạt động của Vinsoul Academy</div>
+    </div>
+    <div id="news-content"><div class="empty-state"><div class="empty-icon">📰</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+</main>
+
+<!-- Mobile hamburger button -->
+<button id="mobile-menu-btn" onclick="toggleMobileSidebar()" style="display:none;position:fixed;top:12px;left:12px;z-index:9998;background:var(--navy);color:#fff;border:none;border-radius:10px;width:40px;height:40px;font-size:18px;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.3);">&#9776;</button>
+<div id="sidebar-overlay" onclick="toggleMobileSidebar()" style="display:none;position:fixed;inset:0;z-index:9997;background:rgba(0,0,0,.5);"></div>
+
+
+<!-- ══════════ CUSTOM COURSE MODAL ══════════ -->
+<div class="modal-backdrop" id="custom-course-modal" onclick="if(event.target===this)closeCustomCourseModal()">
+  <div class="modal" style="max-width:700px;">
+    <button class="modal-close" onclick="closeCustomCourseModal()">✕</button>
+    <div class="modal-header"><span class="modal-emoji">📚</span><div class="modal-title">Thêm / Sửa Khóa Học</div></div>
+    <div class="modal-sub">Tạo khóa học mới với học phí tùy chỉnh</div>
+    <div class="form-grid" style="margin-bottom:14px;">
+      <div class="form-group"><label>Mã Khóa (key) *</label><input id="cc-key" type="text" placeholder="VD: organ, bass_guitar..."></div>
+      <div class="form-group"><label>Tên Khóa Học *</label><input id="cc-name" type="text" placeholder="VD: Organ, Bass Guitar..."></div>
+      <div class="form-group"><label>Emoji / Icon</label><input id="cc-emoji" type="text" placeholder="VD: 🎸" style="font-size:20px;"></div>
+    </div>
+    <div style="font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid var(--cream2);">Các Gói Học Phí</div>
+    <div style="display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:6px;margin-bottom:6px;">
+      <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Nhóm Gói</span>
+      <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Mô Tả Gói</span>
+      <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Học Phí (đ)</span>
+      <span></span>
+    </div>
+    <div id="cc-rows-wrap"></div>
+    <button type="button" class="btn btn-outline" onclick="addCustomCourseRow()" style="margin-top:6px;font-size:11px;">+ Thêm gói</button>
+    <div class="form-actions" style="margin-top:16px;padding-top:16px;border-top:1.5px solid var(--cream2);">
+      <button class="btn btn-gold" onclick="saveCustomCourse()">💾 Lưu Khóa Học</button>
+      <button class="btn btn-outline" onclick="closeCustomCourseModal()">✕ Huỷ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ COURSE MODAL ══════════ -->
+<div class="modal-backdrop" id="course-modal" onclick="closeCourseModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeCourse()">✕</button>
+    <div class="modal-header"><span class="modal-emoji" id="modal-emoji">🎹</span><div class="modal-title" id="modal-title"></div></div>
+    <div class="modal-sub">Chi tiết học phí và số buổi học</div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- ══════════ DELETE CONFIRM MODAL ══════════ -->
+<div class="del-modal-backdrop" id="del-modal">
+  <div class="del-modal">
+    <div class="del-modal-icon">🗑️</div>
+    <div class="del-modal-title">Xác nhận xóa?</div>
+    <div class="del-modal-sub">Bạn sắp xóa <span class="del-modal-name" id="del-modal-name"></span>.<br>Hành động này không thể hoàn tác.</div>
+    <div class="del-modal-btns">
+      <button class="btn btn-red" id="del-confirm-btn">Xóa</button>
+      <button class="btn btn-outline" onclick="closeDelModal()">Huỷ</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ <span id="toast-msg"></span></div>
+<!-- ══════ PAYROLL CONFIG MODAL ══════ -->
+<div class="modal-backdrop" id="pr-config-modal" onclick="if(event.target===this)closePrConfigModal()">
+  <div class="modal" style="max-width:500px;">
+    <button class="modal-close" onclick="closePrConfigModal()">✕</button>
+    <div class="modal-header"><span class="modal-emoji">⚙️</span><div class="modal-title">Cấu Hình Lương Cơ Bản</div></div>
+    <div class="modal-sub" id="pr-config-name"></div>
+    <input type="hidden" id="pr-cfg-staffid">
+    <div class="form-grid">
+      <div class="form-group" style="grid-column: span 2;">
+        <label>Loại Lương</label>
+        <select id="pr-cfg-type" onchange="togglePrCfgFields()" style="width:100%;border:1px solid #ddd;border-radius:6px;padding:8px;">
+          <option value="monthly">Lương Cứng (Theo tháng)</option>
+          <option value="hourly">Lương Theo Tiết/Giờ</option>
+        </select>
+      </div>
+      <div class="form-group monthly-cfg">
+        <label>Lương Cơ Bản (VNĐ)</label>
+        <input type="number" id="pr-cfg-base" placeholder="VD: 3000000">
+      </div>
+      <div class="form-group monthly-cfg">
+        <label>Số ngày chuẩn</label>
+        <input type="number" id="pr-cfg-std" placeholder="VD: 26">
+      </div>
+      <div class="form-group hourly-cfg">
+        <label>Rate Cơ Bản (VNĐ)</label>
+        <input type="number" id="pr-cfg-hourly" placeholder="VD: 300000">
+      </div>
+      <div class="form-group hourly-cfg">
+        <label>Rate Dạy Ngoài</label>
+        <input type="number" id="pr-cfg-ext" placeholder="VD: 300000">
+      </div>
+      <div class="form-group hourly-cfg">
+        <label>Rate Dạy Thay</label>
+        <input type="number" id="pr-cfg-sub" placeholder="VD: 150000">
+      </div>
+    </div>
+    <button class="btn btn-gold" style="width:100%;margin-top:15px;padding:10px;font-size:14px;border-radius:8px;" onclick="savePrConfig()">Lưu Cấu Hình</button>
+  </div>
+</div>
+
+<!-- ══════ PAYROLL MONTHLY MODAL ══════ -->
+<div class="modal-backdrop" id="pr-month-modal" onclick="if(event.target===this)closePrMonthModal()">
+  <div class="modal" style="max-width:500px;">
+    <button class="modal-close" onclick="closePrMonthModal()">✕</button>
+    <div class="modal-header"><span class="modal-emoji">📅</span><div class="modal-title">Số Liệu Tháng Này</div></div>
+    <div class="modal-sub" id="pr-month-name"></div>
+    <input type="hidden" id="pr-month-staffid">
+    <div class="form-grid">
+      <div class="form-group monthly-var">
+        <label>Số ngày làm</label>
+        <input type="number" id="pr-var-wdays" step="0.5" placeholder="VD: 24.5">
+      </div>
+      <div class="form-group hourly-var">
+        <label>Số giờ/tiết làm</label>
+        <input type="number" id="pr-var-whours" step="0.5" placeholder="VD: 14">
+      </div>
+      <div class="form-group hourly-var">
+        <label>Tiết dạy ngoài</label>
+        <input type="number" id="pr-var-ext" step="0.5" placeholder="VD: 3">
+      </div>
+      <div class="form-group hourly-var">
+        <label>Tiết dạy thay</label>
+        <input type="number" id="pr-var-sub" step="0.5" placeholder="VD: 2">
+      </div>
+      <div class="form-group">
+        <label>Số lần vi phạm</label>
+        <input type="number" id="pr-var-latecount" placeholder="VD: 3">
+      </div>
+      <div class="form-group">
+        <label>Tổng tiền phạt</label>
+        <input type="number" id="pr-var-lateamt" placeholder="VD: 150000">
+      </div>
+      <div class="form-group" style="grid-column: span 2;">
+        <label>Ghi chú phạt</label>
+        <input type="text" id="pr-var-latenote" placeholder="VD: 3 lỗi trễ">
+      </div>
+    </div>
+    <button class="btn btn-gold" style="width:100%;margin-top:15px;padding:10px;font-size:14px;border-radius:8px;" onclick="savePrMonth()">Lưu Số Liệu</button>
+  </div>
+</div>
+
+<!-- ══════════ SCRIPT ══════════ -->
+<!-- ══════ MODAL THÊM BÙ LỊCH ══════ -->
+<div class="modal-backdrop" id="makeup-modal" onclick="if(event.target===this)closeMakeupModal()">
+  <div class="modal" style="max-width:560px;">
+    <button class="modal-close" onclick="closeMakeupModal()">✕</button>
+    <div class="modal-header"><span class="modal-emoji">🔄</span><div class="modal-title" id="makeup-modal-title">Thêm Buổi Bù</div></div>
+    <div class="modal-sub">Ghi nhận buổi vắng và lên lịch bù</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Học Viên *</label>
+        <select id="mk-student"><option value="">-- Chọn học viên --</option></select>
+      </div>
+      <div class="form-group"><label>Lớp</label>
+        <select id="mk-class"><option value="">-- Chọn lớp --</option></select>
+      </div>
+      <div class="form-group"><label>Ngày Vắng *</label><input type="date" id="mk-absent-date"></div>
+      <div class="form-group"><label>Loại Vắng *</label>
+        <select id="mk-absent-type">
+          <option value="">-- Chọn --</option>
+          <option>Vắng có phép</option>
+          <option>Vắng không phép</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Ngày Bù (dự kiến)</label><input type="date" id="mk-makeup-date"></div>
+      <div class="form-group"><label>Trạng Thái</label>
+        <select id="mk-status">
+          <option value="pending">Chưa bù</option>
+          <option value="done">Đã bù</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>Ghi Chú</label>
+        <textarea id="mk-note" rows="2" placeholder="Ghi chú thêm..."></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" onclick="saveMakeup()">💾 Lưu</button>
+      <button class="btn btn-outline" onclick="closeMakeupModal()">Huỷ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ MODAL THÊM TIN NHẮN MẪU ══════ -->
+<div class="modal-backdrop" id="template-modal" onclick="if(event.target===this)closeTemplateModal()">
+  <div class="modal" style="max-width:600px;">
+    <button class="modal-close" onclick="closeTemplateModal()">✕</button>
+    <div class="modal-header"><span class="modal-emoji">💬</span><div class="modal-title" id="template-modal-title">Thêm Tin Nhắn Mẫu</div></div>
+    <div class="modal-sub">Tạo nội dung tư vấn sẵn sàng sao chép</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Môn Học / Tên Mẫu *</label>
+        <input id="tpl-course" type="text" placeholder="VD: Piano Đệm Hát, Guitar...">
+      </div>
+      <div class="form-group"><label>Emoji Icon</label>
+        <input id="tpl-emoji" type="text" placeholder="🎹" style="font-size:18px;">
+      </div>
+      <div class="form-group full"><label>Nội Dung Tin Nhắn *</label>
+        <textarea id="tpl-content" rows="8" placeholder="Nhập nội dung tin nhắn tư vấn đầy đủ...&#10;VD:&#10;PIANO ĐỆM HÁT&#10;Học phí: 4.200.000đ / khóa&#10;Thời gian: 3 tháng (24 buổi)..."></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" onclick="saveTemplate()">💾 Lưu Tin Nhắn</button>
+      <button class="btn btn-outline" onclick="closeTemplateModal()">Huỷ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL CẤP TÀI KHOẢN ── -->
+<div class="modal-backdrop" id="account-modal" onclick="if(event.target===this)closeAccountModal()">
+  <div class="modal" style="max-width:460px;">
+    <button class="modal-close" onclick="closeAccountModal()">✕</button>
+    <div class="modal-header"><span class="modal-emoji">🔑</span><div class="modal-title" id="account-modal-title">CẤP TÀI KHOẢN MỚI</div></div>
+    
+    <div style="display:flex;gap:16px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #eee;">
+      <label style="font-weight:700;cursor:pointer;"><input type="radio" name="acc_type" value="STAFF" checked onchange="toggleAccType()"> Nhân sự</label>
+      <label style="font-weight:700;cursor:pointer;"><input type="radio" name="acc_type" value="STUDENT" onchange="toggleAccType()"> Học viên</label>
+    </div>
+
+    <!-- STAFF FORM -->
+    <div id="acc-staff-form" class="form-grid">
+      <div class="form-group full" style="font-size:12px;color:#0c4a6e;background:#e0f2fe;padding:10px;border-radius:8px;">
+        Nhân sự đăng nhập bằng Google OAuth. Không tạo mật khẩu tại đây.
+      </div>
+      <div class="form-group full">
+        <label>Email Google *</label>
+        <input id="acc-staff-email" type="email" placeholder="VD: nguyenvan@gmail.com">
+      </div>
+      <div class="form-group full">
+        <label>Vai trò dự kiến *</label>
+        <select id="acc-staff-role">
+          <option value="ADMIN">Admin</option>
+          <option value="MARKETING">Marketing</option>
+          <option value="GIAO_VU">Giáo vụ</option>
+          <option value="GIAO_VIEN">Giáo viên</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- STUDENT FORM -->
+    <div id="acc-student-form" class="form-grid" style="display:none;">
+      <div class="form-group full">
+        <label>Mã học viên *</label>
+        <div style="display:flex;gap:8px;">
+          <input id="acc-student-id" type="text" placeholder="VD: VS00125" style="flex:1;">
+          <button class="btn btn-outline" type="button" onclick="checkStudentId()">Kiểm tra</button>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label>Tên học viên</label>
+        <input id="acc-student-name" type="text" readonly style="background:#f3f4f6;" placeholder="(Tự động lấy)">
+      </div>
+      <div class="form-group">
+        <label>Mật khẩu *</label>
+        <input id="acc-student-pass" type="password" placeholder="Ít nhất 6 ký tự">
+      </div>
+      <div class="form-group">
+        <label>Xác nhận mật khẩu *</label>
+        <input id="acc-student-pass2" type="password" placeholder="Nhập lại">
+      </div>
+      <div class="form-group full" style="font-size:12px;color:#15803d;font-weight:700;">
+        Trạng thái: ACTIVE
+      </div>
+    </div>
+
+    <div id="acc-error" style="color:#D94F4F;font-size:13px;margin:8px 0;display:none;"></div>
+    <div class="form-actions" style="margin-top:16px;">
+      <button class="btn btn-gold" id="acc-submit-btn" onclick="submitAccountForm()">Tạo yêu cầu</button>
+      <button class="btn btn-outline" onclick="closeAccountModal()">Hủy</button>
+    </div>
+  </div>
+</div>s="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon">VS</div>
+      <div class="logo-text">
+        <div class="logo-title">VINSOUL</div>
+        <div class="logo-sub">ÂM NHẠC & NGHỆ THUẬT</div>
+      </div>
+    </div>
+    <div class="sidebar-toggle" onclick="toggleSidebar()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </div>
+  </div>
+
+  <div class="sidebar-search">
+    <input type="text" placeholder="Tìm kiếm..." id="sidebarSearch" onkeyup="filterSidebar()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+  </div>
+
+  <div class="sidebar-inner" id="sidebar-menu">
+    <!-- TIỀM NĂNG -->
+    <div class="nav-section" data-roles="ADMIN,MARKETING">
+      <div class="nav-label">TIỀM NĂNG</div>
+      <div class="nav-item" onclick="showPage('dashboard')"><span class="nav-icon">📊</span> Dashboard MKT</div>
+      <div class="nav-item" onclick="showPage('leads')"><span class="nav-icon">🎯</span> Học viên tiềm năng</div>
+      <div class="nav-item" onclick="startAddLead()"><span class="nav-icon">➕</span> Thêm HV tiềm năng</div>
+    </div>
+
+    <!-- TÀI CHÍNH & BÁO CÁO -->
+    <div class="nav-section" data-roles="ADMIN,MARKETING">
+      <div class="nav-label">TÀI CHÍNH & BÁO CÁO</div>
+      <div class="nav-item" onclick="showPage('revenue')"><span class="nav-icon">💰</span> Doanh thu</div>
+      <div class="nav-item" onclick="showPage('report')"><span class="nav-icon">📈</span> Báo cáo tổng hợp</div>
+    </div>
+
+    <!-- VẬN HÀNH (GIÁO VỤ & ADMIN) -->
+    <div class="nav-section" data-roles="ADMIN,GIAO_VU">
+      <div class="nav-label">VẬN HÀNH</div>
+      <div class="nav-item" onclick="showPage('dashboard')"><span class="nav-icon">🏠</span> Dashboard</div>
+      <div class="nav-item" onclick="showPage('students')"><span class="nav-icon">🎓</span> Học viên</div>
+      <div class="nav-item" onclick="showPage('courses')"><span class="nav-icon">📚</span> Khóa học</div>
+      <div class="nav-item" onclick="showPage('classes')"><span class="nav-icon">🏫</span> Lớp học</div>
+      <div class="nav-item" onclick="showPage('schedule')"><span class="nav-icon">📅</span> Lịch học</div>
+      <div class="nav-item" onclick="showPage('attendance')"><span class="nav-icon">✅</span> Điểm danh</div>
+      <div class="nav-item" onclick="showPage('makeup')"><span class="nav-icon">🔄</span> Bù lịch</div>
+      <div class="nav-item" onclick="showPage('consult')"><span class="nav-icon">💬</span> Tư vấn</div>
+      <div class="nav-item" onclick="showPage('care')"><span class="nav-icon">❤️</span> Chăm sóc HV</div>
+      <div class="nav-item" onclick="showPage('holidays')"><span class="nav-icon">🏖️</span> Lịch nghỉ</div>
+    </div>
+
+    <!-- GIÁO VIÊN -->
+    <div class="nav-section" data-roles="ADMIN,GIAO_VIEN">
+      <div class="nav-label">GIÁO VIÊN</div>
+      <div class="nav-item" onclick="showPage('dashboard')"><span class="nav-icon">🏠</span> Bảng Tin</div>
+      <div class="nav-item" onclick="renderTeacherSchedulePage()"><span class="nav-icon">📅</span> Lịch dạy của tôi</div>
+      <div class="nav-item" onclick="showPage('classes')"><span class="nav-icon">🏫</span> Lớp của tôi</div>
+      <div class="nav-item" onclick="showPage('attendance')"><span class="nav-icon">✅</span> Điểm danh</div>
+    </div>
+
+    <!-- NHÂN SỰ & HỆ THỐNG -->
+    <div class="nav-section" data-roles="ADMIN">
+      <div class="nav-label">HỆ THỐNG</div>
+      <div class="nav-item" onclick="showPage('staff')"><span class="nav-icon">👥</span> Quản lý Nhân sự</div>
+      <div class="nav-item" onclick="showPage('payroll')"><span class="nav-icon">💸</span> Bảng lương</div>
+      <div class="nav-item" onclick="showPage('accounts')"><span class="nav-icon">🔑</span> Quản trị tài khoản</div>
+      <div class="nav-item" onclick="showPage('audit')"><span class="nav-icon">📝</span> Nhật ký</div>
+      <div class="nav-item" onclick="showPage('zalo')"><span class="nav-icon">💬</span> Zalo ZNS</div>
+    </div>
+
+    <!-- STUDENT PORTAL -->
+    <div class="nav-section" data-roles="HOC_VIEN">
+      <div class="nav-label">HỌC VIÊN</div>
+      <div class="nav-item" onclick="showPage('student-portal')"><span class="nav-icon">🏠</span> Dashboard</div>
+      <div class="nav-item" onclick="openMyProfileModal()"><span class="nav-icon">👤</span> Hồ sơ cá nhân</div>
+      <div class="nav-item" onclick="showPage('courses')"><span class="nav-icon">📚</span> Khóa học của tôi</div>
+      <div class="nav-item" onclick="showPage('schedule')"><span class="nav-icon">📅</span> Lịch học</div>
+      <div class="nav-item" onclick="showPage('attendance')"><span class="nav-icon">✅</span> Điểm danh</div>
+      <div class="nav-item" onclick="showPage('news')"><span class="nav-icon">🔔</span> Thông báo</div>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-profile">
+      <div class="user-avatar" id="nav-avatar-img-wrap">
+        <img id="nav-avatar-img" src="" style="display:none;width:100%;height:100%;border-radius:50%;object-fit:cover;">
+        <div id="nav-avatar-text" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:var(--vs-gold);color:#fff;border-radius:50%;font-weight:700;">VS</div>
+      </div>
+      <div class="user-info">
+        <div class="user-name" id="sidebar-user-name">Đang tải...</div>
+        <div class="user-role" id="sidebar-user-role">...</div>
+      </div>
+      <div class="user-logout" onclick="VS_AUTH.logout()" title="Đăng xuất">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </div>
+    </div>
+  </div>
+</aside>
+
+
+<!-- ══════════ MAIN ══════════ -->
+<main class="main">
+
+<!-- ─── DASHBOARD ─── -->
+<div id="page-dashboard" class="page active">
+  <!-- Welcome Banner -->
+  <div class="welcome-banner" style="background:linear-gradient(135deg,var(--navy) 0%,var(--accent) 100%);border-radius:18px;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;">
+    <div>
+      <div class="welcome-title" style="font-size:22px;font-weight:900;color:#fff;margin-bottom:3px;">Xin chào, <span id="dash-username" style="color:var(--gold)">Admin</span> 👋</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.6)" id="dash-datetime"></div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:20px;font-weight:900;color:#fff;letter-spacing:2px;">VINSOUL</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.5);letter-spacing:1px;">ÂM NHẠC & NGHỆ THUẬT</div>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px;">
+    <div class="stat-card" onclick="showPage('students')" style="cursor:pointer;">
+      <div class="stat-accent"></div>
+      <div class="stat-icon-wrap">👥</div>
+      <div class="stat-value" id="stat-total">0</div>
+      <div class="stat-label">Tổng Học Viên</div>
+    </div>
+    <div class="stat-card" onclick="showPage('students')" style="cursor:pointer;">
+      <div class="stat-accent green"></div>
+      <div class="stat-icon-wrap green">✓</div>
+      <div class="stat-value" id="stat-paid">0</div>
+      <div class="stat-label">Đã Thanh Toán</div>
+    </div>
+    <div class="stat-card" onclick="showPage('students')" style="cursor:pointer;">
+      <div class="stat-accent red"></div>
+      <div class="stat-icon-wrap red">⚠</div>
+      <div class="stat-value" id="stat-unpaid">0</div>
+      <div class="stat-label">Chưa Thanh Toán</div>
+    </div>
+    <div class="stat-card" onclick="showPage('staff')" style="cursor:pointer;">
+      <div class="stat-accent purple"></div>
+      <div class="stat-icon-wrap purple">👩‍🏫</div>
+      <div class="stat-value" id="stat-staff">0</div>
+      <div class="stat-label">GV & Nhân Viên</div>
+    </div>
+    <div class="stat-card" onclick="showPage('leads')" style="cursor:pointer;">
+      <div class="stat-accent"></div>
+      <div class="stat-icon-wrap">🎯</div>
+      <div class="stat-value" id="stat-leads">0</div>
+      <div class="stat-label">HV Tiềm Năng</div>
+    </div>
+    <div class="stat-card" style="cursor:default;">
+      <div class="stat-accent" style="background:var(--gold)"></div>
+      <div class="stat-icon-wrap" style="background:rgba(245,166,35,.1);color:var(--gold)">💰</div>
+      <div class="stat-value" id="stat-revenue-month" style="color:var(--gold);font-size:18px;">0đ</div>
+      <div class="stat-label">Doanh Thu Tháng</div>
+    </div>
+  </div>
+
+  <!-- Charts + Content Row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" id="dash-charts-row">
+    <!-- Revenue Chart -->
+    <div class="card">
+      <div class="section-row" style="margin-bottom:14px;">
+        <div class="card-title">Doanh Thu 6 Tháng</div>
+        <button class="btn btn-outline" onclick="showPage('revenue')" style="font-size:10px;padding:5px 10px;">Chi tiết →</button>
+      </div>
+      <div id="dash-chart-revenue" style="height:160px;position:relative;"></div>
+    </div>
+    <!-- Subject breakdown -->
+    <div class="card">
+      <div class="section-row" style="margin-bottom:14px;">
+        <div class="card-title">Học Viên Theo Môn</div>
+      </div>
+      <div id="dash-chart-subject" style="height:160px;position:relative;overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Row -->
+  <div class="dash-bottom" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <!-- Recent students -->
+    <div class="card">
+      <div class="section-row">
+        <div class="card-title">Học Viên Mới Nhất</div>
+        <button class="btn btn-outline" onclick="showPage('students')" style="font-size:10px;padding:5px 10px;">Xem tất cả →</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Họ Tên</th><th>Khóa Học</th><th>Học Phí</th></tr></thead>
+          <tbody id="dashboard-table">
+            <tr><td colspan="3"><div class="empty-state" style="padding:20px"><div class="empty-text">Chưa có học viên</div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Alerts -->
+    <div class="card">
+      <div class="section-row" style="margin-bottom:12px;">
+        <div class="card-title">⚡ Cần Chú Ý</div>
+      </div>
+      <div id="dash-alerts"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ABOUT ─── -->
+<div id="page-about" class="page">
+  <div class="about-hero">
+    <div class="about-tagline">Trung Tâm Âm Nhạc & Nghệ Thuật</div>
+    <div class="about-big-title">VINSOUL<br><span>ACADEMY</span></div>
+    <div class="about-slogan">Đánh Thức Tiềm Năng · Khơi Nguồn Cảm Hứng</div>
+    <div class="about-desc">Vinsoul Academy là trung tâm nghệ thuật chuyên nghiệp, ươm mầm và phát triển tài năng âm nhạc, mỹ thuật và múa cho học viên mọi lứa tuổi.</div>
+  </div>
+  <div class="about-grid">
+    <div class="about-feature"><div class="about-feature-icon">🎵</div><div class="about-feature-title">Âm Nhạc</div><div class="about-feature-desc">Piano, Guitar, Violin, Ukulele, Thanh Nhạc – từ cơ bản đến luyện thi quốc tế.</div></div>
+    <div class="about-feature"><div class="about-feature-icon">🎨</div><div class="about-feature-title">Mỹ Thuật</div><div class="about-feature-desc">Vẽ mầm non, căn bản, ký họa, màu nước, acrylic, digital art và luyện thi.</div></div>
+    <div class="about-feature"><div class="about-feature-icon">🩰</div><div class="about-feature-title">Nghệ Thuật Múa</div><div class="about-feature-desc">Ballet, Dance, Khiêu Vũ, Múa Cổ Trang – rèn thể chất và biểu diễn.</div></div>
+    <div class="about-feature"><div class="about-feature-icon">🏆</div><div class="about-feature-title">Luyện Thi Quốc Tế</div><div class="about-feature-desc">Chứng chỉ âm nhạc quốc tế uy tín với giáo viên chuyên biệt.</div></div>
+    <div class="about-feature"><div class="about-feature-icon">👨‍🏫</div><div class="about-feature-title">Giáo Viên</div><div class="about-feature-desc">Đội ngũ được đào tạo bài bản, giàu kinh nghiệm, nhiệt huyết.</div></div>
+    <div class="about-feature"><div class="about-feature-icon">🎓</div><div class="about-feature-title">Linh Hoạt</div><div class="about-feature-desc">Lớp nhóm, 2-1, 1-1 – phù hợp mọi nhu cầu và mục tiêu.</div></div>
+  </div>
+</div>
+
+<!-- ─── COURSES ─── -->
+<div id="page-courses" class="page">
+  <div class="page-header">
+    <div class="page-title">Các <span>Khóa Học</span></div>
+    <div class="page-sub">Chọn khóa học để xem chi tiết học phí và số buổi</div>
+  </div>
+  <div class="toolbar" style="margin-bottom:14px;">
+    <button class="btn btn-gold vs-hide-student vs-hide-teacher" onclick="startAddCourse()">+ Thêm Khóa Học</button>
+  </div>
+  <div class="courses-grid" id="courses-grid">
+    <div class="course-card" onclick="openCourse('piano')"><span class="course-emoji">🎹</span><div class="course-name">Piano</div><div class="course-count">9 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('guitar')"><span class="course-emoji">🎸</span><div class="course-name">Guitar</div><div class="course-count">9 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('violin')"><span class="course-emoji">🎻</span><div class="course-name">Violin</div><div class="course-count">9 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('ukulele')"><span class="course-emoji">🪕</span><div class="course-name">Ukulele</div><div class="course-count">9 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('ve')"><span class="course-emoji">🎨</span><div class="course-name">Vẽ</div><div class="course-count">Nhiều phân loại</div></div>
+    <div class="course-card" onclick="openCourse('ballet')"><span class="course-emoji">🩰</span><div class="course-name">Ballet</div><div class="course-count">2 nhóm tuổi</div></div>
+    <div class="course-card" onclick="openCourse('dance')"><span class="course-emoji">💃</span><div class="course-name">Dance</div><div class="course-count">3 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('khieuvũ')"><span class="course-emoji">🕺</span><div class="course-name">Khiêu Vũ</div><div class="course-count">3 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('muacotrang')"><span class="course-emoji">👘</span><div class="course-name">Múa Cổ Trang</div><div class="course-count">3 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('thanhnhac')"><span class="course-emoji">🎤</span><div class="course-name">Thanh Nhạc</div><div class="course-count">6 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('luyen-thi')"><span class="course-emoji">🏆</span><div class="course-name">Luyện Thi Quốc Tế</div><div class="course-count">Guitar · Violin · Piano · Vẽ</div></div>
+    <div class="course-card" onclick="openCourse('hocthu')"><span class="course-emoji">⭐</span><div class="course-name">Học Thử</div><div class="course-count">3 loại</div></div>
+    <div class="course-card" onclick="openCourse('camthu')"><span class="course-emoji">🎼</span><div class="course-name">Cảm Thụ Âm Nhạc</div><div class="course-count">Miễn phí · 24 buổi</div></div>
+    <div class="course-card" onclick="openCourse('pianodemhat')"><span class="course-emoji">🎹🎤</span><div class="course-name">Piano Đệm Hát</div><div class="course-count">9 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('trong')"><span class="course-emoji">🥁</span><div class="course-name">Trống</div><div class="course-count">9 gói học phí</div></div>
+    <div class="course-card" onclick="openCourse('khac')"><span class="course-emoji">🗂️</span><div class="course-name">Mục Khác</div><div class="course-count">Học thử · Đồ · Sách · Giày · Phòng</div></div>
+    <div id="custom-courses-container" style="display:contents"></div>
+  </div>
+</div>
+
+<!-- ─── STUDENTS LIST ─── -->
+<div id="page-students" class="page">
+  <div class="page-header">
+    <div class="page-title">Danh Sách <span>Học Viên</span></div>
+    <div class="page-sub">Tất cả học viên đã đăng ký tại trung tâm</div>
+  </div>
+  <div class="toolbar">
+    <input class="search-box" id="search-input" type="text" placeholder="🔍  Tìm theo tên, SĐT, môn học..." oninput="renderStudentTable()">
+    <button class="btn btn-gold vs-hide-teacher" onclick="startAddStudent()">+ Thêm Học Viên</button>
+    <button class="btn btn-navy vs-hide-teacher" onclick="startAddClass()" style="background:var(--navy)">🏫 Thêm Lớp</button>
+    <button class="btn btn-outline" onclick="exportXLSX('students')" title="Xuất Excel .xlsx">📊 Xuất Excel</button>
+  </div>
+  <div class="filter-tabs" id="filter-payment-tabs">
+    <button class="filter-tab active" onclick="setStudentFilter('all',this)">Tất Cả</button>
+    <button class="filter-tab" onclick="setStudentFilter('Đã Chuyển Khoản',this)">Đã Chuyển Khoản</button>
+    <button class="filter-tab" onclick="setStudentFilter('Tiền Mặt',this)">Tiền Mặt</button>
+    <button class="filter-tab" onclick="setStudentFilter('Chưa Thanh Toán',this)">Chưa Thanh Toán</button>
+  </div>
+  <div class="filter-tabs" id="filter-subject-tabs" style="margin-top:-4px;flex-wrap:wrap;">
+    <span style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding:5px 4px;align-self:center;flex-shrink:0;">Khóa:</span>
+    <div id="subject-filter-btns" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;"></div>
+  </div>
+  <div class="filter-tabs" id="filter-class-tabs" style="margin-top:-4px;">
+    <span style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding:5px 4px;align-self:center;">Lớp:</span>
+    <div id="class-filter-btns" style="display:contents"></div>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th style="width:36px;text-align:center;">#</th><th style="width:80px;text-align:center;">Mã HV</th><th>Họ Và Tên</th><th>Ngày Sinh</th><th>Phụ Huynh (Zalo)</th><th>SĐT</th><th>Khóa Học</th><th>Tên Lớp</th><th>Thời Gian</th><th>Học Phí</th><th>Số Tiền</th><th>Buổi Học</th><th>Thao Tác</th></tr></thead>
+        <tbody id="student-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ADD/EDIT STUDENT ─── -->
+<div id="page-add-student" class="page">
+  <div class="page-header">
+    <div class="page-title" id="form-title">Thêm <span>Học Viên</span></div>
+    <div class="page-sub">Điền đầy đủ thông tin học viên bên dưới</div>
+  </div>
+  <div class="card">
+    <div class="form-grid">
+      <div class="form-group"><label>Họ và Tên Học Viên *</label><input id="f-name" type="text" placeholder="Nguyễn Văn A"></div>
+      <div class="form-group"><label>Ngày Tháng Năm Sinh</label><input id="f-dob" type="date"></div>
+      <div class="form-group"><label>Họ và Tên Phụ Huynh (Zalo) *</label><input id="f-parent" type="text" placeholder="Nguyễn Thị B"></div>
+      <div class="form-group"><label>Số Điện Thoại Phụ Huynh *</label><input id="f-phone" type="tel" placeholder="0901 234 567"></div>
+      <div class="form-group"><label>Khóa Học *</label>
+                <select id="f-subject" onchange="populatePackages()">
+          <option value="">-- Chọn khóa học --</option>
+          <option>Piano</option><option>Guitar</option><option>Violin</option><option>Ukulele</option>
+          <option>Vẽ Mầm Non</option><option>Vẽ Căn Bản</option>
+          <option>Vẽ - Ký Họa / Màu Nước / Màu Marker</option>
+          <option>Vẽ - Màu Acrylic Canvas / Digital Art</option>
+          <option>Ballet (3-5 tuổi)</option><option>Ballet (6-9 tuổi)</option>
+          <option>Dance</option><option>Khiêu Vũ</option><option>Múa Cổ Trang</option>
+          <option>Thanh Nhạc</option>
+          <option>Luyện Thi - Piano</option><option>Luyện Thi - Guitar</option>
+          <option>Luyện Thi - Violin</option><option>Luyện Thi - Vẽ</option>
+          <option>Cảm Thụ Âm Nhạc</option>
+          <option>Piano Đệm Hát</option>
+          <option>Trống</option>
+          <optgroup label="Khóa Học Tùy Chỉnh" id="f-subject-custom"></optgroup>
+        </select>
+      </div>
+      <div class="form-group"><label>Gói / Loại Lớp</label>
+        <select id="f-package">
+          <option value="">-- Chọn khóa học trước --</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Số Buổi (Tự Động/Tùy Chỉnh)</label>
+        <input id="f-totalSessions" type="number" placeholder="VD: 8, 24" min="1">
+      </div>
+      <div class="form-group"><label>Tên Lớp / Mã Lớp</label>
+        <select id="f-classid" onchange="onClassSelect()">
+          <option value="">-- Chọn lớp (nếu có) --</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Ngày Bắt Đầu *</label><input id="f-start" type="date"></div>
+      <div class="form-group"><label>Ngày Kết Thúc</label><input id="f-end" type="date"></div>
+      <div class="form-group"><label>Nguồn Giới Thiệu</label>
+        <select id="f-source">
+          <option value="">-- Chọn nguồn --</option>
+          <option>Facebook</option>
+          <option>Người quen giới thiệu</option>
+          <option>Đi ngang qua</option>
+          <option>Zalo / Tiktok</option>
+          <option>Khác</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Trạng Thái Học Phí *</label>
+        <select id="f-payment">
+          <option value="">-- Chọn trạng thái --</option>
+          <option>Đã Chuyển Khoản</option><option>Tiền Mặt</option><option>Chưa Thanh Toán</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Số Tiền Đã Nộp (đ)</label><input id="f-amount" type="number" placeholder="VD: 5400000" min="0"></div>
+      <div class="form-group full"><label>Ngày Nộp Tiền</label><input id="f-paydate" type="date"></div>
+      <div class="form-group full"><label>Ghi Chú</label><textarea id="f-note" rows="2" placeholder="Ghi chú thêm nếu có..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" onclick="saveStudent()">💾 Lưu Học Viên</button>
+      <button class="btn btn-outline" onclick="clearStudentForm()">↺ Xóa Trắng</button>
+      <button class="btn btn-outline" onclick="showPage('students')">← Quay Lại</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── STAFF LIST ─── -->
+<div id="page-staff" class="page">
+  <div class="page-header">
+    <div class="page-title">Giáo Viên & <span>Nhân Viên</span></div>
+    <div class="page-sub">Quản lý toàn bộ nhân sự tại trung tâm</div>
+  </div>
+  <div class="toolbar">
+    <input class="search-box" id="staff-search" type="text" placeholder="🔍  Tìm theo tên, SĐT, vị trí..." oninput="renderStaffTable()">
+    <button class="btn btn-gold" onclick="startAddStaff()">+ Thêm Nhân Sự</button>
+    <button class="btn btn-outline" onclick="exportXLSX('staff')" title="Xuất Excel .xlsx">📊 Xuất Excel</button>
+  </div>
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="setStaffFilter('all',this)">Tất Cả</button>
+    <button class="filter-tab" onclick="setStaffFilter('Giáo Viên',this)">Giáo Viên</button>
+    <button class="filter-tab" onclick="setStaffFilter('Nhân Viên',this)">Nhân Viên</button>
+    <button class="filter-tab" onclick="setStaffFilter('Đang hoạt động',this)">Đang Hoạt Động</button>
+    <button class="filter-tab" onclick="setStaffFilter('Offline',this)">Offline</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+              <th>Họ và tên</th>
+              <th>Ngày sinh</th>
+              <th>Điện thoại</th>
+              <th>Vị trí</th>
+              <th>Lương Cứng</th>
+              <th>Rate/1h</th>
+              <th>Rate/1ca</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr></thead>
+        <tbody id="staff-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ADD/EDIT STAFF ─── -->
+<div id="page-add-staff" class="page">
+  <div class="page-header">
+    <div class="page-title" id="staff-form-title">Thêm <span>Nhân Sự</span></div>
+    <div class="page-sub">Điền đầy đủ thông tin giáo viên hoặc nhân viên</div>
+  </div>
+  <div class="card">
+    <div class="form-grid">
+      <div class="form-group"><label>Họ và Tên *</label><input id="sf-name" type="text" placeholder="Nguyễn Văn A"></div>
+      <div class="form-group"><label>Ngày Tháng Năm Sinh</label><input id="sf-dob" type="date"></div>
+      <div class="form-group"><label>Số Điện Thoại *</label><input id="sf-phone" type="tel" placeholder="0901 234 567"></div>
+      <div class="form-group"><label>Vị Trí *</label>
+        <select id="sf-role">
+          <option value="">-- Chọn vị trí --</option>
+          <optgroup label="Giáo Viên">
+            <option>Giáo Viên Piano</option>
+            <option>Giáo Viên Guitar</option>
+            <option>Giáo Viên Violin</option>
+            <option>Giáo Viên Ukulele</option>
+            <option>Giáo Viên Vẽ</option>
+            <option>Giáo Viên Ballet</option>
+            <option>Giáo Viên Dance</option>
+            <option>Giáo Viên Khiêu Vũ</option>
+            <option>Giáo Viên Múa Cổ Trang</option>
+            <option>Giáo Viên Thanh Nhạc</option>
+          </optgroup>
+          <optgroup label="Nhân Viên">
+            <option>Giáo Vụ</option>
+            <option>Marketing</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="form-group"><label>Lương Cứng (Cơ bản)</label><input id="sf-salary" type="number" placeholder="0"></div>
+      <div class="form-group"><label>Đơn giá: Rate/1h</label><input id="sf-hourly" type="number" placeholder="0"></div>
+      <div class="form-group"><label>Đơn giá: Rate/1ca</label><input id="sf-session" type="number" placeholder="0"></div>
+      <div class="form-group"><label>Tình Trạng *</label>
+        <select id="sf-status">
+          <option value="">-- Chọn tình trạng --</option>
+          <option>Đang hoạt động</option>
+          <option>Offline</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>Ghi Chú</label><textarea id="sf-note" rows="2" placeholder="Ghi chú thêm nếu có..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" onclick="saveStaff()">💾 Lưu Nhân Sự</button>
+      <button class="btn btn-outline" onclick="clearStaffForm()">↺ Xóa Trắng</button>
+      <button class="btn btn-outline" onclick="showPage('staff')">← Quay Lại</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── REVENUE ─── -->
+
+<!-- ================= PAGE: SETTINGS ================= -->
+<div id="page-settings" class="page" style="display:none;">
+  <div class="page-header">
+    <div class="page-title">Cài Đặt <span>Hệ Thống</span></div>
+    <div class="page-sub">Quản lý môn học, gói học, và chức vụ nhân sự</div>
+  </div>
+  
+  <div class="card" style="margin-bottom:20px;">
+    <h3 style="margin-top:0;color:var(--navy);font-size:16px;">📚 Quản Lý Môn Học</h3>
+    <div style="display:flex;gap:10px;margin-bottom:15px;">
+      <input type="text" id="set-course-name" placeholder="Tên môn học (VD: Kick Boxing)" style="flex:1;padding:8px 12px;border:1px solid #ccc;border-radius:6px;">
+      <button class="btn btn-navy" onclick="addCustomCourse()">Thêm Môn</button>
+    </div>
+    <div id="settings-courses-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--navy);font-size:16px;">👨‍🏫 Quản Lý Chức Vụ Giáo Viên</h3>
+    <div style="display:flex;gap:10px;margin-bottom:15px;">
+      <input type="text" id="set-role-name" placeholder="Tên chức vụ (VD: Giáo viên Drum)" style="flex:1;padding:8px 12px;border:1px solid #ccc;border-radius:6px;">
+      <button class="btn btn-navy" onclick="addCustomRole()">Thêm Chức Vụ</button>
+    </div>
+    <div id="settings-roles-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+</div>
+<div id="page-revenue" class="page">
+  <div class="page-header">
+    <div class="page-title"><span>Doanh Thu</span> Trung Tâm</div>
+    <div class="page-sub">Thống kê học phí đã thu theo tháng</div>
+  </div>
+  <div class="rev-header-row">
+    <label style="font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:1.5px;margin-right:2px;">Chọn tháng:</label>
+    <select class="rev-month-select" id="rev-month" onchange="renderRevenue()"></select>
+    <select class="rev-month-select" id="rev-year" onchange="renderRevenue()"></select>
+    <button class="btn btn-outline" onclick="setRevToday()">Tháng Hiện Tại</button>
+    <button class="btn btn-outline" onclick="exportXLSX('revenue')" title="Xuất Excel .xlsx">📊 Xuất Excel</button>
+  </div>
+  <div class="rev-total-box">
+    <div class="rev-box-item">
+      <div class="rev-total-label">Tổng Doanh Thu Tháng</div>
+      <div class="rev-total-value" id="rev-total-value">0 đ</div>
+    </div>
+    <div class="rev-box-item">
+      <div class="rev-total-label">Số Học Viên Đã Thu</div>
+      <div style="font-size:22px;font-weight:800;color:rgba(255,255,255,.75);" id="rev-total-count">0</div>
+    </div>
+    <div class="rev-box-item">
+      <div class="rev-total-label">Chưa Thanh Toán</div>
+      <div style="font-size:22px;font-weight:800;color:#f87171;" id="rev-unpaid-count">0</div>
+    </div>
+  </div>
+  <div class="rev-breakdown" id="rev-breakdown"></div>
+  <div class="card">
+    <div class="card-title">Chi Tiết Thu Học Phí Trong Tháng</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Học Viên</th><th>Khóa Học</th><th>Gói / Lớp</th><th>Số Tiền</th><th>Ngày Nộp</th><th>Hình Thức</th></tr></thead>
+        <tbody id="rev-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── LEADS LIST ─── -->
+<div id="page-leads" class="page">
+  <div class="page-header">
+    <div class="page-title">Học Viên <span>Tiềm Năng</span></div>
+    <div class="page-sub">Danh sách khách hàng đang quan tâm & cần tư vấn</div>
+  </div>
+  <div class="toolbar">
+    <input class="search-box" id="lead-search" type="text" placeholder="🔍  Tìm theo tên, SĐT, khóa học..." oninput="renderLeadTable()">
+    <button class="btn btn-gold" onclick="startAddLead()">+ Thêm HV Tiềm Năng</button>
+    <button class="btn btn-outline" onclick="exportXLSX('leads')" title="Xuất Excel .xlsx">📊 Xuất Excel</button>
+  </div>
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="setLeadFilter('all',this)">Tất Cả</button>
+    <button class="filter-tab" onclick="setLeadFilter('Chưa liên hệ',this)">Chưa Liên Hệ</button>
+    <button class="filter-tab" onclick="setLeadFilter('Đã tư vấn',this)">Đã Tư Vấn</button>
+    <button class="filter-tab" onclick="setLeadFilter('Đăng ký học thử',this)" style="background:#fef9c3;color:#713f12;border-color:#fcd34d;">⭐ Học Thử</button>
+    <button class="filter-tab" onclick="setLeadFilter('Đã đăng ký học',this)" style="background:#dcfce7;color:#14532d;border-color:#4ade80;">✅ Đã Đăng Ký</button>
+    <button class="filter-tab" onclick="setLeadFilter('Trực tiếp',this)">Trực Tiếp</button>
+    <button class="filter-tab" onclick="setLeadFilter('Facebook',this)">Facebook</button>
+    <button class="filter-tab" onclick="setLeadFilter('Tiktok',this)">Tiktok</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Họ Tên Học Viên</th><th>Ngày Sinh</th><th>Phụ Huynh (Zalo)</th>
+            <th>SĐT</th><th>Khóa Quan Tâm</th><th>Nguồn Data</th><th>Tình Trạng</th>
+            <th>Học Thử</th><th>Dụng Cụ</th><th>Tổng Thu</th>
+            <th>Ghi Chú</th><th>Thao Tác</th>
+          </tr>
+        </thead>
+        <tbody id="lead-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ADD/EDIT LEAD ─── -->
+<div id="page-add-lead" class="page">
+  <div class="page-header">
+    <div class="page-title" id="lead-form-title">Thêm <span>HV Tiềm Năng</span></div>
+    <div class="page-sub">Thông tin học viên đang quan tâm và cần tư vấn</div>
+  </div>
+  <div class="card">
+    <div class="form-grid">
+      <div class="form-group"><label>Họ và Tên Học Viên *</label><input id="lf-name" type="text" placeholder="Nguyễn Văn A"></div>
+      <div class="form-group"><label>Ngày Tháng Năm Sinh HV</label><input id="lf-dob" type="date"></div>
+      <div class="form-group"><label>Họ và Tên Phụ Huynh (Zalo) *</label><input id="lf-parent" type="text" placeholder="Nguyễn Thị B"></div>
+      <div class="form-group"><label>Số Điện Thoại PH *</label><input id="lf-phone" type="tel" placeholder="0901 234 567"></div>
+      <div class="form-group"><label>Khóa Học Đang Quan Tâm *</label>
+        <select id="lf-course">
+          <option value="">-- Chọn khóa học --</option>
+          <option>Piano</option><option>Guitar</option><option>Violin</option><option>Ukulele</option>
+          <option>Vẽ Mầm Non</option><option>Vẽ Căn Bản</option>
+          <option>Vẽ - Ký Họa / Màu Nước / Màu Marker</option>
+          <option>Vẽ - Màu Acrylic Canvas / Digital Art</option>
+          <option>Ballet (3-5 tuổi)</option><option>Ballet (6-9 tuổi)</option>
+          <option>Dance</option><option>Khiêu Vũ</option><option>Múa Cổ Trang</option>
+          <option>Thanh Nhạc</option>
+          <option>Luyện Thi - Piano</option><option>Luyện Thi - Guitar</option>
+          <option>Luyện Thi - Violin</option><option>Luyện Thi - Vẽ</option>
+          <option>Piano Đệm Hát</option>
+          <option>Trống</option>
+          <option>Cảm Thụ Âm Nhạc</option>
+          <option>Chưa xác định</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Nguồn Data *</label>
+        <select id="lf-source">
+          <option value="">-- Chọn nguồn --</option>
+          <option>Trực tiếp</option>
+          <option>Facebook</option>
+          <option>Tiktok</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>Tình Trạng *</label>
+        <select id="lf-status" onchange="onLeadStatusChange()">
+          <option value="">-- Chọn tình trạng --</option>
+          <option>Chưa liên hệ</option>
+          <option>Đã tư vấn</option>
+          <option>Đăng ký học thử</option>
+          <option>Đã đăng ký học</option>
+        </select>
+      </div>
+      <!-- Học thử -->
+      <div class="form-group" id="lf-hocthu-wrap" style="display:none;"><label>Loại Học Thử</label>
+        <select id="lf-hocthu-type">
+          <option value="">-- Chọn loại --</option>
+          <option value="100000">Học thử nhóm (10:1) – 100.000đ</option>
+          <option value="250000">Học thử 2-1 – 250.000đ</option>
+          <option value="500000">Học thử 1-1 – 500.000đ</option>
+        </select>
+      </div>
+      <div class="form-group" id="lf-hocthu-fee-wrap" style="display:none;"><label>Tiền Học Thử (đ)</label>
+        <input id="lf-hocthu-fee" type="number" placeholder="100000" min="0">
+      </div>
+      <!-- Dụng cụ -->
+      <div class="form-group full" id="lf-dungcu-wrap" style="display:none;">
+        <label>Dụng Cụ / Đồ Mua Thêm (từ Mục Khác)</label>
+        <div id="lf-dungcu-rows" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px;"></div>
+        <button type="button" class="btn btn-outline" onclick="addDungcuRow()" style="font-size:11px;width:fit-content;">+ Thêm dụng cụ</button>
+        <div style="margin-top:8px;font-size:12px;color:var(--muted);">Tổng dụng cụ: <b id="lf-dungcu-total" style="color:var(--gold);">0 đ</b></div>
+      </div>
+      <div class="form-group full"><label>Ghi Chú / Nội Dung Tư Vấn</label>
+        <textarea id="lf-note" rows="3" placeholder="Ghi lại nội dung đã tư vấn, mong muốn của phụ huynh..."></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" onclick="saveLead()">💾 Lưu HV Tiềm Năng</button>
+      <button class="btn btn-outline" onclick="clearLeadForm()">↺ Xóa Trắng</button>
+      <button class="btn btn-outline" onclick="showPage('leads')">← Quay Lại</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─── CLASSES LIST ─── -->
+<div id="page-classes" class="page">
+  <div class="page-header">
+    <div class="page-title">Quản Lý <span>Lớp Học</span></div>
+    <div class="page-sub">Tạo và quản lý các lớp theo mã lớp</div>
+  </div>
+  <div class="toolbar">
+    <input class="search-box" id="class-search" type="text" placeholder="🔍  Tìm theo mã lớp, tên lớp, khóa học..." oninput="renderClassTable()">
+    <button class="btn btn-gold vs-hide-teacher" onclick="startAddClass()">+ Thêm Lớp</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Mã Lớp</th><th>Tên Lớp</th><th>Khóa Học</th><th>Giáo Viên</th><th>Thứ / Giờ Học</th><th>Phòng</th><th>Số HV</th><th>Thao Tác</th></tr></thead>
+        <tbody id="class-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="page-class-detail" class="page"></div>
+
+<!-- ─── ADD/EDIT CLASS ─── -->
+<div id="page-add-class" class="page">
+  <div class="page-header">
+    <div class="page-title" id="class-form-title">Thêm <span>Lớp Học</span></div>
+    <div class="page-sub">Tạo lớp theo mã lớp do admin nhập</div>
+  </div>
+  <div class="card">
+    <div class="form-grid">
+      <div class="form-group"><label>Mã Lớp *</label><input id="cl-code" type="text" placeholder="VD: PIANO-A1, GT-B2..."></div>
+      <div class="form-group"><label>Tên Lớp *</label><input id="cl-name" type="text" placeholder="VD: Lớp Piano Cơ Bản A1"></div>
+      <div class="form-group"><label>Khóa Học *</label>
+        <select id="cl-subject" onchange="autoFillDuration()">
+          <option value="">-- Chọn khóa học --</option>
+          <option>Piano</option><option>Guitar</option><option>Violin</option><option>Ukulele</option>
+          <option>Vẽ Mầm Non</option><option>Vẽ Căn Bản</option>
+          <option>Vẽ - Ký Họa / Màu Nước / Màu Marker</option>
+          <option>Vẽ - Màu Acrylic Canvas / Digital Art</option>
+          <option>Ballet (3-5 tuổi)</option><option>Ballet (6-9 tuổi)</option>
+          <option>Dance</option><option>Khiêu Vũ</option><option>Múa Cổ Trang</option>
+          <option>Thanh Nhạc</option>
+          <option>Luyện Thi - Piano</option><option>Luyện Thi - Guitar</option>
+          <option>Luyện Thi - Violin</option><option>Luyện Thi - Vẽ</option>
+          <option>Cảm Thụ Âm Nhạc</option>
+          <option>Piano Đệm Hát</option>
+          <option>Trống</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Giáo Viên</label><select id="cl-teacher"><option value="">-- Chọn giáo viên --</option></select></div>
+      <div class="form-group"><label>Phòng Học</label><input id="cl-room" type="text" placeholder="VD: Phòng 1, Phòng 2..."></div>
+      <div class="form-group"><label>Thời Lượng (Phút)</label><input id="cl-duration" type="number" placeholder="Mặc định: 60"></div>
+      <div class="form-group"><label>Ghi Chú</label><input id="cl-note" type="text" placeholder="Ghi chú thêm..."></div>
+      <div class="form-group full"><label>Lịch Học (Thứ + Giờ)</label>
+        <div id="cl-schedule-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;"></div>
+        <button type="button" class="btn btn-outline" onclick="addScheduleRow()" style="width:fit-content;font-size:11px;">+ Thêm buổi học</button>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" onclick="saveClass()">💾 Lưu Lớp</button>
+      <button class="btn btn-outline" onclick="clearClassForm()">↺ Xóa Trắng</button>
+      <button class="btn btn-outline" onclick="showPage('classes')">← Quay Lại</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCHEDULE (TKB TỔNG HỢP) ─── -->
+<div id="page-schedule" class="page">
+  <div class="page-header">
+    <div class="page-title">Thời Khóa Biểu <span>Tổng Hợp</span></div>
+    <div class="page-sub">Lịch học tất cả các khóa</div>
+  </div>
+  <div class="toolbar" style="margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+    <div style="display:flex;gap:8px;">
+      <button id="tkb-tab-simple" onclick="switchTKBTab('simple')"
+        style="background:var(--gold);color:#1a1a1a;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;">
+        📋 Lịch Nhanh
+      </button>
+      <button id="tkb-tab-full" onclick="switchTKBTab('full')"
+        style="background:var(--cream2);color:var(--navy);border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;">
+        👥 Đầy Đủ HV
+      </button>
+    </div>
+    <select class="rev-month-select" id="tkb-filter-subject" onchange="renderSchedule()">
+      <option value="all">Tất cả khóa học</option>
+      <option>Piano</option><option>Guitar</option><option>Violin</option><option>Ukulele</option>
+      <option>Vẽ Mầm Non</option><option>Vẽ Căn Bản</option><option>Dance</option>
+      <option>Ballet (3-5 tuổi)</option><option>Ballet (6-9 tuổi)</option>
+      <option>Khiêu Vũ</option><option>Múa Cổ Trang</option><option>Thanh Nhạc</option>
+      <option>Cảm Thụ Âm Nhạc</option>
+      <option>Piano Đệm Hát</option>
+      <option>Trống</option>
+    </select>
+  </div>
+  <div id="schedule-grid"></div>
+</div>
+
+<!-- ─── ĐIỂM DANH ─── -->
+<div id="page-attendance" class="page">
+  <div class="page-header">
+    <div class="page-title">Điểm Danh <span>Học Viên</span></div>
+    <div class="page-sub">Điểm danh theo buổi học – liên kết lớp & học viên</div>
+  </div>
+  <div class="card" style="margin-bottom:14px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;">
+      <div class="form-group">
+        <label>Chọn Lớp *</label>
+        <select id="att-class" onchange="loadAttStudents()">
+          <option value="">-- Chọn lớp --</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Ngày Học *</label>
+        <input type="date" id="att-date">
+      </div>
+      <div class="form-group">
+        <label>Buổi số</label>
+        <input type="number" id="att-session" min="1" placeholder="VD: 5" style="background:var(--cream);">
+      </div>
+      <button class="btn btn-gold" onclick="loadAttStudents()" style="height:42px;">Tải Danh Sách</button>
+    </div>
+  </div>
+  <div id="att-content"></div>
+</div>
+
+<!-- ─── BÙ LỊCH ─── -->
+<div id="page-makeup" class="page">
+  <div class="page-header">
+    <div class="page-title">Quản Lý <span>Bù Lịch</span></div>
+    <div class="page-sub">Theo dõi buổi bù – học viên học đủ số buổi theo khóa đăng ký</div>
+  </div>
+  <div class="toolbar">
+    <input class="search-box" id="makeup-search" type="text" placeholder="🔍 Tìm học viên..." oninput="renderMakeupTable()">
+    <button class="btn btn-gold" onclick="openAddMakeup()">+ Thêm Buổi Bù</button>
+  </div>
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="setMakeupFilter('all',this)">Tất Cả</button>
+    <button class="filter-tab" onclick="setMakeupFilter('pending',this)" style="background:#fff7ed;color:#92400e;border-color:#f59e0b;">⏳ Chưa Bù</button>
+    <button class="filter-tab" onclick="setMakeupFilter('done',this)" style="background:#dcfce7;color:#14532d;border-color:#4ade80;">✅ Đã Bù</button>
+  </div>
+  <!-- Thống kê -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+    <div class="stat-card"><div class="stat-accent"></div><div class="stat-icon-wrap">📋</div><div class="stat-value" id="mk-total">0</div><div class="stat-label">Tổng Buổi Bù</div></div>
+    <div class="stat-card"><div class="stat-accent red"></div><div class="stat-icon-wrap red">⏳</div><div class="stat-value" id="mk-pending">0</div><div class="stat-label">Chưa Bù</div></div>
+    <div class="stat-card"><div class="stat-accent green"></div><div class="stat-icon-wrap green">✅</div><div class="stat-value" id="mk-done">0</div><div class="stat-label">Đã Bù</div></div>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Học Viên</th><th>Lớp</th><th>Ngày Vắng</th><th>Loại Vắng</th><th>Buổi Bù</th><th>Trạng Thái</th><th>Ghi Chú</th><th>Thao Tác</th></tr></thead>
+        <tbody id="makeup-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TƯ VẤN ─── -->
+<div id="page-consult" class="page">
+  <div class="page-header">
+    <div class="page-title">Tư Vấn & <span>Mẫu Tin Nhắn</span></div>
+    <div class="page-sub">Quy trình tư vấn chuẩn + kho mẫu tin nhắn theo từng khóa học</div>
+  </div>
+
+  <!-- Tab chọn -->
+  <div class="filter-tabs" style="margin-bottom:18px;">
+    <button class="filter-tab active" onclick="setConsultTab('process',this)">📋 Quy Trình & Form</button>
+    <button class="filter-tab" onclick="setConsultTab('templates',this)">💬 Tin Nhắn Mẫu</button>
+  </div>
+
+  <!-- Tab 1: Quy trình + Form -->
+  <div id="consult-tab-process">
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title">QUY TRÌNH TƯ VẤN CHUẨN</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">
+        <div style="background:#e0f2fe;border-radius:12px;padding:16px;">
+          <div style="font-size:28px;font-weight:900;color:#0369a1;line-height:1;">1</div>
+          <div style="font-size:11px;font-weight:800;color:#0369a1;margin:6px 0 4px;text-transform:uppercase;letter-spacing:.5px;">TIẾP NHẬN</div>
+          <div style="font-size:11.5px;color:#0c4a6e;line-height:1.6;">Xin tên học viên, độ tuổi, tên phụ huynh (Zalo), môn học quan tâm</div>
+        </div>
+        <div style="background:#fef9c3;border-radius:12px;padding:16px;">
+          <div style="font-size:28px;font-weight:900;color:#a16207;line-height:1;">2</div>
+          <div style="font-size:11px;font-weight:800;color:#a16207;margin:6px 0 4px;text-transform:uppercase;letter-spacing:.5px;">GHI NOTE</div>
+          <div style="font-size:11.5px;color:#78350f;line-height:1.6;">Ghi lại mong muốn, thời gian rảnh, mục tiêu học (thi chứng chỉ / học chơi...)</div>
+        </div>
+        <div style="background:#dcfce7;border-radius:12px;padding:16px;">
+          <div style="font-size:28px;font-weight:900;color:#15803d;line-height:1;">3</div>
+          <div style="font-size:11px;font-weight:800;color:#15803d;margin:6px 0 4px;text-transform:uppercase;letter-spacing:.5px;">GỬI THÔNG TIN</div>
+          <div style="font-size:11.5px;color:#14532d;line-height:1.6;">Copy mẫu tin nhắn phù hợp (bên dưới) và gửi cho phụ huynh qua Zalo</div>
+        </div>
+        <div style="background:#ede9fe;border-radius:12px;padding:16px;">
+          <div style="font-size:28px;font-weight:900;color:#6d28d9;line-height:1;">4</div>
+          <div style="font-size:11px;font-weight:800;color:#6d28d9;margin:6px 0 4px;text-transform:uppercase;letter-spacing:.5px;">BÁO NHÓM</div>
+          <div style="font-size:11.5px;color:#4c1d95;line-height:1.6;">Tổng hợp: Tên HV – Độ tuổi – PH Zalo – Môn học – Ghi chú → gửi vào nhóm chung</div>
+        </div>
+        <div style="background:#fce7f3;border-radius:12px;padding:16px;">
+          <div style="font-size:28px;font-weight:900;color:#be185d;line-height:1;">5</div>
+          <div style="font-size:11px;font-weight:800;color:#be185d;margin:6px 0 4px;text-transform:uppercase;letter-spacing:.5px;">CHỐT & LƯU</div>
+          <div style="font-size:11.5px;color:#831843;line-height:1.6;">Nếu đồng ý: thêm vào mục HV Tiềm Năng → chuyển sang Đã Đăng Ký khi đóng tiền</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form soạn tin báo nhóm nhanh -->
+    <div class="card">
+      <div class="card-title">SOẠN TIN BÁO NHÓM NHANH</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div class="form-group"><label>TÊN HỌC VIÊN</label><input id="cf-name" type="text" placeholder="Nguyễn Văn A"></div>
+        <div class="form-group"><label>ĐỘ TUỔI</label><input id="cf-age" type="text" placeholder="8 tuổi"></div>
+        <div class="form-group"><label>TÊN PH (ZALO)</label><input id="cf-parent" type="text" placeholder="Nguyễn Thị B"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div class="form-group"><label>MÔN HỌC</label>
+          <input id="cf-course" type="text" placeholder="Piano, Guitar, Violin...">
+        </div>
+        <div class="form-group"><label>GHI CHÚ</label>
+          <input id="cf-note" type="text" placeholder="Mục tiêu học, thời gian rảnh...">
+        </div>
+      </div>
+      <button class="btn btn-gold" onclick="generateGroupMsg()" style="margin-bottom:14px;">TẠO TIN BÁO NHÓM</button>
+
+      <!-- Output box -->
+      <div id="cf-output-wrap" style="display:none;">
+        <div style="position:relative;background:#fffbeb;border:1.5px solid #fcd34d;border-radius:12px;padding:16px 48px 16px 16px;">
+          <pre id="cf-output" style="font-size:12.5px;color:#1a1a1a;font-family:'Be Vietnam Pro',sans-serif;line-height:1.8;white-space:pre-wrap;"></pre>
+          <button onclick="copyGroupMsg()" style="position:absolute;top:10px;right:10px;background:var(--navy);color:#fff;border:none;border-radius:7px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;">Copy</button>
+        </div>
+        <div id="cf-copied" style="display:none;margin-top:8px;font-size:12px;color:#16a34a;font-weight:700;">✅ Đã sao chép! Dán vào Zalo nhóm.</div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn" onclick="saveLeadFromForm()" style="background:#16a34a;color:#fff;border:none;font-size:11px;">💾 Lưu vào HV Tiềm Năng</button>
+          <button class="btn btn-outline" onclick="clearConsultForm()" style="font-size:11px;">↺ Xóa Trắng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Tin nhắn mẫu -->
+  <div id="consult-tab-templates" style="display:none;">
+    <div class="toolbar" style="margin-bottom:14px;">
+      <input class="search-box" id="template-search" type="text" placeholder="🔍 Tìm theo tên môn học..." oninput="renderTemplates()">
+      <button class="btn btn-gold" onclick="openAddTemplate()">+ Thêm Tin Nhắn Mẫu</button>
+    </div>
+    <div id="templates-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;"></div>
+  </div>
+</div>
+
+
+  <!-- Staff Attendance Page -->
+  <div id="page-staff-attendance" class="page">
+    <div class="page-header">
+      <div class="page-title">Chấm Công <span>Nhân Viên</span></div>
+      <div class="page-sub">Theo dõi giờ vào/ra – giáo viên tự chấm công cho chính mình</div>
+    </div>
+    <div id="staff-att-content"><div class="empty-state"><div class="empty-icon">🕐</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- Student Portal -->
+  <div id="page-student-portal" class="page">
+    <div id="student-portal-content"><div class="empty-state"><div class="empty-icon">◉</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- Audit Log -->
+  <div id="page-audit" class="page">
+    <div class="page-header"><div class="page-title">Nhật Ký <span>Hệ Thống</span></div></div>
+    <div id="audit-content"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- Zalo Config -->
+  <div id="page-zalo" class="page">
+    <div class="page-header"><div class="page-title">Cấu Hình <span>Zalo ZNS</span></div></div>
+    <div id="zalo-content"><div class="empty-state"><div class="empty-icon">💬</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- Payroll Page -->
+  <div id="page-payroll" class="page">
+    <div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Đang tải...</div></div>
+  </div>
+
+  <!-- Student Care Page -->
+  <div id="page-care" class="page">
+    <div class="page-header">
+      <div class="page-title">Chăm Sóc <span>Học Viên</span></div>
+      <div class="page-sub">Lịch sử liên lạc và nhắc follow-up</div>
+    </div>
+    <div id="care-content"><div class="empty-state"><div class="empty-icon">💬</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- Report Page -->
+  <div id="page-report" class="page">
+    <div class="page-header">
+      <div class="page-title">Báo Cáo <span>Tổng Hợp</span></div>
+      <div class="page-sub">Thống kê doanh thu, học viên, vận hành</div>
+    </div>
+    <div id="report-content"><div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- Room Management Page -->
+  <div id="page-rooms" class="page">
+    <div class="page-header">
+      <div class="page-title">Phòng Học <span>& Ca</span></div>
+      <div class="page-sub">Quản lý phòng học và phân ca dạy</div>
+    </div>
+    <div id="rooms-content"><div class="empty-state"><div class="empty-icon">🏫</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- Student Profile Page -->
+  <div id="page-student-profile" class="page">
+    <div id="student-profile-content"><div class="empty-state"><div class="empty-icon">👤</div><div class="empty-text">Chọn học viên để xem hồ sơ</div></div></div>
+  </div>
+  <!-- ─── QUẢN TRỊ TÀI KHOẢN ─── -->
+  <div id="page-accounts" class="page" style="padding-left:0;width:100%;box-sizing:border-box;">
+    <div class="page-header">
+      <div class="page-title">Quản Trị <span>Tài Khoản</span></div>
+      <div class="page-sub">Cấp phát và phân quyền tài khoản đăng nhập hệ thống</div>
+    </div>
+    <div class="card" style="width:100%;box-sizing:border-box;">
+      <div class="toolbar" style="margin-bottom:18px;">
+        <div style="font-weight:800;font-size:15px;color:var(--navy);">Danh Sách Tài Khoản</div>
+        <button class="btn btn-gold" onclick="openCreateAccountModal()">+ Cấp Tài Khoản Mới</button>
+      </div>
+      <div id="accounts-table-wrap" style="overflow-x:auto;width:100%;"></div>
+    </div>
+  </div>
+
+  <!-- ─── CHĂM SÓC HỌC VIÊN ─── -->
+  <div id="page-care" class="page">
+    <div class="page-header">
+      <div class="page-title">Chăm Sóc <span>Học Viên</span></div>
+      <div class="page-sub">Theo dõi liên lạc và nhắc follow-up học viên cần chú ý</div>
+    </div>
+    <div id="care-content"><div class="empty-state"><div class="empty-icon">💚</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- ─── LỊCH NGHỈ ─── -->
+  <div id="page-holidays" class="page">
+    <div class="page-header">
+      <div class="page-title">Lịch <span>Nghỉ</span></div>
+      <div class="page-sub">Quản lý ngày lễ, Tết và nghỉ đột xuất – tự động thiết lập khi tính ngày kết thúc khóa học</div>
+    </div>
+    <div id="holidays-content"><div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+  <!-- ─── BẢNG TIN ─── -->
+  <div id="page-news" class="page">
+    <div class="page-header">
+      <div class="page-title">Bảng <span>Tin</span></div>
+      <div class="page-sub">Tin tức, thông báo và hoạt động của Vinsoul Academy</div>
+    </div>
+    <div id="news-content"><div class="empty-state"><div class="empty-icon">📰</div><div class="empty-text">Đang tải...</div></div></div>
+  </div>
+
+</main>
+
+<!-- Mobile hamburger button -->
+<button id="mobile-menu-btn" onclick="toggleMobileSidebar()" style="display:none;position:fixed;top:12px;left:12px;z-index:9998;background:var(--navy);color:#fff;border:none;border-radius:10px;width:40px;height:40px;font-size:18px;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.3);">&#9776;</button>
+<div id="sidebar-overlay" onclick="toggleMobileSidebar()" style="display:none;position:fixed;inset:0;z-index:9997;background:rgba(0,0,0,.5);"></div>
+
+
+<!-- ══════════ CUSTOM COURSE MODAL ══════════ -->
+<div class="modal-backdrop" id="custom-course-modal" onclick="if(event.target===this)closeCustomCourseModal()">
+  <div class="modal" style="max-width:700px;">
+    <button class="modal-close" onclick="closeCustomCourseModal()">✕</button>
+    <div class="modal-header"><span class="modal-emoji">📚</span><div class="modal-title">Thêm / Sửa Khóa Học</div></div>
+    <div class="modal-sub">Tạo khóa học mới với học phí tùy chỉnh</div>
+    <div class="form-grid" style="margin-bottom:14px;">
+      <div class="form-group"><label>Mã Khóa (key) *</label><input id="cc-key" type="text" placeholder="VD: organ, bass_guitar..."></div>
+      <div class="form-group"><label>Tên Khóa Học *</label><input id="cc-name" type="text" placeholder="VD: Organ, Bass Guitar..."></div>
+      <div class="form-group"><label>Emoji / Icon</label><input id="cc-emoji" type="text" placeholder="VD: 🎸" style="font-size:20px;"></div>
+    </div>
+    <div style="font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid var(--cream2);">Các Gói Học Phí</div>
+    <div style="display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:6px;margin-bottom:6px;">
+      <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Nhóm Gói</span>
+      <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Mô Tả Gói</span>
+      <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Học Phí (đ)</span>
+      <span></span>
+    </div>
+    <div id="cc-rows-wrap"></div>
+    <button type="button" class="btn btn-outline" onclick="addCustomCourseRow()" style="margin-top:6px;font-size:11px;">+ Thêm gói</button>
+    <div class="form-actions" style="margin-top:16px;padding-top:16px;border-top:1.5px solid var(--cream2);">
+      <button class="btn btn-gold" onclick="saveCustomCourse()">💾 Lưu Khóa Học</button>
+      <button class="btn btn-outline" onclick="closeCustomCourseModal()">✕ Huỷ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ COURSE MODAL ══════════ -->
+<div class="modal-backdrop" id="course-modal" onclick="closeCourseModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeCourse()">✕</button>
+    <div class="modal-header"><span class="modal-emoji" id="modal-emoji">🎹</span><div class="modal-title" id="modal-title"></div></div>
+    <div class="modal-sub">Chi tiết học phí và số buổi học</div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- ══════════ DELETE CONFIRM MODAL ══════════ -->
+<div class="del-modal-backdrop" id="del-modal">
+  <div class="del-modal">
+    <div class="del-modal-icon">🗑️</div>
+    <div class="del-modal-title">Xác nhận xóa?</div>
+    <div class="del-modal-sub">Bạn sắp xóa <span class="del-modal-name" id="del-modal-name"></span>.<br>Hành động này không thể hoàn tác.</div>
+    <div class="del-modal-btns">
+      <button class="btn btn-red" id="del-confirm-btn">Xóa</button>
+      <button class="btn btn-outline" onclick="closeDelModal()">Huỷ</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ <span id="toast-msg"></span></div>
+<!-- ══════ PAYROLL CONFIG MODAL ══════ -->
+<div class="modal-backdrop" id="pr-config-modal" onclick="if(event.target===this)closePrConfigModal()">
+  <div class="modal" style="max-width:500px;">
+    <button class="modal-close" onclick="closePrConfigModal()">✕</button>
+    <div class="modal-header"><span class="modal-emoji">⚙️</span><div class="modal-title">Cấu Hình Lương Cơ Bản</div></div>
+    <div class="modal-sub" id="pr-config-name"></div>
+    <input type="hidden" id="pr-cfg-staffid">
+    <div class="form-grid">
+      <div class="form-group" style="grid-column: span 2;">
+        <label>Loại Lương</label>
+        <select id="pr-cfg-type" onchange="togglePrCfgFields()" style="width:100%;border:1px solid #ddd;border-radius:6px;padding:8px;">
+          <option value="monthly">Lương Cứng (Theo tháng)</option>
+          <option value="hourly">Lương Theo Tiết/Giờ</option>
+        </select>
+      </div>
+      <div class="form-group monthly-cfg">
+        <label>Lương Cơ Bản (VNĐ)</label>
+        <input type="number" id="pr-cfg-base" placeholder="VD: 3000000">
+      </div>
+      <div class="form-group monthly-cfg">
+        <label>Số ngày chuẩn</label>
+        <input type="number" id="pr-cfg-std" placeholder="VD: 26">
+      </div>
+      <div class="form-group hourly-cfg">
+        <label>Rate Cơ Bản (VNĐ)</label>
+        <input type="number" id="pr-cfg-hourly" placeholder="VD: 300000">
+      </div>
+      <div class="form-group hourly-cfg">
+        <label>Rate Dạy Ngoài</label>
+        <input type="number" id="pr-cfg-ext" placeholder="VD: 300000">
+      </div>
+      <div class="form-group hourly-cfg">
+        <label>Rate Dạy Thay</label>
+        <input type="number" id="pr-cfg-sub" placeholder="VD: 150000">
+      </div>
+    </div>
+    <button class="btn btn-gold" style="width:100%;margin-top:15px;padding:10px;font-size:14px;border-radius:8px;" onclick="savePrConfig()">Lưu Cấu Hình</button>
+  </div>
+</div>
+
+<!-- ══════ PAYROLL MONTHLY MODAL ══════ -->
+<div class="modal-backdrop" id="pr-month-modal" onclick="if(event.target===this)closePrMonthModal()">
+  <div class="modal" style="max-width:500px;">
+    <button class="modal-close" onclick="closePrMonthModal()">✕</button>
+    <div class="modal-header"><span class="modal-emoji">📅</span><div class="modal-title">Số Liệu Tháng Này</div></div>
+    <div class="modal-sub" id="pr-month-name"></div>
+    <input type="hidden" id="pr-month-staffid">
+    <div class="form-grid">
+      <div class="form-group monthly-var">
+        <label>Số ngày làm</label>
+        <input type="number" id="pr-var-wdays" step="0.5" placeholder="VD: 24.5">
+      </div>
+      <div class="form-group hourly-var">
+        <label>Số giờ/tiết làm</label>
+        <input type="number" id="pr-var-whours" step="0.5" placeholder="VD: 14">
+      </div>
+      <div class="form-group hourly-var">
+        <label>Tiết dạy ngoài</label>
+        <input type="number" id="pr-var-ext" step="0.5" placeholder="VD: 3">
+      </div>
+      <div class="form-group hourly-var">
+        <label>Tiết dạy thay</label>
+        <input type="number" id="pr-var-sub" step="0.5" placeholder="VD: 2">
+      </div>
+      <div class="form-group">
+        <label>Số lần vi phạm</label>
+        <input type="number" id="pr-var-latecount" placeholder="VD: 3">
+      </div>
+      <div class="form-group">
+        <label>Tổng tiền phạt</label>
+        <input type="number" id="pr-var-lateamt" placeholder="VD: 150000">
+      </div>
+      <div class="form-group" style="grid-column: span 2;">
+        <label>Ghi chú phạt</label>
+        <input type="text" id="pr-var-latenote" placeholder="VD: 3 lỗi trễ">
+      </div>
+    </div>
+    <button class="btn btn-gold" style="width:100%;margin-top:15px;padding:10px;font-size:14px;border-radius:8px;" onclick="savePrMonth()">Lưu Số Liệu</button>
+  </div>
+</div>
+
+<!-- ══════════ SCRIPT ══════════ -->
+<!-- ══════ MODAL THÊM BÙ LỊCH ══════ -->
+<div class="modal-backdrop" id="makeup-modal" onclick="if(event.target===this)closeMakeupModal()">
+  <div class="modal" style="max-width:560px;">
+    <button class="modal-close" onclick="closeMakeupModal()">✕</button>
+    <div class="modal-header"><span class="modal-emoji">🔄</span><div class="modal-title" id="makeup-modal-title">Thêm Buổi Bù</div></div>
+    <div class="modal-sub">Ghi nhận buổi vắng và lên lịch bù</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Học Viên *</label>
+        <select id="mk-student"><option value="">-- Chọn học viên --</option></select>
+      </div>
+      <div class="form-group"><label>Lớp</label>
+        <select id="mk-class"><option value="">-- Chọn lớp --</option></select>
+      </div>
+      <div class="form-group"><label>Ngày Vắng *</label><input type="date" id="mk-absent-date"></div>
+      <div class="form-group"><label>Loại Vắng *</label>
+        <select id="mk-absent-type">
+          <option value="">-- Chọn --</option>
+          <option>Vắng có phép</option>
+          <option>Vắng không phép</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Ngày Bù (dự kiến)</label><input type="date" id="mk-makeup-date"></div>
+      <div class="form-group"><label>Trạng Thái</label>
+        <select id="mk-status">
+          <option value="pending">Chưa bù</option>
+          <option value="done">Đã bù</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>Ghi Chú</label>
+        <textarea id="mk-note" rows="2" placeholder="Ghi chú thêm..."></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" onclick="saveMakeup()">💾 Lưu</button>
+      <button class="btn btn-outline" onclick="closeMakeupModal()">Huỷ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ MODAL THÊM TIN NHẮN MẪU ══════ -->
+<div class="modal-backdrop" id="template-modal" onclick="if(event.target===this)closeTemplateModal()">
+  <div class="modal" style="max-width:600px;">
+    <button class="modal-close" onclick="closeTemplateModal()">✕</button>
+    <div class="modal-header"><span class="modal-emoji">💬</span><div class="modal-title" id="template-modal-title">Thêm Tin Nhắn Mẫu</div></div>
+    <div class="modal-sub">Tạo nội dung tư vấn sẵn sàng sao chép</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Môn Học / Tên Mẫu *</label>
+        <input id="tpl-course" type="text" placeholder="VD: Piano Đệm Hát, Guitar...">
+      </div>
+      <div class="form-group"><label>Emoji Icon</label>
+        <input id="tpl-emoji" type="text" placeholder="🎹" style="font-size:18px;">
+      </div>
+      <div class="form-group full"><label>Nội Dung Tin Nhắn *</label>
+        <textarea id="tpl-content" rows="8" placeholder="Nhập nội dung tin nhắn tư vấn đầy đủ...&#10;VD:&#10;PIANO ĐỆM HÁT&#10;Học phí: 4.200.000đ / khóa&#10;Thời gian: 3 tháng (24 buổi)..."></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" onclick="saveTemplate()">💾 Lưu Tin Nhắn</button>
+      <button class="btn btn-outline" onclick="closeTemplateModal()">Huỷ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL CẤP TÀI KHOẢN ── -->
+<div class="modal-backdrop" id="account-modal" onclick="if(event.target===this)closeAccountModal()">
+  <div class="modal" style="max-width:460px;">
+    <button class="modal-close" onclick="closeAccountModal()">✕</button>
+    <div class="modal-header"><span class="modal-emoji">🔑</span><div class="modal-title" id="account-modal-title">Cấp Tài Khoản Mới</div></div>
+    <div class="modal-sub" style="font-size:12px;color:#7a9aaa;margin-bottom:16px;">Chỉ quản trị viên mới có quyền tạo và phân quyền tài khoản</div>
+    <input type="hidden" id="acc-edit-id" value="">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Tên đăng nhập *</label>
+        <input id="acc-username" type="text" placeholder="VD: giaovien01" autocapitalize="none" spellcheck="false">
+      </div>
+      <div class="form-group">
+        <label>Họ tên hiển thị *</label>
+        <input id="acc-displayname" type="text" placeholder="VD: Nguyễn Văn A">
+      </div>
+      <div class="form-group">
+        <label>Mật khẩu * <span id="acc-pass-hint" style="font-size:10px;color:#aaa;display:none;">(để trống = giữ nguyên)</span></label>
+        <input id="acc-password" type="password" placeholder="Ít nhất 8 ký tự">
+      </div>
+      <div class="form-group">
+        <label>Phân quyền *</label>
+        <select id="acc-role" onchange="toggleLinkedFields()">
+          <option value="staff">Nhân Viên (Staff)</option>
+          <option value="admin">Quản Trị Viên (Admin)</option>
+          <option value="teacher">Giáo Viên (Teacher)</option>
+          <option value="student">Học Viên (Student)</option>
+        </select>
+      </div>
+      <div id="linked-staff-group" class="form-group full" style="display:none;">
+        <label>Liên Kết Nhân Sự <span style="color:#aaa;font-weight:400">(ID trong bảng GV & NV)</span></label>
+        <input id="acc-linked-staff" type="text" placeholder="VD: 1777364428100">
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;">Giáo viên sẽ chỉ thấy lớp mình dạy và tự chấm công</div>
+      </div>
+      <div id="linked-student-group" class="form-group full" style="display:none;">
+        <label>Liên Kết Học Viên <span style="color:#aaa;font-weight:400">(ID trong bảng Học Viên)</span></label>
+        <input id="acc-linked-student" type="text" placeholder="VD: 1749123456789">
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;">Học viên chỉ thấy thông tin cá nhân của mình</div>
+      </div>
+      <div class="form-group full" style="background:#fffbe6;border:1px solid #ffe08a;border-radius:10px;padding:10px 14px;font-size:12px;color:#7a6000;line-height:1.8;">
+        <strong>Phân quyền:</strong><br>
+        Admin: toàn quyền · Staff: toàn bộ nghiệp vụ · Teacher: lớp mình dạy + chấm công · Student: xem thông tin cá nhân
+      </div>
+    </div>
+    <div id="acc-error" style="color:#D94F4F;font-size:13px;margin:8px 0;display:none;"></div>
+    <div class="form-actions" style="margin-top:16px;">
+      <button class="btn btn-gold" onclick="submitAccountForm()">💾 Lưu Tài Khoản</button>
+      <button class="btn btn-outline" onclick="closeAccountModal()">Huỷ</button>
+    </div>
+  </div>
+</div>
+
+</div> <!-- end #vs-app -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="auth.js?v=3.4"></script>
+  <script>document.write('<script src="app.js?v=1790556943"><\\/script>');</script>
+  <script src="app_expenses.js?v=1.0"></script>
+  <script src="attendance_ui.js?v=1.1"></script>
+
+<!-- Modal Expense -->
+<div id="expense-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:32px;width:100%;max-width:400px;">
+    <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:20px">Thêm Khoản Chi</div>
+    <form id="exp-form" onsubmit="event.preventDefault(); saveExpense();">
+      <div class="form-group"><label>Ngày</label><input type="date" id="exp-date" required></div>
+      <div class="form-group"><label>Hạng Mục</label>
+        <select id="exp-category" required>
+          <option value="Tiền Thuê Nhà">Tiền Thuê Nhà</option>
+          <option value="Điện Nước">Điện Nước</option>
+          <option value="Lương Giáo Viên">Lương Giáo Viên</option>
+          <option value="Lương Nhân Viên">Lương Nhân Viên</option>
+          <option value="Quảng Cáo / Marketing">Quảng Cáo / Marketing</option>
+          <option value="Văn Phòng Phẩm">Văn Phòng Phẩm</option>
+          <option value="Bảo Trì / Mua Sắm">Bảo Trì / Mua Sắm</option>
+          <option value="Khác">Khác</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Số Tiền (VNĐ)</label><input type="text" id="exp-amount" required placeholder="Ví dụ: 1000000" onkeyup="this.value=Number(this.value.replace(/\D/g,'')).toLocaleString('vi-VN')||''"></div>
+      <div class="form-group"><label>Người / Bộ Phận Chi</label><input type="text" id="exp-spender" placeholder="VD: Kế Toán"></div>
+      <div class="form-group"><label>Ghi Chú</label><input type="text" id="exp-note"></div>
+      <div style="display:flex;gap:12px;margin-top:20px">
+        <button type="button" class="btn btn-outline" style="flex:1" onclick="closeExpenseModal()">Hủy</button>
+        <button type="submit" class="btn btn-gold" style="flex:1">Lưu</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+</body>
+<!-- Modal Hồ Sơ Cá Nhân -->
+<div id="my-profile-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;font-family:'Be Vietnam Pro',sans-serif">
+  <div style="background:#fff;border-radius:16px;padding:32px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;">
+    <div style="font-size:20px;font-weight:800;color:var(--navy);margin-bottom:20px">Hồ Sơ Cá Nhân</div>
+    
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+      <img id="mp-avatar-preview" src="" style="width:72px;height:72px;border-radius:50%;object-fit:cover;background:#eee;display:none;">
+      <div id="mp-avatar-text" style="width:72px;height:72px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;"></div>
+      <div>
+        <button onclick="document.getElementById('mp-avatar-upload').click()" style="background:var(--cream);color:var(--navy);border:1.5px solid var(--cream2);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-weight:600;">📷 Đổi Ảnh Đại Diện</button>
+        <input type="file" id="mp-avatar-upload" accept="image/*" style="display:none;" onchange="previewMyAvatar(this)">
+      </div>
+    </div>
+
+    <label style="font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px">Tên hiển thị</label>
+    <input id="mp-display-name" type="text" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 14px;font-size:14px;margin-bottom:16px;outline:none;box-sizing:border-box;">
+    
+    
+      <div style="border-top:1.5px dashed #eee;margin:16px 0;"></div>
+      <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px;">Thông Tin Liên Hệ & Thanh Toán</div>
+      
+      <label style="font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px">Số điện thoại</label>
+      <input id="mp-phone" type="text" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 14px;font-size:14px;margin-bottom:14px;outline:none;box-sizing:border-box;" placeholder="Nhập SĐT">
+
+      <label style="font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px">Email</label>
+      <input id="mp-email" type="text" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 14px;font-size:14px;margin-bottom:14px;outline:none;box-sizing:border-box;" placeholder="Nhập Email">
+
+      <label style="font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px">Ngân hàng</label>
+      <input id="mp-bank-name" type="text" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 14px;font-size:14px;margin-bottom:14px;outline:none;box-sizing:border-box;" placeholder="Ví dụ: MB Bank, Vietcombank">
+
+      <label style="font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px">Số tài khoản</label>
+      <input id="mp-bank-account" type="text" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 14px;font-size:14px;margin-bottom:16px;outline:none;box-sizing:border-box;" placeholder="Nhập STK">
+
+      <div style="border-top:1.5px dashed #eee;margin:16px 0;"></div>
+      <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px;">Đổi Mật Khẩu (Không bắt buộc)</div>
+
+    <label style="font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px">Mật khẩu hiện tại</label>
+    <input id="mp-current" type="password" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 14px;font-size:14px;margin-bottom:14px;outline:none;box-sizing:border-box;" placeholder="Nhập để xác thực nếu đổi mật khẩu" />
+    
+    <label style="font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px">Mật khẩu mới</label>
+    <input id="mp-new" type="password" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 14px;font-size:14px;margin-bottom:14px;outline:none;box-sizing:border-box;" placeholder="Ít nhất 8 ký tự" />
+    
+    <label style="font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:6px">Xác nhận mật khẩu mới</label>
+    <input id="mp-confirm" type="password" style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 14px;font-size:14px;margin-bottom:20px;outline:none;box-sizing:border-box;" placeholder="Nhập lại mật khẩu mới" />
+    
+    <div style="display:flex;gap:8px">
+      <button onclick="submitUpdateProfile()" class="btn btn-gold" style="flex:1;">Lưu Thay Đổi</button>
+      <button onclick="document.getElementById('my-profile-modal').style.display='none'" class="btn" style="flex:1;background:#eee;color:#333;font-weight:600;">Huỷ</button>
+    </div>
+    
+    <div style="margin-top:16px;text-align:center;">
+      <button onclick="logout()" style="background:none;border:none;color:#ef4444;font-weight:700;font-size:14px;cursor:pointer;">Đăng Xuất</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

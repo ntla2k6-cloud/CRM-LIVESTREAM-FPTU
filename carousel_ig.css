@@ -1,0 +1,37 @@
+/* IG Tabs */
+.ig-tabs { display:flex; gap:12px; margin-bottom:24px; padding-bottom:8px; border-bottom:1px solid #efefef; overflow-x:auto; scrollbar-width:none; }
+.ig-tabs::-webkit-scrollbar { display:none; }
+.ig-tab { padding:8px 16px; border-radius:20px; font-size:14px; font-weight:600; cursor:pointer; white-space:nowrap; background:#f1f3f5; color:#868e96; transition:all 0.2s; border:none; outline:none; }
+.ig-tab.active { background:#222; color:#fff; }
+
+/* IG Carousel */
+.ig-carousel-container { position:relative; width:100%; aspect-ratio: 1/1; overflow:hidden; background:#fafafa; border-top: 1px solid #efefef; border-bottom: 1px solid #efefef; }
+.ig-carousel-track { display:flex; width:100%; transition:transform 0.3s ease-in-out; height:100%; }
+.ig-carousel-slide { min-width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+.ig-carousel-slide img, .ig-carousel-slide iframe { width:100%; height:100%; object-fit:cover; border:none; border-radius:0; cursor:pointer; }
+.ig-carousel-btn { position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.8); border:none; border-radius:50%; width:32px; height:32px; font-size:16px; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.2); z-index:2; display:flex; align-items:center; justify-content:center; color:#333; opacity:0.7; transition:opacity 0.2s; }
+.ig-carousel-btn:hover { opacity:1; }
+.ig-carousel-prev { left:10px; }
+.ig-carousel-next { right:10px; }
+.ig-carousel-dots { position:absolute; bottom:12px; left:0; right:0; display:flex; justify-content:center; gap:6px; z-index:2; pointer-events:none; }
+.ig-carousel-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.4); transition:background 0.2s; }
+.ig-carousel-dot.active { background:#fff; }
+
+
+/* Fix for modal carousel to prevent stretching */
+.mag-modal-left .ig-carousel-container {
+    aspect-ratio: auto !important;
+    background: transparent !important;
+    height: 100% !important;
+}
+.mag-modal-left .ig-carousel-slide {
+    height: 100% !important;
+}
+.mag-modal-left .ig-carousel-slide img,
+.mag-modal-left .ig-carousel-slide iframe {
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+}
