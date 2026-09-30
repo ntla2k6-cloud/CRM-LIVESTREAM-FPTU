@@ -41,26 +41,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Ca trực không tồn tại' }, { status: 404 });
     }
 
-    let currentRegistered: string[] = [];
+    let currentRegistered: number[] = [];
     if (shift.registered) {
       try {
-        currentRegistered = JSON.parse(shift.registered);
+        const parsed = JSON.parse(shift.registered);
+        currentRegistered = Array.isArray(parsed) ? parsed.map(Number) : [];
       } catch (e) {
         currentRegistered = [];
       }
     }
     
-    const stringStaffId = String(staff.id);
+    const numericStaffId = Number(staff.id);
     let newRegistered = [...currentRegistered];
 
     if (action === 'register') {
-      if (!currentRegistered.includes(stringStaffId)) {
-        newRegistered.push(stringStaffId);
+      if (!currentRegistered.includes(numericStaffId)) {
+        newRegistered.push(numericStaffId);
       } else {
         return NextResponse.json({ error: 'Bạn đã đăng ký ca trực này rồi' }, { status: 409 });
       }
     } else if (action === 'cancel') {
-      newRegistered = currentRegistered.filter(id => id !== stringStaffId);
+      newRegistered = currentRegistered.filter(id => id !== numericStaffId);
     } else {
       return NextResponse.json({ error: 'Hành động không hợp lệ' }, { status: 400 });
     }
