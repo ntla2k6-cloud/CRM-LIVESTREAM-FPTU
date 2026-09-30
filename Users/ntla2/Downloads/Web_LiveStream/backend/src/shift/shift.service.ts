@@ -77,9 +77,14 @@ export class ShiftService {
         throw new NotFoundException('Ca trực không tồn tại');
       }
 
-      const { assignments, type, registered, ...rest } = data;
+      const { assignments, type, registered, month, year, day, ...rest } = data;
+      if (day !== undefined) rest.day = Number(day);
       if (type) rest.project = type;
       if (registered !== undefined) rest.registered = JSON.stringify(registered);
+      
+      if (rest.day !== undefined && month && year) {
+        rest.scheduledAt = new Date(Date.UTC(Number(year), Number(month) - 1, Number(rest.day), 12, 0, 0));
+      }
       
       if (assignments && assignments.create) {
         await this.prisma.liveSessionAssignment.deleteMany({ where: { liveSessionId: id } });

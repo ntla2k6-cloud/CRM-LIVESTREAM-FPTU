@@ -98,6 +98,19 @@ export default function SchedulePage() {
   const [selectedShift, setSelectedShift] = useState<any | null>(null);
   const [drawerTab, setDrawerTab] = useState<'OFFICIAL' | 'REGISTRATION'>('OFFICIAL');
   const [toastMessage, setToastMessage] = useState<{msg: string, type: 'error'|'success'} | null>(null);
+  
+  // STATE: Calendar navigation — tracks which month/year is being viewed
+  const [calendarDate, setCalendarDate] = useState<Date>(() => new Date());
+
+  const goToPreviousMonth = () => {
+    setCalendarDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
+  const goToNextMonth = () => {
+    setCalendarDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+  const goToToday = () => {
+    setCalendarDate(new Date());
+  };
 
   const showToast = (msg: string, type: 'error'|'success' = 'error') => {
     setToastMessage({ msg, type });
@@ -390,7 +403,7 @@ export default function SchedulePage() {
                   return (
                     <div 
                       key={i} 
-                      onClick={() => setSelectedShift({ id: Date.now(), date: day, title: 'Phiên LIVE Mới', time: '19:00 - 21:00', location: 'Studio A', status: 'Chưa bắt đầu', assigned: [] })}
+                      onClick={() => setSelectedShift({ id: Date.now(), date: day, month: calendarDate.getMonth() + 1, year: calendarDate.getFullYear(), title: 'Phiên LIVE Mới', time: '19:00 - 21:00', location: 'Studio A', status: 'Chưa bắt đầu', assigned: [] })}
                       className={`min-h-[160px] bg-white rounded-2xl border ${isToday ? 'border-[#F58220] ring-4 ring-orange-50/50 shadow-sm' : 'border-slate-200'} p-3 hover:shadow-lg hover:border-[#F58220]/50 cursor-pointer transition-all duration-300 group/day flex flex-col`}
                     >
                       <div className="flex justify-between items-start mb-2 shrink-0">
@@ -724,7 +737,7 @@ export default function SchedulePage() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="font-black text-lg text-slate-900 tracking-tight">Chi tiết Ca Trực</h3>
-                  <p className="text-xs font-bold text-slate-500">Ngày {selectedShift.date}/9/2026</p>
+                  <p className="text-xs font-bold text-slate-500">Ngày {selectedShift.date}/{selectedShift.month || (calendarDate.getMonth() + 1)}/{selectedShift.year || calendarDate.getFullYear()}</p>
                 </div>
                 <button onClick={() => setSelectedShift(null)} className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center hover:bg-slate-300 transition-colors">
                   <X size={16} />
