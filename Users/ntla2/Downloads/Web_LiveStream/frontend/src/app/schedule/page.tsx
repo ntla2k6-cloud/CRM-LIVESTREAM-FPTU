@@ -146,13 +146,14 @@ export default function SchedulePage() {
 
       if (isExisting) {
         await ShiftAPI.update(selectedShift.id, payload);
-        // We also need to update assignments, but for now we simplify by just reloading
+        fetchData();
+        setSelectedShift(null);
       } else {
-        await ShiftAPI.create(payload);
+        const newShift = await ShiftAPI.create(payload);
+        fetchData();
+        setSelectedShift({ ...selectedShift, id: newShift.id });
+        showToast('Tạo ca trực thành công!');
       }
-      
-      fetchData();
-      setSelectedShift(null);
     } catch (err) {
       console.error(err);
       showToast(`Lỗi: ${err.message || 'Có lỗi xảy ra khi lưu ca trực!'}`);
@@ -946,7 +947,23 @@ export default function SchedulePage() {
                   </div>
 
                   {/* Nút đăng ký cho thành viên */}
-                  {myStaffId && (
+                  {typeof selectedShift.id !== 'string' ? (
+                    isAdminOrProducer ? (
+                      <div className="p-4 bg-orange-50 border border-orange-200 rounded-2xl text-center">
+                        <p className="text-xs font-bold text-slate-600 mb-3">Ca trực này chưa được lưu trên hệ thống.</p>
+                        <button onClick={async () => {
+                          await handleSaveShift();
+                        }} 
+                          className="w-full py-2.5 bg-[#F58220] text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 hover:bg-[#e07010] transition-colors shadow-md">
+                          <Plus size={16} /> Tạo ca trực để Đăng ký
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center">
+                        <p className="text-xs font-bold text-slate-500">Ca trực chưa được khởi tạo. Vui lòng đợi quản trị viên lưu lại.</p>
+                      </div>
+                    )
+                  ) : myStaffId ? (
                     <div className="p-4 bg-orange-50 border border-orange-200 rounded-2xl">
                       <p className="text-xs font-bold text-slate-600 mb-3">Bạn đăng ký ca này không?</p>
                       {(registrations[selectedShift.id] || []).includes(myStaffId) ? (
@@ -961,7 +978,13 @@ export default function SchedulePage() {
                         </button>
                       )}
                     </div>
-                  )}
+                  ) : isAdminOrProducer ? (
+                    <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center">
+                      <p className="text-xs font-bold text-slate-500">Tài khoản Admin/Producer của bạn chưa được liên kết với một Hồ sơ Nhân sự.</p>
+                      <p className="text-[10px] text-slate-400 mt-1">Vui lòng vào mục Nhân sự Ekip, tạo một nhân sự có Email trùng với Email đăng nhập của bạn để có thể tự đăng ký ca trực.</p>
+                    </div>
+                  ) : null}
+
 
                   {/* Danh sách đăng ký */}
                   <div>
