@@ -183,4 +183,87 @@ export declare class LiveSessionService {
         endTime: Date | null;
         campaignId: string | null;
     }, never, import("@prisma/client/runtime/library").DefaultArgs>;
+    getHistory(id: string): Promise<{
+        comments: {
+            id: string;
+            platform: string;
+            platformCommentId: string;
+            platformUserId: string | null;
+            username: string;
+            displayName: string | null;
+            avatar: string | null;
+            content: string;
+            likeCount: number;
+            replyCount: number;
+            parentCommentId: string | null;
+            category: string;
+            isProcessed: boolean;
+            processingStatus: string;
+            priority: number;
+            rawPayload: string | null;
+            aiIntent: string | null;
+            serverTimestamp: Date;
+            updatedAt: Date;
+            liveSessionId: string;
+            customerId: string | null;
+        }[];
+        leads: ({
+            customer: {
+                id: string;
+                updatedAt: Date;
+                tiktokAccount: string | null;
+                fullName: string | null;
+                phone: string | null;
+                highSchool: string | null;
+                classGrade: string | null;
+                location: string | null;
+                interestedMajor: string | null;
+                createdAt: Date;
+            } | null;
+        } & {
+            id: string;
+            updatedAt: Date;
+            liveSessionId: string | null;
+            customerId: string | null;
+            status: string;
+            createdAt: Date;
+            campaignId: string | null;
+            assignedCskhId: string | null;
+            firstCommentId: string | null;
+            latestCommentId: string | null;
+            source: string;
+            leadScore: number;
+            intent: string | null;
+        })[];
+        winners: ({
+            customer: {
+                id: string;
+                updatedAt: Date;
+                tiktokAccount: string | null;
+                fullName: string | null;
+                phone: string | null;
+                highSchool: string | null;
+                classGrade: string | null;
+                location: string | null;
+                interestedMajor: string | null;
+                createdAt: Date;
+            };
+            gift: {
+                id: number;
+                name: string;
+                status: string;
+                sku: string;
+                stock: number;
+                price: string;
+            };
+        } & {
+            id: string;
+            liveSessionId: string;
+            customerId: string;
+            status: string;
+            createdAt: Date;
+            questionId: string | null;
+            giftId: number;
+        })[];
+    }>;
 }

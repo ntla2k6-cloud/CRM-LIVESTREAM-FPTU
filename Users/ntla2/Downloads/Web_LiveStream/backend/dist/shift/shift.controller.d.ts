@@ -59,7 +59,7 @@ export declare class ShiftController {
         })[];
         registered: any;
     }[]>;
-    findOne(id: string): Promise<({
+    findOne(id: string): Promise<{
         assignments: ({
             staff: {
                 id: number;
@@ -105,7 +105,7 @@ export declare class ShiftController {
         startTime: Date | null;
         endTime: Date | null;
         campaignId: string | null;
-    }) | null>;
+    }>;
     update(id: string, updateShiftDto: any): Promise<{
         description: string | null;
         id: string;

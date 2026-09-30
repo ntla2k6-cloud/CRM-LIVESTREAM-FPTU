@@ -23,6 +23,9 @@ let LiveSessionController = class LiveSessionController {
     findAll() {
         return this.liveSessionService.findAll();
     }
+    getHistory(id) {
+        return this.liveSessionService.getHistory(id);
+    }
     findOne(id) {
         return this.liveSessionService.findOne(id);
     }
@@ -46,6 +49,13 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], LiveSessionController.prototype, "findAll", null);
+__decorate([
+    Get(':id/history'),
+    __param(0, Param('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], LiveSessionController.prototype, "getHistory", null);
 __decorate([
     Get(':id'),
     __param(0, Param('id')),

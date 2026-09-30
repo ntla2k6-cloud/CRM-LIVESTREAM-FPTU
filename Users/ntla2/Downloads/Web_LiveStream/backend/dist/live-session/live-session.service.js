@@ -51,6 +51,23 @@ let LiveSessionService = class LiveSessionService {
             where: { id }
         });
     }
+    async getHistory(id) {
+        const comments = await this.prisma.liveComment.findMany({
+            where: { liveSessionId: id },
+            orderBy: { serverTimestamp: 'asc' },
+        });
+        const leads = await this.prisma.lead.findMany({
+            where: { liveSessionId: id },
+            include: { customer: true },
+            orderBy: { createdAt: 'desc' },
+        });
+        const winners = await this.prisma.winner.findMany({
+            where: { liveSessionId: id },
+            include: { customer: true, gift: true },
+            orderBy: { createdAt: 'desc' },
+        });
+        return { comments, leads, winners };
+    }
 };
 LiveSessionService = __decorate([
     Injectable(),

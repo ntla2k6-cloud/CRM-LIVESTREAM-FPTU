@@ -359,7 +359,7 @@ export default function SchedulePage() {
           
           {activeTab === 'CALENDAR' && isAdminOrProducer && (
             <button 
-              onClick={() => { setSelectedShift({ id: Date.now(), date: 1, title: 'Phiên LIVE Mới', time: '19:00 - 21:00', location: 'Studio A', status: 'Chưa bắt đầu', assigned: [] }); setDrawerTab('OFFICIAL'); }}
+              onClick={() => { setSelectedShift({ id: Date.now(), date: new Date().getDate(), month: calendarDate.getMonth() + 1, year: calendarDate.getFullYear(), title: 'Phiên LIVE Mới', time: '19:00 - 21:00', location: 'Studio A', status: 'Chưa bắt đầu', assigned: [] }); setDrawerTab('OFFICIAL'); }}
               className="flex items-center gap-2 px-5 py-2.5 bg-[#F58220] hover:bg-[#e07010] rounded-xl text-sm font-bold text-white shadow-md shadow-orange-900/20 transition-all hover:-translate-y-0.5"
             >
               <Plus size={16} /> Tạo ca trực mới
@@ -381,11 +381,11 @@ export default function SchedulePage() {
           {activeTab === 'CALENDAR' && (
             <div className="animate-in fade-in duration-500">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">Tháng 9, 2026</h2>
+                <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">Tháng {calendarDate.getMonth() + 1}, {calendarDate.getFullYear()}</h2>
                 <div className="flex gap-2">
-                  <button className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 shadow-sm"><ChevronLeft size={20}/></button>
-                  <button className="px-4 font-bold text-sm bg-white border border-slate-200 rounded-xl text-slate-700 shadow-sm">Hôm nay</button>
-                  <button className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 shadow-sm"><ChevronRight size={20}/></button>
+                  <button onClick={goToPreviousMonth} className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 shadow-sm"><ChevronLeft size={20}/></button>
+                  <button onClick={goToToday} className="px-4 font-bold text-sm bg-white border border-slate-200 rounded-xl text-slate-700 shadow-sm">Hôm nay</button>
+                  <button onClick={goToNextMonth} className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 shadow-sm"><ChevronRight size={20}/></button>
                 </div>
               </div>
 
@@ -396,109 +396,139 @@ export default function SchedulePage() {
                   </div>
                 ))}
                 
-                {Array.from({length: 30}).map((_, i) => {
-                  const day = i + 1;
-                  const dayShifts = shifts.filter(s => s.date === day);
-                  const isToday = day === new Date().getDate();
-                  return (
-                    <div 
-                      key={i} 
-                      onClick={() => setSelectedShift({ id: Date.now(), date: day, month: calendarDate.getMonth() + 1, year: calendarDate.getFullYear(), title: 'Phiên LIVE Mới', time: '19:00 - 21:00', location: 'Studio A', status: 'Chưa bắt đầu', assigned: [] })}
-                      className={`min-h-[160px] bg-white rounded-2xl border ${isToday ? 'border-[#F58220] ring-4 ring-orange-50/50 shadow-sm' : 'border-slate-200'} p-3 hover:shadow-lg hover:border-[#F58220]/50 cursor-pointer transition-all duration-300 group/day flex flex-col`}
-                    >
-                      <div className="flex justify-between items-start mb-2 shrink-0">
-                        <span className={`text-sm font-black w-7 h-7 flex items-center justify-center rounded-full transition-colors ${isToday ? 'bg-[#F58220] text-white shadow-md shadow-orange-500/20' : 'text-slate-400 group-hover/day:bg-orange-50 group-hover/day:text-[#F58220]'}`}>
-                          {day}
-                        </span>
-                        <div className="w-6 h-6 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center opacity-0 group-hover/day:opacity-100 transition-all hover:bg-orange-100 hover:text-[#F58220] scale-90 hover:scale-100">
-                          <Plus size={14} strokeWidth={3} />
+                {(() => {
+                  const daysInMonth = new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 0).getDate();
+                  let firstDay = new Date(calendarDate.getFullYear(), calendarDate.getMonth(), 1).getDay();
+                  firstDay = firstDay === 0 ? 6 : firstDay - 1; 
+                  
+                  const cells = [];
+                  for (let i = 0; i < firstDay; i++) {
+                    cells.push(<div key={`empty-${i}`} className="min-h-[160px] bg-slate-50/50 rounded-2xl border border-slate-100 p-3 opacity-50"></div>);
+                  }
+                  
+                  for (let i = 1; i <= daysInMonth; i++) {
+                    const day = i;
+                    const dayShifts = shifts.filter(s => 
+                      s.date === day && 
+                      (s.month ? s.month === calendarDate.getMonth() + 1 : true) && 
+                      (s.year ? s.year === calendarDate.getFullYear() : true)
+                    );
+                    const isToday = day === new Date().getDate() && calendarDate.getMonth() === new Date().getMonth() && calendarDate.getFullYear() === new Date().getFullYear();
+                    
+                    cells.push(
+                      <div 
+                        key={`day-${i}`} 
+                        onClick={() => {
+                          if (!isAdminOrProducer) return;
+                          setSelectedShift({ 
+                            id: Date.now(), 
+                            date: day, 
+                            month: calendarDate.getMonth() + 1,
+                            year: calendarDate.getFullYear(),
+                            title: 'Phiên LIVE Mới', 
+                            time: '19:00 - 21:00', 
+                            location: 'Studio A', 
+                            status: 'Chưa bắt đầu', 
+                            assigned: [] 
+                          });
+                          setDrawerTab('OFFICIAL');
+                        }}
+                        className={`min-h-[160px] bg-white rounded-2xl border ${isToday ? 'border-[#F58220] ring-4 ring-orange-50/50 shadow-sm' : 'border-slate-200'} p-3 ${isAdminOrProducer ? 'hover:shadow-lg hover:border-[#F58220]/50 cursor-pointer group/day' : ''} transition-all duration-300 flex flex-col`}
+                      >
+                        <div className="flex justify-between items-start mb-2 shrink-0">
+                          <span className={`text-sm font-black w-7 h-7 flex items-center justify-center rounded-full transition-colors ${isToday ? 'bg-[#F58220] text-white shadow-md shadow-orange-500/20' : `text-slate-400 ${isAdminOrProducer ? 'group-hover/day:bg-orange-50 group-hover/day:text-[#F58220]' : ''}`}`}>
+                            {day}
+                          </span>
+                          {isAdminOrProducer && (
+                            <div className="w-6 h-6 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center opacity-0 group-hover/day:opacity-100 transition-all hover:bg-orange-100 hover:text-[#F58220] scale-90 hover:scale-100">
+                              <Plus size={14} strokeWidth={3} />
+                            </div>
+                          )}
                         </div>
-                      </div>
-                      
-                      <div className="flex-1 space-y-2 overflow-auto custom-scrollbar pr-1">
-                        {dayShifts.map((shift, idx) => {
-                          const assignedStaff = shift.assigned?.map((id: string) => staffList.find(s => s.id === id)).filter(Boolean) || [];
-                          const maxAvatars = 3;
-                          const displayAvatars = assignedStaff.slice(0, maxAvatars);
-                          const extraCount = assignedStaff.length - maxAvatars;
-
-                          const isDone = shift.status === 'Hoàn thành';
-                          const isCanceled = shift.status === 'Đã hủy';
-                          
-                          const getThemeColors = (c: string) => {
-                            const themes: Record<string, any> = {
-                              'green': { 
-                                bg: 'bg-emerald-50/80', border: 'border-emerald-500',
-                                title: 'text-emerald-950', timeBg: 'bg-emerald-100', timeText: 'text-emerald-800', 
-                                project: 'text-emerald-600'
-                              },
-                              'orange': { 
-                                bg: 'bg-orange-50/80', border: 'border-orange-500',
-                                title: 'text-orange-950', timeBg: 'bg-orange-100', timeText: 'text-orange-800', 
-                                project: 'text-orange-600'
-                              },
-                              'pink': { 
-                                bg: 'bg-pink-50/80', border: 'border-pink-500',
-                                title: 'text-pink-950', timeBg: 'bg-pink-100', timeText: 'text-pink-800', 
-                                project: 'text-pink-600'
-                              },
-                              'blue': { 
-                                bg: 'bg-blue-50/80', border: 'border-blue-500',
-                                title: 'text-blue-950', timeBg: 'bg-blue-100', timeText: 'text-blue-800', 
-                                project: 'text-blue-600'
-                              },
-                              'purple': { 
-                                bg: 'bg-purple-50/80', border: 'border-purple-500',
-                                title: 'text-purple-950', timeBg: 'bg-purple-100', timeText: 'text-purple-800', 
-                                project: 'text-purple-600'
-                              },
+                        
+                        <div className="flex-1 space-y-2 overflow-auto custom-scrollbar pr-1">
+                          {dayShifts.map((shift, idx) => {
+                            const assignedStaff = shift.assigned?.map((id: string) => staffList.find(s => s.id === id)).filter(Boolean) || [];
+                            const maxAvatars = 3;
+                            const displayAvatars = assignedStaff.slice(0, maxAvatars);
+                            const extraCount = assignedStaff.length - maxAvatars;
+  
+                            const isDone = shift.status === 'Hoàn thành';
+                            const isCanceled = shift.status === 'Đã hủy';
+                            
+                            const getThemeColors = (c: string) => {
+                              const themes: Record<string, any> = {
+                                'green': { 
+                                  bg: 'bg-emerald-50/80', border: 'border-emerald-500',
+                                  title: 'text-emerald-950', timeBg: 'bg-emerald-100', timeText: 'text-emerald-800', 
+                                  project: 'text-emerald-600'
+                                },
+                                'orange': { 
+                                  bg: 'bg-orange-50/80', border: 'border-orange-500',
+                                  title: 'text-orange-950', timeBg: 'bg-orange-100', timeText: 'text-orange-800', 
+                                  project: 'text-orange-600'
+                                },
+                                'pink': { 
+                                  bg: 'bg-pink-50/80', border: 'border-pink-500',
+                                  title: 'text-pink-950', timeBg: 'bg-pink-100', timeText: 'text-pink-800', 
+                                  project: 'text-pink-600'
+                                },
+                                'blue': { 
+                                  bg: 'bg-blue-50/80', border: 'border-blue-500',
+                                  title: 'text-blue-950', timeBg: 'bg-blue-100', timeText: 'text-blue-800', 
+                                  project: 'text-blue-600'
+                                },
+                                'purple': { 
+                                  bg: 'bg-purple-50/80', border: 'border-purple-500',
+                                  title: 'text-purple-950', timeBg: 'bg-purple-100', timeText: 'text-purple-800', 
+                                  project: 'text-purple-600'
+                                },
+                              };
+                              return themes[c] || themes['blue'];
                             };
-                            return themes[c] || themes['blue'];
-                          };
-                          const theme = getThemeColors(shift.color || 'blue');
-
-                          return (
-                            <div 
-                              key={idx} 
-                              onClick={(e) => { e.stopPropagation(); setSelectedShift(shift); }}
-                              className={`group/shift p-2.5 rounded-lg cursor-pointer transition-all border-l-[3px] border-y border-r border-y-transparent border-r-transparent hover:shadow-md hover:bg-white ${
-                                isDone ? `${theme.bg} ${theme.border} opacity-60` :
-                                isCanceled ? 'bg-slate-50 border-slate-300 opacity-50 grayscale' :
-                                `${theme.bg} ${theme.border}`
-                              }`}
-                            >
-                              <div className="flex flex-col gap-1.5 mb-2">
-                                <div className="flex items-center justify-between">
-                                  {shift.project && (
-                                    <span className={`text-[9px] font-black uppercase tracking-wider ${theme.project}`}>
-                                      {shift.project}
-                                    </span>
-                                  )}
-                                  {(!isDone && !isCanceled) && (
-                                    <span className="relative flex h-1.5 w-1.5 mr-1">
-                                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75 ${theme.project}`}></span>
-                                      <span className={`relative inline-flex rounded-full h-1.5 w-1.5 bg-current ${theme.project}`}></span>
-                                    </span>
-                                  )}
+                            const theme = getThemeColors(shift.color || 'blue');
+  
+                            return (
+                              <div 
+                                key={idx} 
+                                onClick={(e) => { e.stopPropagation(); setSelectedShift(shift); setDrawerTab('REGISTRATION'); }}
+                                className={`group/shift p-2.5 rounded-lg cursor-pointer transition-all border-l-[3px] border-y border-r border-y-transparent border-r-transparent hover:shadow-md hover:bg-white ${
+                                  isDone ? `${theme.bg} ${theme.border} opacity-60` :
+                                  isCanceled ? 'bg-slate-50 border-slate-300 opacity-50 grayscale' :
+                                  `${theme.bg} ${theme.border}`
+                                }`}
+                              >
+                                <div className="flex flex-col gap-1.5 mb-2">
+                                  <div className="flex items-center justify-between">
+                                    {shift.project && (
+                                      <span className={`text-[9px] font-black uppercase tracking-wider ${theme.project}`}>
+                                        {shift.project}
+                                      </span>
+                                    )}
+                                    {(!isDone && !isCanceled) && (
+                                      <span className="relative flex h-1.5 w-1.5 mr-1">
+                                        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75 ${theme.project}`}></span>
+                                        <span className={`relative inline-flex rounded-full h-1.5 w-1.5 bg-current ${theme.project}`}></span>
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className={`flex w-fit items-center gap-1 px-1.5 py-0.5 rounded ${theme.timeBg} ${theme.timeText} font-bold text-[10px] whitespace-nowrap`}>
+                                    <Clock size={10} className="opacity-70" />
+                                    {shift.time}
+                                  </div>
                                 </div>
-                                <div className={`flex w-fit items-center gap-1 px-1.5 py-0.5 rounded ${theme.timeBg} ${theme.timeText} font-bold text-[10px] whitespace-nowrap`}>
-                                  <Clock size={10} className="opacity-70" />
-                                  {shift.time}
-                                </div>
-                              </div>
-                              
-                              <p className={`text-xs font-bold leading-snug line-clamp-2 mb-2 transition-colors ${isCanceled ? 'text-slate-400 line-through' : `${theme.title}`}`}>
-                                {shift.title}
-                              </p>
-                              
-                              {assignedStaff.length > 0 && (
-                                <div className={`flex items-center justify-between mt-2 pt-2 border-t ${isDone ? 'border-black/5' : 'border-black/5'}`}>
+                                
+                                <p className={`text-xs font-bold leading-snug line-clamp-2 mb-2 transition-colors ${isCanceled ? 'text-slate-400 line-through' : `${theme.title}`}`}>
+                                  {shift.title}
+                                </p>
+                                
+                                <div className="flex items-center justify-between mt-auto pt-2 border-t border-slate-100/50">
                                   <div className="flex -space-x-1.5">
-                                    {displayAvatars.map((st: any, i: number) => {
-                                      const bg = getRoleBadge(st.role).split(' ')[0].replace('100', '500');
+                                    {displayAvatars.map((s, idx2) => {
+                                      const avatarBg = getRoleBadge(s.role).split(' ')[0].replace('100', '500');
                                       return (
-                                        <div key={i} title={`${st.name} (${st.role})`} className={`w-[22px] h-[22px] rounded-full ring-2 ring-white flex items-center justify-center text-[8px] font-black text-white shadow-sm transition-transform hover:scale-110 hover:z-10 ${bg}`}>
-                                          {st.name.split(' ').pop()?.[0]}
+                                        <div key={idx2} className={`w-[22px] h-[22px] rounded-full ring-2 ring-white flex items-center justify-center text-[10px] font-bold text-white ${avatarBg} shadow-sm`}>
+                                          {s.name.split(' ').pop()?.[0]}
                                         </div>
                                       );
                                     })}
@@ -512,14 +542,15 @@ export default function SchedulePage() {
                                     {assignedStaff.length} người
                                   </span>
                                 </div>
-                              )}
-                            </div>
-                          )
-                        })}
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  }
+                  return cells;
+                })()}
               </div>
             </div>
           )}

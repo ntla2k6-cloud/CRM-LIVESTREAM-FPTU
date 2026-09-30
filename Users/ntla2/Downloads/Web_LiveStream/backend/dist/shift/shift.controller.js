@@ -12,6 +12,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ShiftService } from './shift.service.js';
+import { Roles } from '../auth/roles.decorator.js';
 let ShiftController = class ShiftController {
     shiftService;
     constructor(shiftService) {
@@ -40,6 +41,7 @@ let ShiftController = class ShiftController {
     }
 };
 __decorate([
+    Roles('ADMIN', 'PRODUCER'),
     Post(),
     __param(0, Body()),
     __metadata("design:type", Function),
@@ -60,6 +62,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ShiftController.prototype, "findOne", null);
 __decorate([
+    Roles('ADMIN', 'PRODUCER'),
     Patch(':id'),
     __param(0, Param('id')),
     __param(1, Body()),
@@ -68,6 +71,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ShiftController.prototype, "update", null);
 __decorate([
+    Roles('ADMIN', 'PRODUCER'),
     Delete('assignment/:assignmentId'),
     __param(0, Param('assignmentId')),
     __metadata("design:type", Function),
@@ -75,6 +79,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ShiftController.prototype, "removeStaff", null);
 __decorate([
+    Roles('ADMIN', 'PRODUCER'),
     Delete(':id'),
     __param(0, Param('id')),
     __metadata("design:type", Function),
@@ -82,6 +87,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ShiftController.prototype, "remove", null);
 __decorate([
+    Roles('ADMIN', 'PRODUCER'),
     Post(':id/assign'),
     __param(0, Param('id')),
     __param(1, Body()),

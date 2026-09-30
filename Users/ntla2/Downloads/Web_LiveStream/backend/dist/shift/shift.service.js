@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 let ShiftService = class ShiftService {
     prisma;
@@ -15,27 +15,33 @@ let ShiftService = class ShiftService {
         this.prisma = prisma;
     }
     async create(data) {
-        const assignments = data.assignments?.create || [];
-        const registeredIds = JSON.stringify(data.registered || []);
-        let dayVal = null;
-        if (data.day !== undefined && data.day !== null) {
-            const parsed = parseInt(String(data.day));
-            dayVal = isNaN(parsed) ? null : parsed;
-        }
-        return this.prisma.liveSession.create({
-            data: {
-                title: data.title || 'Ca trực mới',
-                day: dayVal,
-                time: data.time,
-                project: data.type || data.project || 'Khác',
-                color: data.color || '#005691',
-                registered: registeredIds,
-                status: 'SCHEDULED',
-                assignments: assignments.length > 0 ? {
-                    create: assignments.map((a) => ({ staffId: Number(a.staffId) }))
-                } : undefined
+        try {
+            const assignments = data.assignments?.create || [];
+            const registeredIds = JSON.stringify(data.registered || []);
+            let dayVal = null;
+            if (data.day !== undefined && data.day !== null) {
+                const parsed = parseInt(String(data.day));
+                dayVal = isNaN(parsed) ? null : parsed;
             }
-        });
+            return await this.prisma.liveSession.create({
+                data: {
+                    title: data.title || 'Ca trực mới',
+                    day: dayVal,
+                    time: data.time,
+                    project: data.type || data.project || 'Khác',
+                    color: data.color || '#005691',
+                    registered: registeredIds,
+                    status: 'SCHEDULED',
+                    assignments: assignments.length > 0 ? {
+                        create: assignments.map((a) => ({ staffId: Number(a.staffId) }))
+                    } : undefined
+                }
+            });
+        }
+        catch (error) {
+            console.error('Error creating shift:', error);
+            throw new InternalServerErrorException('Lỗi khi tạo ca trực mới');
+        }
     }
     async findAll() {
         const sessions = await this.prisma.liveSession.findMany({
@@ -59,30 +65,54 @@ let ShiftService = class ShiftService {
         }));
     }
     async findOne(id) {
-        return this.prisma.liveSession.findUnique({
+        const shift = await this.prisma.liveSession.findUnique({
             where: { id },
             include: { assignments: { include: { staff: true } } }
         });
+        if (!shift) {
+            throw new NotFoundException('Ca trực không tồn tại');
+        }
+        return shift;
     }
     async update(id, data) {
-        const { assignments, type, registered, ...rest } = data;
-        if (type)
-            rest.project = type;
-        if (registered !== undefined)
-            rest.registered = JSON.stringify(registered);
-        if (assignments && assignments.create) {
-            await this.prisma.liveSessionAssignment.deleteMany({ where: { liveSessionId: id } });
-            await this.prisma.liveSessionAssignment.createMany({
-                data: assignments.create.map((a) => ({ liveSessionId: id, staffId: Number(a.staffId) }))
+        try {
+            const shiftExists = await this.prisma.liveSession.findUnique({ where: { id } });
+            if (!shiftExists) {
+                throw new NotFoundException('Ca trực không tồn tại');
+            }
+            const { assignments, type, registered, ...rest } = data;
+            if (type)
+                rest.project = type;
+            if (registered !== undefined)
+                rest.registered = JSON.stringify(registered);
+            if (assignments && assignments.create) {
+                await this.prisma.liveSessionAssignment.deleteMany({ where: { liveSessionId: id } });
+                if (assignments.create.length > 0) {
+                    await this.prisma.liveSessionAssignment.createMany({
+                        data: assignments.create.map((a) => ({ liveSessionId: id, staffId: Number(a.staffId) }))
+                    });
+                }
+            }
+            return await this.prisma.liveSession.update({
+                where: { id },
+                data: rest
             });
         }
-        return this.prisma.liveSession.update({
-            where: { id },
-            data: rest
-        });
+        catch (error) {
+            console.error('Error updating shift:', error);
+            if (error instanceof NotFoundException) {
+                throw error;
+            }
+            throw new InternalServerErrorException('Lỗi khi lưu phân công ca trực');
+        }
     }
     async remove(id) {
-        return this.prisma.liveSession.delete({ where: { id } });
+        try {
+            return await this.prisma.liveSession.delete({ where: { id } });
+        }
+        catch (error) {
+            throw new InternalServerErrorException('Lỗi khi xóa ca trực');
+        }
     }
     async removeAssignment(assignmentId) {
         return this.prisma.liveSessionAssignment.delete({ where: { id: Number(assignmentId) } });

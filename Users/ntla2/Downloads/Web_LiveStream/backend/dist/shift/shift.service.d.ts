@@ -59,7 +59,7 @@ export declare class ShiftService {
         })[];
         registered: any;
     }[]>;
-    findOne(id: string): Promise<({
+    findOne(id: string): Promise<{
         assignments: ({
             staff: {
                 id: number;
@@ -105,7 +105,7 @@ export declare class ShiftService {
         startTime: Date | null;
         endTime: Date | null;
         campaignId: string | null;
-    }) | null>;
+    }>;
     update(id: string, data: any): Promise<{
         description: string | null;
         id: string;
