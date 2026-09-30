@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     }
 
     await prisma.liveSession.update({
-      where: { id: shiftId },
+      where: { id: String(shiftId) },
       data: { registered: JSON.stringify(newRegistered) }
     });
 

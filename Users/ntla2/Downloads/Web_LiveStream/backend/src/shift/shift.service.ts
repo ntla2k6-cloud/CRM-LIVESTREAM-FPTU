@@ -107,7 +107,10 @@ export class ShiftService {
   async remove(id: string) {
     try {
       return await this.prisma.liveSession.delete({ where: { id } });
-    } catch (error) {
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException('Ca trực không tồn tại');
+      }
       throw new InternalServerErrorException('Lỗi khi xóa ca trực');
     }
   }

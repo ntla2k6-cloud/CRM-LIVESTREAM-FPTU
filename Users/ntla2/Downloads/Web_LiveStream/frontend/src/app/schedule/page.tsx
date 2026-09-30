@@ -97,6 +97,12 @@ export default function SchedulePage() {
   // STATE: Drawer phân công
   const [selectedShift, setSelectedShift] = useState<any | null>(null);
   const [drawerTab, setDrawerTab] = useState<'OFFICIAL' | 'REGISTRATION'>('OFFICIAL');
+  const [toastMessage, setToastMessage] = useState<{msg: string, type: 'error'|'success'} | null>(null);
+
+  const showToast = (msg: string, type: 'error'|'success' = 'error') => {
+    setToastMessage({ msg, type });
+    setTimeout(() => setToastMessage(null), 3000);
+  };
 
   const handleToggleAssign = (staffId: any) => {
     if (!selectedShift) return;
@@ -136,7 +142,11 @@ export default function SchedulePage() {
       setSelectedShift(null);
     } catch (err) {
       console.error(err);
-      alert(`Lỗi: ${err.message || 'Có lỗi xảy ra khi lưu ca trực!'}`);
+      showToast(`Lỗi: ${err.message || 'Có lỗi xảy ra khi lưu ca trực!'}`);
+      if (err.message?.toLowerCase().includes('không tồn tại')) {
+        setSelectedShift(null);
+        fetchData();
+      }
     }
   };
 
@@ -149,7 +159,11 @@ export default function SchedulePage() {
         setSelectedShift(null);
       } catch (err) {
         console.error(err);
-        alert('Có lỗi xảy ra khi xóa!');
+        showToast(err.message || 'Có lỗi xảy ra khi xóa!');
+        if (err.message?.toLowerCase().includes('không tồn tại')) {
+          setSelectedShift(null);
+          fetchData();
+        }
       }
     }
   };
@@ -184,7 +198,11 @@ export default function SchedulePage() {
       }));
     } catch (e: any) {
       console.error(e);
-      alert(`Lỗi: ${e.message}`);
+      showToast(`Lỗi: ${e.message}`);
+      if (e.message?.toLowerCase().includes('không tồn tại')) {
+        setSelectedShift(null);
+        fetchData();
+      }
       // Revert optimistic update on failure by refetching
       const [shiftRes] = await Promise.all([ShiftAPI.getAll()]);
       const regs: Record<number, number[]> = {};
