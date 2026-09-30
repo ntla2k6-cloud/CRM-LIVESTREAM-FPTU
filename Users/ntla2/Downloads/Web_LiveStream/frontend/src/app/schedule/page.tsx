@@ -150,12 +150,12 @@ export default function SchedulePage() {
         await ShiftAPI.update(selectedShift.id, payload);
         fetchData();
         setSelectedShift(null);
-        showToast('Cập nhật phân công thành công!');
+        showToast('Cập nhật phân công thành công!', 'success');
       } else {
         const newShift = await ShiftAPI.create(payload);
         fetchData();
         setSelectedShift(null);
-        showToast('Tạo ca trực thành công!');
+        showToast('Tạo ca trực thành công!', 'success');
       }
     } catch (err) {
       console.error(err);
@@ -1055,7 +1055,19 @@ export default function SchedulePage() {
                 <button onClick={() => setSelectedShift(null)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl transition-all text-sm">Đóng</button>
               )}
             </div>
-          </div>
+                    </div>
+        </div>
+      )}
+      
+      {/* TOAST MESSAGE */}
+      {toastMessage && (
+        <div className="fixed bottom-4 right-4 bg-slate-800 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-5 z-[100]">
+          {toastMessage.type === 'success' ? (
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          ) : (
+            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+          )}
+          <p className="text-sm font-bold">{toastMessage.msg}</p>
         </div>
       )}
     </div>
