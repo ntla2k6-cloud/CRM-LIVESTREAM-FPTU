@@ -31,6 +31,7 @@ let ShiftService = class ShiftService {
                     project: data.type || data.project || 'Khác',
                     color: data.color || '#005691',
                     registered: registeredIds,
+                    scheduledAt: dayVal && data.month && data.year ? new Date(Date.UTC(Number(data.year), Number(data.month) - 1, dayVal, 12, 0, 0)) : undefined,
                     status: 'SCHEDULED',
                     assignments: assignments.length > 0 ? {
                         create: assignments.map((a) => ({ staffId: Number(a.staffId) }))
@@ -80,11 +81,16 @@ let ShiftService = class ShiftService {
             if (!shiftExists) {
                 throw new NotFoundException('Ca trực không tồn tại');
             }
-            const { assignments, type, registered, ...rest } = data;
+            const { assignments, type, registered, month, year, day, ...rest } = data;
+            if (day !== undefined)
+                rest.day = Number(day);
             if (type)
                 rest.project = type;
             if (registered !== undefined)
                 rest.registered = JSON.stringify(registered);
+            if (rest.day !== undefined && month && year) {
+                rest.scheduledAt = new Date(Date.UTC(Number(year), Number(month) - 1, Number(rest.day), 12, 0, 0));
+            }
             if (assignments && assignments.create) {
                 await this.prisma.liveSessionAssignment.deleteMany({ where: { liveSessionId: id } });
                 if (assignments.create.length > 0) {
@@ -111,6 +117,9 @@ let ShiftService = class ShiftService {
             return await this.prisma.liveSession.delete({ where: { id } });
         }
         catch (error) {
+            if (error.code === 'P2025') {
+                throw new NotFoundException('Ca trực không tồn tại');
+            }
             throw new InternalServerErrorException('Lỗi khi xóa ca trực');
         }
     }

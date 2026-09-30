@@ -24,6 +24,7 @@ export class ShiftService {
           project: data.type || data.project || 'Khác',
           color: data.color || '#005691',
           registered: registeredIds,
+          scheduledAt: dayVal && data.month && data.year ? new Date(Date.UTC(Number(data.year), Number(data.month) - 1, dayVal, 12, 0, 0)) : undefined,
           status: 'SCHEDULED',
           assignments: assignments.length > 0 ? {
             create: assignments.map((a: any) => ({ staffId: Number(a.staffId) }))
