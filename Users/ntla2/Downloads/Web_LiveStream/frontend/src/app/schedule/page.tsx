@@ -135,6 +135,8 @@ export default function SchedulePage() {
         title: selectedShift.title,
         time: selectedShift.time,
         day: selectedShift.date,
+        month: selectedShift.month || (calendarDate.getMonth() + 1),
+        year: selectedShift.year || calendarDate.getFullYear(),
         type: selectedShift.project || 'Khác',
         color: selectedShift.color || 'blue',
         registered: selectedShift.registered || [],
@@ -148,10 +150,11 @@ export default function SchedulePage() {
         await ShiftAPI.update(selectedShift.id, payload);
         fetchData();
         setSelectedShift(null);
+        showToast('Cập nhật phân công thành công!');
       } else {
         const newShift = await ShiftAPI.create(payload);
         fetchData();
-        setSelectedShift({ ...selectedShift, id: newShift.id });
+        setSelectedShift(null);
         showToast('Tạo ca trực thành công!');
       }
     } catch (err) {
