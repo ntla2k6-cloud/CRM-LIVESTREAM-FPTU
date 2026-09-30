@@ -947,37 +947,29 @@ export default function SchedulePage() {
                   </div>
 
                   {/* Nút đăng ký cho thành viên */}
-                  {typeof selectedShift.id !== 'string' ? (
-                    isAdminOrProducer ? (
-                      <div className="p-4 bg-orange-50 border border-orange-200 rounded-2xl text-center">
-                        <p className="text-xs font-bold text-slate-600 mb-3">Ca trực này chưa được lưu trên hệ thống.</p>
-                        <button onClick={async () => {
-                          await handleSaveShift();
-                        }} 
-                          className="w-full py-2.5 bg-[#F58220] text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 hover:bg-[#e07010] transition-colors shadow-md">
-                          <Plus size={16} /> Tạo ca trực để Đăng ký
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center">
-                        <p className="text-xs font-bold text-slate-500">Ca trực chưa được khởi tạo. Vui lòng đợi quản trị viên lưu lại.</p>
-                      </div>
-                    )
-                  ) : myStaffId ? (
-                    <div className="p-4 bg-orange-50 border border-orange-200 rounded-2xl">
-                      <p className="text-xs font-bold text-slate-600 mb-3">Bạn đăng ký ca này không?</p>
-                      {(registrations[selectedShift.id] || []).includes(myStaffId) ? (
-                        <button onClick={() => handleToggleRegistration(selectedShift.id, myStaffId, true)}
-                          className="w-full py-2.5 bg-red-50 border border-red-200 text-red-600 font-bold text-sm rounded-xl flex items-center justify-center gap-2 hover:bg-red-100 transition-colors">
-                          <X size={16} /> Hủy đăng ký ca này
-                        </button>
-                      ) : (
-                        <button onClick={() => handleToggleRegistration(selectedShift.id, myStaffId, false)}
-                          className="w-full py-2.5 bg-[#F58220] text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 hover:bg-[#e07010] transition-colors shadow-md">
-                          <CheckCircle2 size={16} /> Đăng ký tham gia ca này
-                        </button>
-                      )}
-                    </div>
+                  {myStaffId ? (
+                    (() => {
+                      const isUserRegistered = typeof selectedShift.id === 'string' 
+                        ? (registrations[selectedShift.id] || []).includes(myStaffId)
+                        : (selectedShift.registered || []).includes(myStaffId);
+                      
+                      return (
+                        <div className="p-4 bg-orange-50 border border-orange-200 rounded-2xl">
+                          <p className="text-xs font-bold text-slate-600 mb-3">Bạn đăng ký ca này không?</p>
+                          {isUserRegistered ? (
+                            <button onClick={() => handleToggleRegistration(selectedShift.id, myStaffId, true)}
+                              className="w-full py-2.5 bg-red-50 border border-red-200 text-red-600 font-bold text-sm rounded-xl flex items-center justify-center gap-2 hover:bg-red-100 transition-colors">
+                              <X size={16} /> Hủy đăng ký ca này
+                            </button>
+                          ) : (
+                            <button onClick={() => handleToggleRegistration(selectedShift.id, myStaffId, false)}
+                              className="w-full py-2.5 bg-[#F58220] text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 hover:bg-[#e07010] transition-colors shadow-md">
+                              <CheckCircle2 size={16} /> Đăng ký tham gia ca này
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })()
                   ) : isAdminOrProducer ? (
                     <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center">
                       <p className="text-xs font-bold text-slate-500">Tài khoản Admin/Producer của bạn chưa được liên kết với một Hồ sơ Nhân sự.</p>
@@ -989,7 +981,7 @@ export default function SchedulePage() {
                   {/* Danh sách đăng ký */}
                   <div>
                     {(() => {
-                      const allRegs = registrations[selectedShift.id] || [];
+                      const allRegs = typeof selectedShift.id === 'string' ? (registrations[selectedShift.id] || []) : (selectedShift.registered || []);
                       // Thành viên chỉ thấy đăng ký của bản thân
                       const visibleRegs = isAdminOrProducer ? allRegs : allRegs.filter(id => id === myStaffId);
                       
