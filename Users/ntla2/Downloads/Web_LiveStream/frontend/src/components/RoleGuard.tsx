@@ -10,6 +10,8 @@ export function RoleGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [realtimeRole, setRealtimeRole] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   
   useEffect(() => {
     if (status === 'authenticated') {
@@ -41,7 +43,7 @@ export function RoleGuard({ children }: { children: React.ReactNode }) {
   // RBAC LOGIC
   if (role !== 'ADMIN' && role !== 'MANAGER' && role !== 'GUEST') {
     try {
-      if (typeof window !== 'undefined') {
+      if (mounted && typeof window !== 'undefined') {
         const rbacStr = localStorage.getItem('rbac_roles');
         if (rbacStr) {
            const roles = JSON.parse(rbacStr);
