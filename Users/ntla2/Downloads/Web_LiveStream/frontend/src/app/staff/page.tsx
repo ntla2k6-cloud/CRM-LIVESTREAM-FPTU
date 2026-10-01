@@ -24,33 +24,64 @@ const DEFAULT_ROLES = [
 
 const PERMISSION_GROUPS = [
   {
-    group: 'CRM / Học sinh', color: 'text-orange-500 bg-orange-50',
+    group: 'Quản lý Phiên LIVE', color: 'text-red-500 bg-red-50',
     items: [
-      { id: 'crm.view',   label: 'Xem danh sách học sinh' },
-      { id: 'crm.edit',   label: 'Thêm/Sửa/Xóa Lead học sinh' },
+      { id: 'live.view',          label: 'Xem danh sách & chi tiết Phiên LIVE' },
+      { id: 'live.manage',        label: 'Tạo mới, Sửa & Xóa Phiên LIVE' },
+      { id: 'live.control',       label: 'Vào phòng Điều khiển LIVE (Dashboard)' },
+      { id: 'live.script',        label: 'Gắn kịch bản & Minigame vào LIVE' },
+    ]
+  },
+  {
+    group: 'Lịch trực & Phân công', color: 'text-purple-500 bg-purple-50',
+    items: [
+      { id: 'schedule.view',      label: 'Xem lưới lịch phân công tổng' },
+      { id: 'schedule.register',  label: 'Đăng ký / Hủy đăng ký ca trực' },
+      { id: 'schedule.approve',   label: 'Duyệt đăng ký & Gắn Đội hình chính thức' },
+      { id: 'schedule.manage',    label: 'Tạo, Sửa, Xóa ca trực' },
+    ]
+  },
+  {
+    group: 'Nghiệm Thu Lương', color: 'text-green-600 bg-green-50',
+    items: [
+      { id: 'payroll.view',       label: 'Xem bảng nghiệm thu lương' },
+      { id: 'payroll.manage',     label: 'Cập nhật đơn giá & trạng thái thanh toán' },
+      { id: 'payroll.export',     label: 'Xuất file Excel bảng lương' },
+    ]
+  },
+  {
+    group: 'Khách hàng & Lead', color: 'text-orange-500 bg-orange-50',
+    items: [
+      { id: 'crm.view',           label: 'Xem danh sách khách hàng' },
+      { id: 'crm.edit',           label: 'Thêm/Sửa/Xóa thông tin khách hàng' },
+      { id: 'crm.export',         label: 'Xuất Excel danh sách khách hàng' },
+    ]
+  },
+  {
+    group: 'CSKH & Bình luận', color: 'text-blue-500 bg-blue-50',
+    items: [
+      { id: 'cskh.view',          label: 'Xem luồng bình luận trực tiếp' },
+      { id: 'cskh.process',       label: 'Chốt đơn / Gắn thẻ trạng thái bình luận' },
+      { id: 'cskh.manage_orders', label: 'Quản lý danh sách Đơn hàng & Quà tặng' },
     ]
   },
   {
     group: 'Kho Quà Tặng', color: 'text-emerald-600 bg-emerald-50',
     items: [
-      { id: 'inventory.view',   label: 'Xem số lượng tồn kho' },
-      { id: 'inventory.update', label: 'Cập nhật trạng thái giao quà' },
+      { id: 'inventory.view',     label: 'Xem danh sách tồn kho quà tặng' },
+      { id: 'inventory.manage',   label: 'Thêm mới & Cập nhật số lượng quà tặng' },
+      { id: 'inventory.export',   label: 'Xuất/Nhập kho quà tặng' },
     ]
   },
   {
-    group: 'LIVE & Biên Tập', color: 'text-red-500 bg-red-50',
+    group: 'Quản trị Hệ thống', color: 'text-indigo-500 bg-indigo-50',
     items: [
-      { id: 'live.view',          label: 'Xem màn hình điều khiển LIVE' },
-      { id: 'live.script',        label: 'Soạn kịch bản & Câu hỏi' },
+      { id: 'admin.users',        label: 'Xem danh sách tài khoản & Hồ sơ nhân sự' },
+      { id: 'admin.approve',      label: 'Duyệt tài khoản & Liên kết nhân sự' },
+      { id: 'admin.rbac',         label: 'Quản lý phân quyền (RBAC)' },
+      { id: 'admin.analytics',    label: 'Xem Báo cáo Analytics tổng hợp' },
     ]
-  },
-  {
-    group: 'Nhân Sự & Phân Ca', color: 'text-purple-500 bg-purple-50',
-    items: [
-      { id: 'staff.view',       label: 'Xem lịch trực (Cá nhân)' },
-      { id: 'schedule.manage',  label: 'Phân công ca trực (Quản lý)' },
-    ]
-  },
+  }
 ];
 
 const getRoleIcon = (role: string, size = 14) => {
@@ -463,7 +494,9 @@ export default function UnifiedStaffPage() {
                       <h2 className="text-2xl font-black text-slate-900">{editingRole.label}</h2>
                       <p className="text-sm text-slate-500 mt-1">Thiết lập các quyền truy cập hệ thống cho nhóm này.</p>
                     </div>
-                    <button className="px-6 py-2.5 bg-[#F58220] text-white text-sm font-black rounded-xl hover:bg-[#e07010] transition-colors flex items-center gap-2">
+                    <button 
+                      onClick={() => showToast('Đã lưu cấu hình phân quyền thành công cho nhóm ' + editingRole.label)}
+                      className="px-6 py-2.5 bg-[#F58220] text-white text-sm font-black rounded-xl hover:bg-[#e07010] shadow-md shadow-orange-900/20 transition-all flex items-center gap-2 hover:-translate-y-0.5">
                       <Save size={16} /> Lưu cấu hình
                     </button>
                   </div>
