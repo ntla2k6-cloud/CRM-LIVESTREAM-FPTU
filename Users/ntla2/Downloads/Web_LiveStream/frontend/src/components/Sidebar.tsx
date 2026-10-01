@@ -4,26 +4,19 @@ import {
   LayoutDashboard, Users, Settings, Briefcase, Video, Activity, Calendar, Package, ShieldCheck
 } from 'lucide-react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 
 export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
   const pathname = usePathname();
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    fetch('/api/auth/session')
-      .then(r => r.json())
-      .then(s => { 
-        if (s?.user) setUser(s.user); 
-      })
-      .catch(() => {});
-  }, []);
+  const { data: session, status } = useSession();
+  const user = session?.user as any;
 
   if (pathname === '/login' || pathname.startsWith('/tracking')) return null;
 
-  const userName = user?.name || 'Lan Anh';
-  const userRole = user?.role === 'ADMIN' ? 'Quản trị viên' : (user?.role || 'Quản trị viên');
-  const userInitial = userName.charAt(0).toUpperCase();
+  const userName = user?.name || 'Đang tải...';
+  const userRole = status === 'loading' ? 'Đang xác thực...' : (user?.role === 'ADMIN' ? 'Quản trị viên' : (user?.role || 'Guest'));
+  const userInitial = user?.name ? userName.charAt(0).toUpperCase() : '?';
 
   return (
     <>
@@ -64,7 +57,8 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
           ].filter(item => {
             if (item.perm === '*') return true;
             if (user?.role === 'ADMIN' || user?.role === 'MANAGER') return true;
-            if (!user) return true; // Default show all until loaded
+            if (status === 'loading') return true; // Show all while loading
+            if (!user) return false; // Hide if not logged in
             try {
               if (typeof window !== 'undefined') {
                 const rbacStr = localStorage.getItem('rbac_roles');
