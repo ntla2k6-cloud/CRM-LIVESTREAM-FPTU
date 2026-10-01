@@ -37,8 +37,49 @@ export function RoleGuard({ children }: { children: React.ReactNode }) {
       if (typeof window !== 'undefined') window.location.href = '/';
       return <div className="h-screen w-full bg-slate-50"></div>;
     }
-    return <>{children}</>;
+    
+  // RBAC LOGIC
+  if (role !== 'ADMIN' && role !== 'MANAGER' && role !== 'GUEST') {
+    try {
+      if (typeof window !== 'undefined') {
+        const rbacStr = localStorage.getItem('rbac_roles');
+        if (rbacStr) {
+           const roles = JSON.parse(rbacStr);
+           const myRole = roles.find((r: any) => r.value === role);
+           if (myRole && myRole.permissions) {
+              const p = myRole.permissions;
+              if (!p.includes('*')) {
+                 let allowed = true;
+                 if (pathname.startsWith('/staff') && !p.includes('admin.users') && !p.includes('admin.rbac')) allowed = false;
+                 if (pathname.startsWith('/schedule') && !p.includes('schedule.view')) allowed = false;
+                 if (pathname.startsWith('/inventory') && !p.includes('inventory.view')) allowed = false;
+                 if (pathname.startsWith('/cskh') && !p.includes('crm.view') && !p.includes('cskh.view')) allowed = false;
+                 if (pathname.startsWith('/analytics') && !p.includes('admin.analytics')) allowed = false;
+                 if (pathname.startsWith('/live') && !p.includes('live.view') && !p.includes('live.control')) allowed = false;
+                 if (pathname.startsWith('/settings')) allowed = false;
+                 
+                 if (!allowed) {
+                    return (
+                      <div className="h-full w-full bg-slate-50 flex items-center justify-center p-6 relative">
+                         <div className="text-center bg-white p-8 rounded-3xl shadow-xl border border-red-100 max-w-md w-full">
+                            <ShieldAlert size={48} className="mx-auto text-red-500 mb-4" />
+                            <h2 className="text-2xl font-black text-slate-800">Truy cập bị từ chối</h2>
+                            <p className="text-slate-500 mt-2 font-medium">Bạn không có quyền truy cập vào phân hệ này dựa theo cấu hình Vai trò (RBAC) hiện tại.</p>
+                            <button onClick={() => window.location.href = '/'} className="mt-6 px-6 py-3 bg-[#005691] hover:bg-[#004677] text-white font-bold rounded-xl w-full">Quay lại Trang chủ</button>
+                         </div>
+                      </div>
+                    );
+                 }
+              }
+           }
+        }
+      }
+    } catch(e) {}
   }
+
+  return <>{children}</>;
+}
+
 
   if (status === 'loading' || (status === 'authenticated' && isVerifying)) {
     return <div className="h-screen w-full flex items-center justify-center bg-slate-50"><Loader2 className="animate-spin text-slate-400" size={32} /></div>;
