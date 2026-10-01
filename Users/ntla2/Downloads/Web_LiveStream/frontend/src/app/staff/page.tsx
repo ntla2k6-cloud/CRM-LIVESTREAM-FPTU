@@ -495,7 +495,10 @@ export default function UnifiedStaffPage() {
                       <p className="text-sm text-slate-500 mt-1">Thiết lập các quyền truy cập hệ thống cho nhóm này.</p>
                     </div>
                     <button 
-                      onClick={() => showToast('Đã lưu cấu hình phân quyền thành công cho nhóm ' + editingRole.label)}
+                      onClick={() => {
+                        setRoles(prev => prev.map(r => r.value === editingRole.value ? editingRole : r));
+                        showToast('Đã lưu cấu hình phân quyền thành công cho nhóm ' + editingRole.label);
+                      }}
                       className="px-6 py-2.5 bg-[#F58220] text-white text-sm font-black rounded-xl hover:bg-[#e07010] shadow-md shadow-orange-900/20 transition-all flex items-center gap-2 hover:-translate-y-0.5">
                       <Save size={16} /> Lưu cấu hình
                     </button>
@@ -520,13 +523,13 @@ export default function UnifiedStaffPage() {
                             {g.items.map(p => {
                               const checked = editingRole.permissions.includes(p.id);
                               return (
-                                <label key={p.id} className="flex items-center gap-4 p-4 cursor-pointer hover:bg-slate-50 transition-colors">
-                                  <div onClick={() => togglePermission(editingRole, setEditingRole, p.id)}
+                                <div key={p.id} onClick={() => togglePermission(editingRole, setEditingRole, p.id)} className="flex items-center gap-4 p-4 cursor-pointer hover:bg-slate-50 transition-colors">
+                                  <div
                                     className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all shrink-0 ${checked ? 'bg-[#005691] border-[#005691]' : 'border-slate-300'}`}>
                                     {checked && <CheckCircle2 size={16} className="text-white" />}
                                   </div>
                                   <span className={`text-sm ${checked ? 'text-slate-900 font-bold' : 'text-slate-500'}`}>{p.label}</span>
-                                </label>
+                                </div>
                               );
                             })}
                           </div>
