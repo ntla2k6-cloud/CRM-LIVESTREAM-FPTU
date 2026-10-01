@@ -53,15 +53,36 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
         {sidebarOpen && <p className="text-[10px] font-black text-blue-400/70 uppercase tracking-widest mb-3 px-3 animate-in fade-in">Quản lý chính</p>}
         <nav className="flex flex-col gap-1.5">
           {[
-            { name: 'Tổng quan', icon: LayoutDashboard, href: '/' },
-            { name: 'Thống kê', icon: Activity, href: '/analytics' },
-            { name: 'CRM / CSKH', icon: Users, href: '/cskh' },
-            { name: 'Kho Quà tặng', icon: Package, href: '/inventory' },
-            { name: 'Nhân Sự Ekip', icon: Briefcase, href: '/staff' },
-            { name: 'Lịch phân công', icon: Calendar, href: '/schedule' },
-            { name: 'Điều khiển LIVE', icon: Video, badge: 'LIVE', href: '/live' },
-            { name: 'Tra cứu vận đơn', icon: Package, href: '/tracking' },
-          ].map((item, idx) => {
+            { name: 'Tổng quan', icon: LayoutDashboard, href: '/', perm: '*' },
+            { name: 'Thống kê', icon: Activity, href: '/analytics', perm: 'admin.analytics' },
+            { name: 'CRM / CSKH', icon: Users, href: '/cskh', perm: ['crm.view', 'cskh.view'] },
+            { name: 'Kho Quà tặng', icon: Package, href: '/inventory', perm: 'inventory.view' },
+            { name: 'Nhân Sự Ekip', icon: Briefcase, href: '/staff', perm: ['admin.users', 'admin.rbac'] },
+            { name: 'Lịch phân công', icon: Calendar, href: '/schedule', perm: 'schedule.view' },
+            { name: 'Điều khiển LIVE', icon: Video, badge: 'LIVE', href: '/live', perm: ['live.view', 'live.control'] },
+            { name: 'Tra cứu vận đơn', icon: Package, href: '/tracking', perm: '*' },
+          ].filter(item => {
+            if (item.perm === '*') return true;
+            if (user?.role === 'ADMIN' || user?.role === 'MANAGER') return true;
+            if (!user) return true; // Default show all until loaded
+            try {
+              if (typeof window !== 'undefined') {
+                const rbacStr = localStorage.getItem('rbac_roles');
+                if (rbacStr) {
+                  const roles = JSON.parse(rbacStr);
+                  const myRole = roles.find((r: any) => r.value === user.role);
+                  if (myRole && myRole.permissions) {
+                    if (myRole.permissions.includes('*')) return true;
+                    if (Array.isArray(item.perm)) {
+                      return item.perm.some(p => myRole.permissions.includes(p));
+                    }
+                    return myRole.permissions.includes(item.perm);
+                  }
+                }
+              }
+            } catch(e) {}
+            return false;
+          }).map((item, idx) => {
             const active = pathname === item.href;
             return (
               <Link key={idx} href={item.href} className={`flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-300 group whitespace-nowrap
@@ -83,10 +104,12 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
         
         {sidebarOpen && <p className="text-[10px] font-black text-blue-400/70 uppercase tracking-widest mt-8 mb-3 px-5 animate-in fade-in">Hệ thống</p>}
         <nav className="flex flex-col gap-1.5 px-3">
-          <Link href="/settings" className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group whitespace-nowrap text-blue-200/70 hover:bg-white/5 hover:text-white">
-            <Settings size={20} className="text-blue-300/50 group-hover:text-blue-200" strokeWidth={2} />
-            {sidebarOpen && <span className="font-bold text-[14px]">Cài đặt chung</span>}
-          </Link>
+          {(user?.role === 'ADMIN' || user?.role === 'MANAGER') && (
+            <Link href="/settings" className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group whitespace-nowrap text-blue-200/70 hover:bg-white/5 hover:text-white">
+              <Settings size={20} className="text-blue-300/50 group-hover:text-blue-200" strokeWidth={2} />
+              {sidebarOpen && <span className="font-bold text-[14px]">Cài đặt chung</span>}
+            </Link>
+          )}
         </nav>
       </div>
 
