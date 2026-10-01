@@ -11,13 +11,14 @@ import { ShiftAPI, StaffAPI } from '@/lib/api';
 
 // DỮ LIỆU MẪU
 const STAFF_ROLES = [
-  { id: 'vj', name: 'VJ', color: 'bg-pink-100 text-pink-700 border-pink-200' },
-  { id: 'producer', name: 'Producer', color: 'bg-purple-100 text-purple-700 border-purple-200' },
-  { id: 'editor', name: 'Biên tập', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-  { id: 'camera', name: 'Cameraman', color: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
-  { id: 'tech', name: 'Kỹ thuật', color: 'bg-slate-100 text-slate-700 border-slate-300' },
-  { id: 'cskh', name: 'CSKH', color: 'bg-green-100 text-green-700 border-green-200' },
-  { id: 'inventory', name: 'Thủ kho', color: 'bg-orange-100 text-orange-700 border-orange-200' },
+  { id: 'VJ_HOST', name: 'VJ / Host Livestream', color: 'bg-orange-50 text-orange-700 border-orange-200' },
+  { id: 'CSKH', name: 'CSKH (Trực Comment)', color: 'bg-blue-50 text-blue-700 border-blue-200' },
+  { id: 'BIEN_TAP', name: 'Biên Tập', color: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
+  { id: 'KY_THUAT', name: 'Kỹ Thuật', color: 'bg-teal-50 text-teal-700 border-teal-200' },
+  { id: 'SAN_XUAT', name: 'Tổ Chức Sản Xuất', color: 'bg-purple-50 text-purple-700 border-purple-200' },
+  { id: 'THU_KHO', name: 'Thủ Kho', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  { id: 'MANAGER', name: 'Quản lý (Manager)', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+  { id: 'ADMIN', name: 'Admin Hệ thống', color: 'bg-red-50 text-red-700 border-red-200' }
 ];
 
 const getRoleBadge = (roleName: string) => {
