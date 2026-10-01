@@ -4,7 +4,7 @@ import {
   Calendar, CalendarIcon, ChevronLeft, ChevronRight, Plus, Users, 
   MoreHorizontal, Video, Edit3, Trash2, X, Clock,
   CheckCircle2, AlertCircle, MapPin, FileText, Download, DollarSign, 
-  CheckSquare, Square, Shield, UserCheck, ClipboardList, ChevronDown
+  CheckSquare, Square, Shield, UserCheck, ClipboardList, ChevronDown, Save
 } from "lucide-react";
 
 import { ShiftAPI, StaffAPI } from '@/lib/api';
@@ -295,6 +295,28 @@ export default function SchedulePage() {
   const totalBudget = payrollData.reduce((sum, p) => sum + p.totalEarned, 0);
   const totalPaid = payrollData.reduce((sum, p) => sum + p.paid, 0);
 
+  const handleSavePayroll = async () => {
+    if (Object.keys(payrollOverrides).length === 0) {
+      showToast('Không có thay đổi nào để lưu!', 'success');
+      return;
+    }
+    
+    try {
+      const promises = Object.entries(payrollOverrides).map(async ([staffId, data]: [string, any]) => {
+        if (data.rate !== undefined) {
+          await StaffAPI.update(staffId, { rate: data.rate });
+        }
+      });
+      await Promise.all(promises);
+      
+      showToast('Đã lưu Cập nhật Đơn giá Lương vào Database!', 'success');
+      fetchData(); // Refresh to get real rates
+    } catch (err: any) {
+      console.error(err);
+      showToast('Lỗi khi lưu bảng lương: ' + (err.message || ''));
+    }
+  };
+
   const handleExportPayroll = () => {
     if (payrollData.length === 0) return;
     const header = ['Tên nhân sự', 'Vai trò', 'Giờ làm', 'Lương/Giờ', 'Thưởng', 'Tổng thu nhập', 'Đã thanh toán', 'Trạng thái'];
@@ -371,9 +393,16 @@ export default function SchedulePage() {
           )}
           
           {activeTab === 'PAYROLL' && (
-            <button onClick={handleExportPayroll} className="flex items-center gap-2 px-5 py-2.5 bg-[#00A859] hover:bg-[#00904c] rounded-xl text-sm font-bold text-white shadow-md shadow-green-900/20 transition-all hover:-translate-y-0.5">
-              <Download size={16} /> Xuất Excel Lương
-            </button>
+            <>
+              {isAdminOrProducer && (
+                <button onClick={handleSavePayroll} className="flex items-center gap-2 px-5 py-2.5 bg-[#005691] hover:bg-[#004070] rounded-xl text-sm font-bold text-white shadow-md shadow-blue-900/20 transition-all hover:-translate-y-0.5">
+                  <Save size={16} /> Lưu Thay Đổi
+                </button>
+              )}
+              <button onClick={handleExportPayroll} className="flex items-center gap-2 px-5 py-2.5 bg-[#00A859] hover:bg-[#00904c] rounded-xl text-sm font-bold text-white shadow-md shadow-green-900/20 transition-all hover:-translate-y-0.5">
+                <Download size={16} /> Xuất Excel
+              </button>
+            </>
           )}
         </div>
       </div>
