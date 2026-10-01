@@ -105,7 +105,13 @@ export default function UnifiedStaffPage() {
   const [saving, setSaving] = useState(false);
   
   // --- RBAC STATE ---
-  const [roles, setRoles] = useState(DEFAULT_ROLES.map(r => ({ ...r, permissions: r.value === 'ADMIN' ? ['*'] : [] })));
+  const [roles, setRoles] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('rbac_roles');
+      if (saved) return JSON.parse(saved);
+    }
+    return DEFAULT_ROLES.map(r => ({ ...r, permissions: r.value === 'ADMIN' ? ['*'] : [] }));
+  });
   const [editingRole, setEditingRole] = useState<any | null>(null);
 
   const [toast, setToast] = useState<string | null>(null);
@@ -496,7 +502,11 @@ export default function UnifiedStaffPage() {
                     </div>
                     <button 
                       onClick={() => {
-                        setRoles(prev => prev.map(r => r.value === editingRole.value ? editingRole : r));
+                        const newRoles = roles.map(r => r.value === editingRole.value ? editingRole : r);
+                        setRoles(newRoles);
+                        if (typeof window !== 'undefined') {
+                          localStorage.setItem('rbac_roles', JSON.stringify(newRoles));
+                        }
                         showToast('Đã lưu cấu hình phân quyền thành công cho nhóm ' + editingRole.label);
                       }}
                       className="px-6 py-2.5 bg-[#F58220] text-white text-sm font-black rounded-xl hover:bg-[#e07010] shadow-md shadow-orange-900/20 transition-all flex items-center gap-2 hover:-translate-y-0.5">
