@@ -55,11 +55,11 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
           {[
             { name: 'Tổng quan', icon: LayoutDashboard, href: '/', perm: '*' },
             { name: 'Thống kê', icon: Activity, href: '/analytics', perm: 'admin.analytics' },
-            { name: 'CRM / CSKH', icon: Users, href: '/cskh', perm: ['crm.view', 'cskh.view'] },
-            { name: 'Kho Quà tặng', icon: Package, href: '/inventory', perm: 'inventory.view' },
-            { name: 'Nhân Sự Ekip', icon: Briefcase, href: '/staff', perm: ['admin.users', 'admin.rbac'] },
-            { name: 'Lịch phân công', icon: Calendar, href: '/schedule', perm: 'schedule.view' },
-            { name: 'Điều khiển LIVE', icon: Video, badge: 'LIVE', href: '/live', perm: ['live.view', 'live.control'] },
+            { name: 'CRM / CSKH', icon: Users, href: '/cskh', perm: ['crm.view', 'crm.edit', 'crm.export', 'cskh.view', 'cskh.process', 'cskh.manage_orders'] },
+            { name: 'Kho Quà tặng', icon: Package, href: '/inventory', perm: ['inventory.view', 'inventory.manage', 'inventory.export'] },
+            { name: 'Nhân Sự Ekip', icon: Briefcase, href: '/staff', perm: ['admin.users', 'admin.approve', 'admin.rbac'] },
+            { name: 'Lịch phân công', icon: Calendar, href: '/schedule', perm: ['schedule.view', 'schedule.register', 'schedule.approve', 'schedule.manage', 'payroll.view', 'payroll.manage', 'payroll.export'] },
+            { name: 'Điều khiển LIVE', icon: Video, badge: 'LIVE', href: '/live', perm: ['live.view', 'live.manage', 'live.control', 'live.script'] },
             { name: 'Tra cứu vận đơn', icon: Package, href: '/tracking', perm: '*' },
           ].filter(item => {
             if (item.perm === '*') return true;

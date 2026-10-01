@@ -50,12 +50,12 @@ export function RoleGuard({ children }: { children: React.ReactNode }) {
               const p = myRole.permissions;
               if (!p.includes('*')) {
                  let allowed = true;
-                 if (pathname.startsWith('/staff') && !p.includes('admin.users') && !p.includes('admin.rbac')) allowed = false;
-                 if (pathname.startsWith('/schedule') && !p.includes('schedule.view')) allowed = false;
-                 if (pathname.startsWith('/inventory') && !p.includes('inventory.view')) allowed = false;
-                 if (pathname.startsWith('/cskh') && !p.includes('crm.view') && !p.includes('cskh.view')) allowed = false;
+                 if (pathname.startsWith('/staff') && !['admin.users', 'admin.approve', 'admin.rbac'].some(k => p.includes(k))) allowed = false;
+                 if (pathname.startsWith('/schedule') && !['schedule.view', 'schedule.register', 'schedule.approve', 'schedule.manage', 'payroll.view', 'payroll.manage', 'payroll.export'].some(k => p.includes(k))) allowed = false;
+                 if (pathname.startsWith('/inventory') && !['inventory.view', 'inventory.manage', 'inventory.export'].some(k => p.includes(k))) allowed = false;
+                 if (pathname.startsWith('/cskh') && !['crm.view', 'crm.edit', 'crm.export', 'cskh.view', 'cskh.process', 'cskh.manage_orders'].some(k => p.includes(k))) allowed = false;
                  if (pathname.startsWith('/analytics') && !p.includes('admin.analytics')) allowed = false;
-                 if (pathname.startsWith('/live') && !p.includes('live.view') && !p.includes('live.control')) allowed = false;
+                 if (pathname.startsWith('/live') && !['live.view', 'live.manage', 'live.control', 'live.script'].some(k => p.includes(k))) allowed = false;
                  if (pathname.startsWith('/settings')) allowed = false;
                  
                  if (!allowed) {
