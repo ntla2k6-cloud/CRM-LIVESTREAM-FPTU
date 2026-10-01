@@ -139,7 +139,7 @@ export default function SchedulePage() {
         year: selectedShift.year || calendarDate.getFullYear(),
         type: selectedShift.project || 'Khác',
         color: selectedShift.color || 'blue',
-        registered: selectedShift.registered || [],
+        registered: typeof selectedShift.id === 'string' ? (registrations[selectedShift.id] || selectedShift.registered || []) : (selectedShift.registered || []),
         assignments: {
           deleteMany: {},
           create: (selectedShift.assigned || []).map((staffId: any) => ({ staffId: Number(staffId) }))
