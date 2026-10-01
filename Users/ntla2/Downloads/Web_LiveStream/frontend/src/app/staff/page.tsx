@@ -105,13 +105,18 @@ export default function UnifiedStaffPage() {
   const [saving, setSaving] = useState(false);
   
   // --- RBAC STATE ---
-  const [roles, setRoles] = useState(() => {
+  const [roles, setRoles] = useState(DEFAULT_ROLES.map(r => ({ ...r, permissions: r.value === 'ADMIN' ? ['*'] : [] })));
+  
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('rbac_roles');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        try {
+          setRoles(JSON.parse(saved));
+        } catch(e) {}
+      }
     }
-    return DEFAULT_ROLES.map(r => ({ ...r, permissions: r.value === 'ADMIN' ? ['*'] : [] }));
-  });
+  }, []);
   const [editingRole, setEditingRole] = useState<any | null>(null);
 
   const [toast, setToast] = useState<string | null>(null);
