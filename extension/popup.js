@@ -15,7 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   startBtn.addEventListener('click', () => {
-    const sessionId = sessionIdInput.value.trim();
+    let sessionId = sessionIdInput.value.trim();
+    if (sessionId.includes('/live/')) {
+      sessionId = sessionId.split('/live/').pop().split('?')[0];
+      sessionIdInput.value = sessionId;
+    }
     if (!sessionId) {
       alert('Vui lòng nhập Live Session ID');
       return;

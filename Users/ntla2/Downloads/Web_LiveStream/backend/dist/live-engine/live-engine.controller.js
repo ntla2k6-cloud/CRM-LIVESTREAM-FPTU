@@ -23,6 +23,22 @@ let LiveEngineController = class LiveEngineController {
     async declareWinner(body) {
         return this.liveEngineService.processWinner(body.liveSessionId, body.questionId, body.customerId, body.giftId);
     }
+    async handleExtensionComments(body) {
+        let processed = 0;
+        for (const c of body.comments) {
+            if (!c.content)
+                continue;
+            await this.pipelineService.processComment(body.liveSessionId, {
+                platform: 'extension',
+                platformCommentId: c.platformCommentId || Math.random().toString(),
+                username: c.username,
+                content: c.content,
+                timestamp: new Date(c.timestamp || Date.now())
+            });
+            processed++;
+        }
+        return { success: true, processed };
+    }
     async handleIncomingComment(body) {
         return this.pipelineService.processComment(body.liveSessionId, {
             platform: 'manual',
@@ -55,6 +71,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], LiveEngineController.prototype, "declareWinner", null);
+__decorate([
+    Post('extension-comments'),
+    __param(0, Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], LiveEngineController.prototype, "handleExtensionComments", null);
 __decorate([
     Post('comment'),
     __param(0, Body()),

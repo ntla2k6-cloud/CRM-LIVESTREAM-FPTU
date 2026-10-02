@@ -11,12 +11,24 @@ export declare class LiveEngineController {
         giftId: number;
     }): Promise<{
         id: string;
-        liveSessionId: string;
-        customerId: string;
-        createdAt: Date;
         status: string;
+        createdAt: Date;
+        liveSessionId: string;
         questionId: string | null;
+        customerId: string;
         giftId: number;
+    }>;
+    handleExtensionComments(body: {
+        liveSessionId: string;
+        comments: Array<{
+            platformCommentId: string;
+            username: string;
+            content: string;
+            timestamp: number;
+        }>;
+    }): Promise<{
+        success: boolean;
+        processed: number;
     }>;
     handleIncomingComment(body: {
         liveSessionId: string;
@@ -31,21 +43,21 @@ export declare class LiveEngineController {
         input: string;
     }): Promise<{
         id: string;
-        platform: string | null;
-        likeCount: number;
-        createdAt: Date;
-        description: string | null;
         status: string;
+        createdAt: Date;
         platformLiveId: string | null;
         liveId: string | null;
         campaignId: string | null;
+        platform: string | null;
         liveUrl: string | null;
         creatorUsername: string | null;
         creatorDisplayName: string | null;
         creatorAvatar: string | null;
         viewerCount: number;
+        likeCount: number;
         shareCount: number;
         title: string;
+        description: string | null;
         color: string | null;
         project: string | null;
         day: number | null;
@@ -80,13 +92,13 @@ export declare class LiveEngineController {
             liveSessionId: string;
             customerId: string | null;
             platform: string;
+            likeCount: number;
+            username: string;
             platformCommentId: string;
             platformUserId: string | null;
-            username: string;
             displayName: string | null;
             avatar: string | null;
             content: string;
-            likeCount: number;
             replyCount: number;
             parentCommentId: string | null;
             category: string;
