@@ -1,12 +1,15 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from 'react';
 import { 
   LayoutDashboard, Users, Settings, Briefcase, Video, Activity, Calendar, Package, ShieldCheck
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { getUserPermissions } from '@/lib/rbac';
+
 import { usePathname } from 'next/navigation';
+
+
+
 
 export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
   const pathname = usePathname();
@@ -60,7 +63,28 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
             if (user?.role === 'ADMIN' || user?.role === 'MANAGER') return true;
             if (status === 'loading') return true; // Show all while loading
             if (!user) return false; // Hide if not logged in
-            const p = getUserPermissions(user.role);
+            
+            let p = [];
+            if (user.role === 'ADMIN' || user.role === 'MANAGER') p = ['*'];
+            else {
+              if (user.role === 'VJ_HOST') p = ['schedule.register', 'live.view'];
+              if (user.role === 'CSKH') p = ['crm.view', 'crm.edit', 'cskh.view', 'cskh.process', 'schedule.register'];
+              if (user.role === 'BIEN_TAP') p = ['live.view', 'live.script', 'schedule.register'];
+              if (user.role === 'KY_THUAT') p = ['live.view', 'live.control', 'schedule.register'];
+              if (user.role === 'SAN_XUAT') p = ['schedule.view', 'schedule.register', 'schedule.approve', 'schedule.manage', 'live.view', 'live.manage'];
+              if (user.role === 'THU_KHO') p = ['inventory.view', 'inventory.manage', 'inventory.export', 'schedule.register'];
+              if (typeof window !== 'undefined') {
+                try {
+                  const rbacStr = localStorage.getItem('rbac_roles');
+                  if (rbacStr) {
+                    const roles = JSON.parse(rbacStr);
+                    const myRole = roles.find((rx: any) => rx.value === user.role);
+                    if (myRole && myRole.permissions) p = myRole.permissions;
+                  }
+                } catch(e) {}
+              }
+            }
+
             if (p.includes('*')) return true;
             if (Array.isArray(item.perm)) {
                return item.perm.some(x => p.includes(x));

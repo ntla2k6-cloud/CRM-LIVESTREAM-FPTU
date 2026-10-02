@@ -5,12 +5,19 @@ import { ShieldAlert, Loader2, LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 
+
+
+
 export function RoleGuard({ children }: { children: React.ReactNode }) {
+  const role = ""; // Will be overridden
+
   const { data: session, status, update } = useSession();
   const pathname = usePathname();
   const [realtimeRole, setRealtimeRole] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const currentRole = realtimeRole || (session?.user as any)?.role;
+
   useEffect(() => setMounted(true), []);
   
   useEffect(() => {
@@ -41,8 +48,29 @@ export function RoleGuard({ children }: { children: React.ReactNode }) {
     }
     
   // RBAC LOGIC
-  if (role !== 'ADMIN' && role !== 'MANAGER' && role !== 'GUEST') {
-    const p = getUserPermissions(role);
+  if (currentRole !== 'ADMIN' && currentRole !== 'MANAGER' && currentRole !== 'GUEST') {
+    
+      let p: string[] = [];
+      if (currentRole === 'ADMIN' || currentRole === 'MANAGER') p = ['*'];
+      else {
+        if (currentRole === 'VJ_HOST') p = ['schedule.register', 'live.view'];
+        if (currentRole === 'CSKH') p = ['crm.view', 'crm.edit', 'cskh.view', 'cskh.process', 'schedule.register'];
+        if (currentRole === 'BIEN_TAP') p = ['live.view', 'live.script', 'schedule.register'];
+        if (currentRole === 'KY_THUAT') p = ['live.view', 'live.control', 'schedule.register'];
+        if (currentRole === 'SAN_XUAT') p = ['schedule.view', 'schedule.register', 'schedule.approve', 'schedule.manage', 'live.view', 'live.manage'];
+        if (currentRole === 'THU_KHO') p = ['inventory.view', 'inventory.manage', 'inventory.export', 'schedule.register'];
+        if (typeof window !== 'undefined') {
+          try {
+            const rbacStr = localStorage.getItem('rbac_roles');
+            if (rbacStr) {
+              const roles = JSON.parse(rbacStr);
+              const myRole = roles.find((rx: any) => rx.value === currentRole);
+              if (myRole && myRole.permissions) p = myRole.permissions;
+            }
+          } catch(e) {}
+        }
+      }
+
       if (!p.includes('*')) {
          let allowed = true;
          if (pathname.startsWith('/staff') && !['admin.users', 'admin.approve', 'admin.rbac'].some(k => p.includes(k))) allowed = false;
@@ -83,9 +111,9 @@ export function RoleGuard({ children }: { children: React.ReactNode }) {
     return <div className="h-screen w-full bg-slate-50"></div>;
   }
 
-  const role = realtimeRole || (session.user as any)?.role;
+  
 
-  if (role === 'GUEST') {
+  if (currentRole === 'GUEST') {
     return (
       <div className="h-full w-full bg-slate-50 flex items-center justify-center p-6 relative">
         <div className="absolute inset-0 overflow-hidden pointer-events-none flex justify-center items-center opacity-30">
