@@ -203,10 +203,10 @@ export default function CSKHBoardPage() {
       {/* TOP HEADER */}
       <div className="h-auto py-4 px-4 md:h-[88px] md:py-0 md:px-8 bg-white border-b border-slate-200 shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 z-10 sticky top-0 shadow-sm">
         <div className="flex flex-col">
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+          <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
             <UserCheck className="text-[#F58220]" /> DATA LIVESTREAM
           </h1>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">Quản lý và cập nhật hồ sơ học sinh tiềm năng</p>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">Quản lý & Cập nhật hồ sơ</p>
         </div>
         
         <div className="flex flex-wrap items-center gap-2 md:gap-4">
@@ -221,7 +221,7 @@ export default function CSKHBoardPage() {
             <input 
               type="text" 
               placeholder="Tìm SĐT, tên học sinh..." 
-              className="pl-9 pr-4 py-2.5 w-full md:w-[300px] bg-slate-100 border border-transparent rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#005691]/20 focus:bg-white transition-all shadow-sm placeholder:text-slate-400 text-slate-800"
+              className="pl-9 pr-4 py-2 md:py-2.5 w-full text-xs md:text-sm md:w-[300px] bg-slate-100 border border-transparent rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#005691]/20 focus:bg-white transition-all shadow-sm placeholder:text-slate-400 text-slate-800"
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
@@ -229,7 +229,7 @@ export default function CSKHBoardPage() {
             <div className="relative">
               <button 
                 onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-900 shadow-sm transition-all"
+                className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-900 shadow-sm transition-all"
               >
                 <Filter size={16} /> Lọc {filterProject !== 'Tất cả' && `: ${filterProject}`}
               </button>
@@ -242,7 +242,7 @@ export default function CSKHBoardPage() {
                       <div 
                         key={proj}
                         onClick={() => { setFilterProject(proj); setShowFilterDropdown(false); }}
-                        className={`px-4 py-2.5 cursor-pointer hover:bg-slate-50 flex items-center justify-between ${filterProject === proj ? 'text-[#005691]' : 'text-slate-700'}`}
+                        className={`px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm cursor-pointer hover:bg-slate-50 flex items-center justify-between ${filterProject === proj ? 'text-[#005691]' : 'text-slate-700'}`}
                       >
                         {proj} {filterProject === proj && <CheckCircle2 size={16} />}
                       </div>
@@ -253,7 +253,7 @@ export default function CSKHBoardPage() {
             </div>
             <button 
               onClick={() => setShowAddLead(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#F58220] rounded-xl text-sm font-bold text-white shadow-sm transition-all hover:bg-[#d9731c]"
+              className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-[#F58220] rounded-xl text-sm font-bold text-white shadow-sm transition-all hover:bg-[#d9731c]"
             >
               <Plus size={16} /> Thêm Lead
             </button>
@@ -273,7 +273,7 @@ export default function CSKHBoardPage() {
                 a.download = `Leads_Export_${new Date().getTime()}.csv`;
                 a.click();
               }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#00A859] rounded-xl text-sm font-bold text-white shadow-sm transition-all hover:bg-[#00904d]"
+              className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-[#00A859] rounded-xl text-sm font-bold text-white shadow-sm transition-all hover:bg-[#00904d]"
             >
               <Download size={16} /> Xuất Excel
             </button>
@@ -298,7 +298,7 @@ export default function CSKHBoardPage() {
               const columnLeads = filteredLeads.filter(l => l.col === col.id);
               
               return (
-                <div key={col.id} className="flex flex-col w-[340px] h-full shrink-0 bg-slate-100/50 rounded-2xl border border-slate-200 overflow-hidden">
+                <div key={col.id} className="flex flex-col w-[280px] md:w-[340px] h-full shrink-0 bg-slate-100/50 rounded-2xl border border-slate-200 overflow-hidden">
                   {/* Column Header */}
                   <div className="flex items-center justify-between p-4 bg-white border-b-2 shadow-sm shrink-0" style={{ borderBottomColor: col.color }}>
                     <div className="flex items-center gap-2.5">
@@ -912,7 +912,7 @@ export default function CSKHBoardPage() {
             <div className="p-6 border-t border-slate-200 bg-white flex justify-between gap-3 shrink-0">
               <button 
                 onClick={() => setLeadToDelete(selectedLead)}
-                className="px-4 py-2.5 bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 font-bold rounded-xl transition-colors flex items-center gap-2"
+                className="px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 font-bold rounded-xl transition-colors flex items-center gap-2"
               >
                 Xóa Lead
               </button>
@@ -958,7 +958,7 @@ setTimeout(() => setToastMsg(null), 3000);
       {/* MODAL THÊM LEAD */}
       {showAddLead && (
         <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center animate-in fade-in">
-          <div className="bg-white w-[500px] max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+          <div className="bg-white w-full md:w-[500px] max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
             <div className="px-6 py-4 bg-[#005691] text-white flex justify-between items-center shrink-0">
               <h2 className="font-black text-lg">Thêm Lead Mới</h2>
               <button onClick={() => setShowAddLead(false)} className="text-white/70 hover:text-white transition-colors">
@@ -1144,7 +1144,7 @@ setTimeout(() => setToastMsg(null), 3000);
             <div className="px-6 py-4 bg-slate-50 flex gap-3 border-t border-slate-200">
               <button 
                 onClick={() => setLeadToDelete(null)}
-                className="flex-1 px-4 py-2.5 bg-white border border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors"
+                className="flex-1 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-white border border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors"
               >
                 Hủy bỏ
               </button>
@@ -1163,7 +1163,7 @@ setTimeout(() => setToastMsg(null), 3000);
                     setTimeout(() => setToastMsg(null), 3500);
                   }
                 }}
-                className="flex-1 px-4 py-2.5 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-colors"
+                className="flex-1 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-colors"
               >
                 Xóa ngay
               </button>

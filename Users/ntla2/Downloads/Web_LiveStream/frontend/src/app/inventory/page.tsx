@@ -264,10 +264,10 @@ export default function InventoryPage() {
       {/* HEADER */}
       <div className="h-auto py-4 px-4 md:h-[88px] md:py-0 md:px-8 bg-white border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between shrink-0 shadow-sm z-10 gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+          <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
             <Package className="text-[#005691]" /> Quản trị Kho & Giao vận
           </h1>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">Tồn kho · Giao hàng · Xuất tem in · Thông báo</p>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">Tồn kho · Giao hàng · Xuất tem</p>
         </div>
         <div className="flex flex-wrap items-center gap-2 md:gap-3">
           <div className="relative w-full md:w-auto">
@@ -276,23 +276,23 @@ export default function InventoryPage() {
               type="text"
               placeholder={activeTab === 'STOCK' ? 'Tìm quà, SKU...' : 'Tìm mã đơn, SĐT...'}
               value={search} onChange={e => setSearch(e.target.value)}
-              className="pl-9 pr-4 py-2.5 bg-slate-100 rounded-xl text-sm font-bold text-slate-700 outline-none w-full md:w-56 focus:ring-2 focus:ring-[#005691]/20 transition-all"
+              className="pl-9 pr-4 py-2 md:py-2.5 text-xs md:text-sm bg-slate-100 rounded-xl text-sm font-bold text-slate-700 outline-none w-full md:w-56 focus:ring-2 focus:ring-[#005691]/20 transition-all"
             />
           </div>
           {activeTab === 'STOCK' && (
             <button onClick={() => setSelectedGift({ name: '', sku: '', stock: 0, price: '', status: 'Sẵn sàng' })}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#F58220] hover:bg-[#e07010] rounded-xl text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5">
+              className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-[#F58220] hover:bg-[#e07010] rounded-xl text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5">
               <Plus size={15} /> Nhập kho quà mới
             </button>
           )}
           {activeTab === 'FULFILLMENT' && (
             <>
               <button onClick={() => setSelectedOrder({ id: '', recipient: '', phone: '', address: '', recipientEmail: '', gift: gifts[0]?.name || '', status: 'UNPACKED', liveSessionId: '' })}
-                className="flex items-center gap-2 px-4 py-2.5 bg-[#00A859] hover:bg-[#008f4c] rounded-xl text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5">
+                className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-[#00A859] hover:bg-[#008f4c] rounded-xl text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5">
                 <Plus size={15} /> Tạo đơn hàng
               </button>
               <button onClick={() => exportLabelWord(filteredOrders)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-[#005691] hover:bg-[#004270] rounded-xl text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5">
+                className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-[#005691] hover:bg-[#004270] rounded-xl text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5">
                 <FileText size={15} /> Xuất Tem Word
               </button>
             </>
@@ -323,16 +323,16 @@ export default function InventoryPage() {
             /* ═══ STOCK TAB ═══ */
             <>
               {/* KPIs */}
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 shrink-0">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 shrink-0">
                 {[
                   { label: 'Tổng Tồn Kho', val: gifts.reduce((s, g) => s + (g.stock||0), 0), color: 'blue', icon: PackageOpen },
                   { label: 'Đã Gửi', val: gifts.reduce((s, g) => s + (g.sent||0), 0), color: 'green', icon: Gift },
                   { label: 'Cảnh báo', val: gifts.filter(g => g.status === 'Sắp hết' || g.status === 'Hết hàng').length, color: 'red', icon: AlertTriangle },
                 ].map(k => (
-                  <div key={k.label} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                  <div key={k.label} className="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                     <div>
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{k.label}</p>
-                      <h3 className={`text-3xl font-black ${k.color === 'red' ? 'text-red-500' : k.color === 'green' ? 'text-green-600' : 'text-slate-900'}`}>{k.val}</h3>
+                      <h3 className={`text-2xl md:text-3xl font-black ${k.color === 'red' ? 'text-red-500' : k.color === 'green' ? 'text-green-600' : 'text-slate-900'}`}>{k.val}</h3>
                     </div>
                     <div className={`w-11 h-11 rounded-2xl flex items-center justify-center bg-${k.color}-50 text-${k.color}-500`}><k.icon size={22} /></div>
                   </div>
@@ -409,7 +409,7 @@ export default function InventoryPage() {
                           <div className="absolute left-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden py-1">
                             {[{ id: 'ALL', title: 'Tất cả phiên' }, ...sessions].map(s => (
                               <div key={s.id} onClick={() => { setSessionFilter(s.id); setShowSessionDropdown(false); }}
-                                className={`px-4 py-2.5 text-sm cursor-pointer transition-colors ${sessionFilter === s.id ? 'bg-[#005691] text-white font-bold' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                className={`px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm text-sm cursor-pointer transition-colors ${sessionFilter === s.id ? 'bg-[#005691] text-white font-bold' : 'text-slate-700 hover:bg-slate-50'}`}>
                                 {s.title}
                               </div>
                             ))}
@@ -478,7 +478,7 @@ export default function InventoryPage() {
                               <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden py-1">
                                 {ORDER_STATUSES.map(s => (
                                   <div key={s.key} onClick={() => handleQuickStatus(order.id, s.key)}
-                                    className={`px-4 py-2.5 text-xs font-bold hover:bg-slate-50 cursor-pointer flex items-center justify-between transition-colors ${order.status === s.key ? 'text-[#005691] bg-blue-50/50' : 'text-slate-700'}`}>
+                                    className={`px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm text-xs font-bold hover:bg-slate-50 cursor-pointer flex items-center justify-between transition-colors ${order.status === s.key ? 'text-[#005691] bg-blue-50/50' : 'text-slate-700'}`}>
                                     <span><span className={`inline-block w-2 h-2 rounded-full mr-2 ${s.dot}`} />{s.label}</span>
                                     {order.status === s.key && <CheckCircle2 size={13} className="text-[#005691]" />}
                                   </div>
@@ -553,7 +553,7 @@ export default function InventoryPage() {
                   <label className="text-[10px] font-bold text-slate-400 uppercase">{f.label}</label>
                   <input type={f.type} value={selectedGift[f.key] || ''} placeholder={f.placeholder}
                     onChange={e => setSelectedGift({...selectedGift, [f.key]: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold rounded-xl px-4 py-2.5 outline-none focus:border-[#F58220] transition-all" />
+                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold rounded-xl px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm outline-none focus:border-[#F58220] transition-all" />
                 </div>
               ))}
               <div className="grid grid-cols-2 gap-3">
@@ -580,7 +580,7 @@ export default function InventoryPage() {
             </div>
             <div className="p-5 bg-slate-50 border-t border-slate-100 flex gap-3 shrink-0">
               <button onClick={handleDeleteGift} disabled={isSubmitting}
-                className="px-4 py-2.5 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition-colors flex items-center disabled:opacity-50"><Trash2 size={16} /></button>
+                className="px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition-colors flex items-center disabled:opacity-50"><Trash2 size={16} /></button>
               <button onClick={handleSaveGift} disabled={isSubmitting}
                 className="flex-1 py-2.5 bg-[#F58220] text-white font-black rounded-xl hover:bg-[#e07010] shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50">
                 <Save size={16} /> {isSubmitting ? 'Đang lưu...' : 'Lưu Quà tặng'}
@@ -632,7 +632,7 @@ export default function InventoryPage() {
               <div className="space-y-1.5 relative">
                 <label className="text-[10px] font-bold text-slate-400 uppercase">🎁 Quà tặng</label>
                 <div onClick={() => setDrawerGiftOpen(!drawerGiftOpen)}
-                  className="w-full bg-blue-50 border border-blue-200 text-[#005691] text-sm font-bold rounded-xl px-4 py-2.5 cursor-pointer flex justify-between items-center">
+                  className="w-full bg-blue-50 border border-blue-200 text-[#005691] text-sm font-bold rounded-xl px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm cursor-pointer flex justify-between items-center">
                   {selectedOrder.gift || 'Chọn quà tặng...'}<ChevronDown size={14} className="opacity-50" />
                 </div>
                 {drawerGiftOpen && (
@@ -641,7 +641,7 @@ export default function InventoryPage() {
                     <div className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden py-1">
                       {gifts.map(g => (
                         <div key={g.id} onClick={() => { setSelectedOrder({...selectedOrder, gift: g.name}); setDrawerGiftOpen(false); }}
-                          className={`px-4 py-2.5 text-sm font-bold cursor-pointer hover:bg-slate-50 flex justify-between ${selectedOrder.gift === g.name ? 'text-[#005691] bg-blue-50/50' : 'text-slate-700'}`}>
+                          className={`px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm text-sm font-bold cursor-pointer hover:bg-slate-50 flex justify-between ${selectedOrder.gift === g.name ? 'text-[#005691] bg-blue-50/50' : 'text-slate-700'}`}>
                           {g.name}{selectedOrder.gift === g.name && <CheckCircle2 size={14} className="text-[#005691]" />}
                         </div>
                       ))}
@@ -654,7 +654,7 @@ export default function InventoryPage() {
               <div className="space-y-1.5 relative">
                 <label className="text-[10px] font-bold text-slate-400 uppercase">📦 Trạng thái giao hàng</label>
                 <div onClick={() => setDrawerStatusOpen(!drawerStatusOpen)}
-                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold rounded-xl px-4 py-2.5 cursor-pointer flex justify-between items-center">
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold rounded-xl px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm cursor-pointer flex justify-between items-center">
                   <StatusBadge status={selectedOrder.status} />
                   <ChevronDown size={14} className="opacity-50 ml-2" />
                 </div>
@@ -664,7 +664,7 @@ export default function InventoryPage() {
                     <div className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden py-1">
                       {ORDER_STATUSES.map(s => (
                         <div key={s.key} onClick={() => { setSelectedOrder({...selectedOrder, status: s.key}); setDrawerStatusOpen(false); }}
-                          className={`px-4 py-2.5 text-xs font-bold cursor-pointer hover:bg-slate-50 flex justify-between transition-colors ${selectedOrder.status === s.key ? 'text-[#005691] bg-blue-50/50' : 'text-slate-700'}`}>
+                          className={`px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm text-xs font-bold cursor-pointer hover:bg-slate-50 flex justify-between transition-colors ${selectedOrder.status === s.key ? 'text-[#005691] bg-blue-50/50' : 'text-slate-700'}`}>
                           <span><span className={`inline-block w-2 h-2 rounded-full mr-2 ${s.dot}`} />{s.label}</span>
                           {selectedOrder.status === s.key && <CheckCircle2 size={13} className="text-[#005691]" />}
                         </div>

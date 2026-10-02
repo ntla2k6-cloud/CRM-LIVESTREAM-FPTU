@@ -57,3 +57,23 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+    -webkit-appearance: none;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.05);
+    border-radius: 10px;
+    margin: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
