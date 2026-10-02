@@ -496,6 +496,45 @@ export default function LiveControlPage() {
           {/* TAB: COMMENTS */}
           {activeTabRight === 'COMMENTS' && (
             <div className="absolute inset-0 p-8 flex flex-col">
+              {/* BẢNG DASHBOARD WIDGETS THEO YÊU CẦU CỦA USER */}
+              <div className="grid grid-cols-4 gap-4 mb-6 shrink-0">
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">TỔNG BÌNH LUẬN</p>
+                    <h4 className="text-3xl font-black text-slate-800">{comments.length > 99 ? '99+' : comments.length}</h4>
+                  </div>
+                  <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
+                    <MessageSquare size={20} className="text-blue-500" />
+                  </div>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">LEAD THU ĐƯỢC</p>
+                    <h4 className="text-3xl font-black text-orange-600">{leads.length}</h4>
+                  </div>
+                  <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center">
+                    <Phone size={20} className="text-orange-500" />
+                  </div>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">NGƯỜI THAM GIA</p>
+                    <h4 className="text-3xl font-black text-green-600">{new Set(comments.map(c => c.name)).size}</h4>
+                  </div>
+                  <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
+                    <Users size={20} className="text-green-500" />
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-5 rounded-2xl shadow-lg border border-slate-700 flex flex-col justify-center relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500 rounded-full blur-[40px] opacity-30 -translate-y-1/2 translate-x-1/2"></div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1 relative z-10">EXTENSION SYNC</p>
+                  <div className="flex items-center gap-2 mt-1 relative z-10">
+                    <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.8)]"></div>
+                    <span className="text-[15px] font-black text-white tracking-wide">Đang hoạt động</span>
+                  </div>
+                </div>
+              </div>
+              
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-2"><MessageSquare size={14} className="text-[#005691]" /> Comment trực tiếp</h3>
                 
