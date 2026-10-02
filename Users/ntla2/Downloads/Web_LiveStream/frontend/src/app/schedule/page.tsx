@@ -592,7 +592,7 @@ export default function SchedulePage() {
           )}
 
           {/* TAB 2: PAYROLL VIEW */}
-          {activeTab === 'PAYROLL' && (
+          {activeTab === 'PAYROLL' && sessionUser?.role === 'ADMIN' && (
             <div className="animate-in fade-in duration-500 flex flex-col gap-6">
               
               {/* Thống kê Tổng quan (Summary Cards) */}
