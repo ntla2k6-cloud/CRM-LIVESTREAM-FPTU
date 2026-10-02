@@ -42,41 +42,30 @@ export function RoleGuard({ children }: { children: React.ReactNode }) {
     
   // RBAC LOGIC
   if (role !== 'ADMIN' && role !== 'MANAGER' && role !== 'GUEST') {
-    try {
-      if (mounted && typeof window !== 'undefined') {
-        const rbacStr = localStorage.getItem('rbac_roles');
-        if (rbacStr) {
-           const roles = JSON.parse(rbacStr);
-           const myRole = roles.find((r: any) => r.value === role);
-           if (myRole && myRole.permissions) {
-              const p = myRole.permissions;
-              if (!p.includes('*')) {
-                 let allowed = true;
-                 if (pathname.startsWith('/staff') && !['admin.users', 'admin.approve', 'admin.rbac'].some(k => p.includes(k))) allowed = false;
-                 if (pathname.startsWith('/schedule') && !['schedule.view', 'schedule.register', 'schedule.approve', 'schedule.manage', 'payroll.view', 'payroll.manage', 'payroll.export'].some(k => p.includes(k))) allowed = false;
-                 if (pathname.startsWith('/inventory') && !['inventory.view', 'inventory.manage', 'inventory.export'].some(k => p.includes(k))) allowed = false;
-                 if (pathname.startsWith('/cskh') && !['crm.view', 'crm.edit', 'crm.export', 'cskh.view', 'cskh.process', 'cskh.manage_orders'].some(k => p.includes(k))) allowed = false;
-                 if (pathname.startsWith('/analytics') && !p.includes('admin.analytics')) allowed = false;
-                 if (pathname.startsWith('/live') && !['live.view', 'live.manage', 'live.control', 'live.script'].some(k => p.includes(k))) allowed = false;
-                 if (pathname.startsWith('/settings')) allowed = false;
-                 
-                 if (!allowed) {
-                    return (
-                      <div className="h-full w-full bg-slate-50 flex items-center justify-center p-6 relative">
-                         <div className="text-center bg-white p-8 rounded-3xl shadow-xl border border-red-100 max-w-md w-full">
-                            <ShieldAlert size={48} className="mx-auto text-red-500 mb-4" />
-                            <h2 className="text-2xl font-black text-slate-800">Truy cập bị từ chối</h2>
-                            <p className="text-slate-500 mt-2 font-medium">Bạn không có quyền truy cập vào phân hệ này dựa theo cấu hình Vai trò (RBAC) hiện tại.</p>
-                            <button onClick={() => window.location.href = '/'} className="mt-6 px-6 py-3 bg-[#005691] hover:bg-[#004677] text-white font-bold rounded-xl w-full">Quay lại Trang chủ</button>
-                         </div>
-                      </div>
-                    );
-                 }
-              }
-           }
-        }
+    const p = getUserPermissions(role);
+      if (!p.includes('*')) {
+         let allowed = true;
+         if (pathname.startsWith('/staff') && !['admin.users', 'admin.approve', 'admin.rbac'].some(k => p.includes(k))) allowed = false;
+         if (pathname.startsWith('/schedule') && !['schedule.view', 'schedule.register', 'schedule.approve', 'schedule.manage', 'payroll.view', 'payroll.manage', 'payroll.export'].some(k => p.includes(k))) allowed = false;
+         if (pathname.startsWith('/inventory') && !['inventory.view', 'inventory.manage', 'inventory.export'].some(k => p.includes(k))) allowed = false;
+         if (pathname.startsWith('/cskh') && !['crm.view', 'crm.edit', 'crm.export', 'cskh.view', 'cskh.process', 'cskh.manage_orders'].some(k => p.includes(k))) allowed = false;
+         if (pathname.startsWith('/analytics') && !p.includes('admin.analytics')) allowed = false;
+         if (pathname.startsWith('/live') && !['live.view', 'live.manage', 'live.control', 'live.script'].some(k => p.includes(k))) allowed = false;
+         if (pathname.startsWith('/settings')) allowed = false;
+         
+         if (!allowed) {
+            return (
+              <div className="h-full w-full bg-slate-50 flex items-center justify-center p-6 relative">
+                 <div className="text-center bg-white p-8 rounded-3xl shadow-xl border border-red-100 max-w-md w-full">
+                    <ShieldAlert size={48} className="mx-auto text-red-500 mb-4" />
+                    <h2 className="text-2xl font-black text-slate-800">Truy cập bị từ chối</h2>
+                    <p className="text-slate-500 mt-2 font-medium">Bạn không có quyền truy cập vào phân hệ này dựa theo cấu hình Vai trò (RBAC) hiện tại.</p>
+                    <button onClick={() => window.location.href = '/'} className="mt-6 px-6 py-3 bg-[#005691] hover:bg-[#004677] text-white font-bold rounded-xl w-full">Quay lại Trang chủ</button>
+                 </div>
+              </div>
+            );
+         }
       }
-    } catch(e) {}
   }
 
   return <>{children}</>;

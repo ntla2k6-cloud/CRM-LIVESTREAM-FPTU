@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { getUserPermissions } from '@/lib/rbac';
 import { usePathname } from 'next/navigation';
 
 export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
@@ -59,23 +60,12 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
             if (user?.role === 'ADMIN' || user?.role === 'MANAGER') return true;
             if (status === 'loading') return true; // Show all while loading
             if (!user) return false; // Hide if not logged in
-            try {
-              if (typeof window !== 'undefined') {
-                const rbacStr = localStorage.getItem('rbac_roles');
-                if (rbacStr) {
-                  const roles = JSON.parse(rbacStr);
-                  const myRole = roles.find((r: any) => r.value === user.role);
-                  if (myRole && myRole.permissions) {
-                    if (myRole.permissions.includes('*')) return true;
-                    if (Array.isArray(item.perm)) {
-                      return item.perm.some(p => myRole.permissions.includes(p));
-                    }
-                    return myRole.permissions.includes(item.perm);
-                  }
-                }
-              }
-            } catch(e) {}
-            return false;
+            const p = getUserPermissions(user.role);
+            if (p.includes('*')) return true;
+            if (Array.isArray(item.perm)) {
+               return item.perm.some(x => p.includes(x));
+            }
+            return p.includes(item.perm);
           }).map((item, idx) => {
             const active = pathname === item.href;
             return (

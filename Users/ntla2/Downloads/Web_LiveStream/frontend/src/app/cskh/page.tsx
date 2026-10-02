@@ -936,7 +936,8 @@ export default function CSKHBoardPage() {
                       setLeads(updatedLeads);
                       setSelectedLead(null);
                     } catch(e) {
-                      alert("Lỗi khi lưu!");
+                      setToastMsg({ title: "Lỗi!", desc: "Không thể lưu thông tin.", type: "error" });
+setTimeout(() => setToastMsg(null), 3000);
                     }
                   }}
                   className="px-5 py-2.5 bg-[#005691] text-white hover:bg-[#004a7c] font-bold rounded-xl flex items-center gap-2 shadow-md shadow-blue-900/20 transition-all hover:-translate-y-0.5"
