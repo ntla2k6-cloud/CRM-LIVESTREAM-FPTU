@@ -62,9 +62,7 @@ let PipelineService = PipelineService_1 = class PipelineService {
                 avatar: payload.avatar,
                 content: payload.content,
                 category: categoryAndIntent.category,
-                aiIntent: categoryAndIntent.intent,
                 isProcessed: true,
-                rawPayload: payload.rawPayload ? JSON.stringify(payload.rawPayload) : null,
             },
         });
         if (comment.category === 'QUIZ') {
@@ -76,6 +74,8 @@ let PipelineService = PipelineService_1 = class PipelineService {
         this.eventsGateway.server.to(liveSessionId).emit('comment:new', comment);
     }
     async classifyComment(text) {
+        if (!text)
+            return { category: 'CHAT', intent: null, score: 0 };
         const normalized = text.toLowerCase().trim();
         if (/^([1-9][0-9]?[\.\-\s]?)?[a-d]$/i.test(normalized)) {
             return { category: 'QUIZ', intent: 'ANSWER', score: 0 };

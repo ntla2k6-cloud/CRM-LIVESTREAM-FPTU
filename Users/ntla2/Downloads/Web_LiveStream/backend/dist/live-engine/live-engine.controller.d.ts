@@ -13,8 +13,8 @@ export declare class LiveEngineController {
         id: string;
         liveSessionId: string;
         customerId: string;
-        status: string;
         createdAt: Date;
+        status: string;
         questionId: string | null;
         giftId: number;
     }>;
@@ -30,22 +30,23 @@ export declare class LiveEngineController {
     resolveLiveSession(body: {
         input: string;
     }): Promise<{
-        description: string | null;
         id: string;
         platform: string | null;
         likeCount: number;
-        status: string;
         createdAt: Date;
-        color: string | null;
+        description: string | null;
+        status: string;
         platformLiveId: string | null;
+        liveId: string | null;
+        campaignId: string | null;
         liveUrl: string | null;
         creatorUsername: string | null;
         creatorDisplayName: string | null;
         creatorAvatar: string | null;
         viewerCount: number;
         shareCount: number;
-        liveId: string | null;
         title: string;
+        color: string | null;
         project: string | null;
         day: number | null;
         time: string | null;
@@ -53,7 +54,6 @@ export declare class LiveEngineController {
         scheduledAt: Date | null;
         startTime: Date | null;
         endTime: Date | null;
-        campaignId: string | null;
     }>;
     disconnectTiktok(body: {
         liveSessionId: string;
@@ -77,6 +77,8 @@ export declare class LiveEngineController {
         }[];
         topComments: {
             id: string;
+            liveSessionId: string;
+            customerId: string | null;
             platform: string;
             platformCommentId: string;
             platformUserId: string | null;
@@ -95,8 +97,6 @@ export declare class LiveEngineController {
             aiIntent: string | null;
             serverTimestamp: Date;
             updatedAt: Date;
-            liveSessionId: string;
-            customerId: string | null;
         }[];
     }>;
 }

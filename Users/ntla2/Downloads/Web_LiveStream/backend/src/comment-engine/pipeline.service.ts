@@ -58,9 +58,7 @@ export class PipelineService {
         avatar: payload.avatar,
         content: payload.content,
         category: categoryAndIntent.category,
-        aiIntent: categoryAndIntent.intent,
         isProcessed: true,
-        rawPayload: payload.rawPayload ? JSON.stringify(payload.rawPayload) : null,
       },
     });
 
@@ -74,6 +72,7 @@ export class PipelineService {
   }
 
   private async classifyComment(text: string): Promise<{ category: string, intent: string | null, score: number }> {
+    if (!text) return { category: 'CHAT', intent: null, score: 0 };
     const normalized = text.toLowerCase().trim();
     
     if (/^([1-9][0-9]?[\.\-\s]?)?[a-d]$/i.test(normalized)) {

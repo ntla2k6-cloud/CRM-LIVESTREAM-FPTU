@@ -12,8 +12,8 @@ export declare class LiveEngineService {
         id: string;
         liveSessionId: string;
         customerId: string;
-        status: string;
         createdAt: Date;
+        status: string;
         questionId: string | null;
         giftId: number;
     }>;
@@ -21,22 +21,23 @@ export declare class LiveEngineService {
     disconnectFromTiktok(liveSessionId: string): void;
     getTiktokStatus(liveSessionId: string): any;
     resolveLiveSession(input: string): Promise<{
-        description: string | null;
         id: string;
         platform: string | null;
         likeCount: number;
-        status: string;
         createdAt: Date;
-        color: string | null;
+        description: string | null;
+        status: string;
         platformLiveId: string | null;
+        liveId: string | null;
+        campaignId: string | null;
         liveUrl: string | null;
         creatorUsername: string | null;
         creatorDisplayName: string | null;
         creatorAvatar: string | null;
         viewerCount: number;
         shareCount: number;
-        liveId: string | null;
         title: string;
+        color: string | null;
         project: string | null;
         day: number | null;
         time: string | null;
@@ -44,7 +45,6 @@ export declare class LiveEngineService {
         scheduledAt: Date | null;
         startTime: Date | null;
         endTime: Date | null;
-        campaignId: string | null;
     }>;
     getAnalytics(liveSessionId: string): Promise<{
         totalComments: number;
@@ -62,6 +62,8 @@ export declare class LiveEngineService {
         }[];
         topComments: {
             id: string;
+            liveSessionId: string;
+            customerId: string | null;
             platform: string;
             platformCommentId: string;
             platformUserId: string | null;
@@ -80,8 +82,6 @@ export declare class LiveEngineService {
             aiIntent: string | null;
             serverTimestamp: Date;
             updatedAt: Date;
-            liveSessionId: string;
-            customerId: string | null;
         }[];
     }>;
 }
