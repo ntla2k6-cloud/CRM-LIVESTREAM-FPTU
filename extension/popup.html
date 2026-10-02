@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { width: 300px; padding: 10px; font-family: sans-serif; }
+    input, button { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 8px; }
+    button { background-color: #007bff; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    #status { font-size: 12px; color: green; }
+  </style>
+</head>
+<body>
+  <h3>TikTok Live Capture</h3>
+  <label for="sessionId">Live Session ID:</label>
+  <input type="text" id="sessionId" placeholder="Enter session ID">
+  <button id="startBtn">Bắt đầu thu thập</button>
+  <div id="status"></div>
+  <script src="popup.js"></script>
+</body>
+</html>

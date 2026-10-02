@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "TikTok Live Comment Capture",
+  "version": "1.0",
+  "description": "Capture TikTok LIVE comments and send them to CRM",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://www.tiktok.com/*",
+    "http://localhost:3001/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.tiktok.com/@*/live*"],
+      "js": ["content.js"]
+    }
+  ]
+}

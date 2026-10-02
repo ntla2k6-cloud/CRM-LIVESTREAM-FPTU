@@ -21,6 +21,26 @@ export class LiveEngineController {
     );
   }
 
+
+  @Post('extension-comments')
+  async handleExtensionComments(
+    @Body() body: { liveSessionId: string; comments: Array<{ platformCommentId: string, username: string, content: string, timestamp: number }> }
+  ) {
+    let processed = 0;
+    for (const c of body.comments) {
+      if (!c.content) continue;
+      await this.pipelineService.processComment(body.liveSessionId, {
+        platform: 'extension',
+        platformCommentId: c.platformCommentId || Math.random().toString(),
+        username: c.username,
+        content: c.content,
+        timestamp: new Date(c.timestamp || Date.now())
+      });
+      processed++;
+    }
+    return { success: true, processed };
+  }
+
   @Post('comment')
   async handleIncomingComment(
     @Body() body: { liveSessionId: string; tiktokUsername: string; comment: string }
