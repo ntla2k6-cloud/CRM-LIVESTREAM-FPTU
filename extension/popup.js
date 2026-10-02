@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setCapturingState(isCapturing);
 
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-          if (tabs[0] && tabs[0].url.includes("tiktok.com")) {
+          if (tabs[0] && tabs[0].url && tabs[0].url.includes("tiktok.com")) {
             chrome.tabs.sendMessage(tabs[0].id, { action: "toggleCapture", isCapturing, sessionId });
           } else {
             if (isCapturing) {
