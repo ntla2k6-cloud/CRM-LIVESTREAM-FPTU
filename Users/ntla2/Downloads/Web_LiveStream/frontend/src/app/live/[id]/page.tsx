@@ -103,6 +103,9 @@ export default function LiveControlPage() {
 
   // ============ ENGINE TỔNG HỢP ============
   const [comments, setComments] = useState<any[]>([]);
+  const [totalComments, setTotalComments] = useState(0);
+  const uniqueUsersRef = useRef(new Set<string>());
+  const [uniqueUsersCount, setUniqueUsersCount] = useState(0);
 
   // 1. Socket.IO & Timer Engine
   useEffect(() => {
@@ -136,7 +139,10 @@ export default function LiveControlPage() {
         isHighIntent: dbComment.category === 'ADMISSION',
         isMock: dbComment.platform === 'mock'
       };
-      setComments(prev => [newComment, ...prev].slice(0, 100));
+      setComments(prev => [newComment, ...prev].slice(0, 500));
+      setTotalComments(prev => prev + 1);
+      uniqueUsersRef.current.add(dbComment.username);
+      setUniqueUsersCount(uniqueUsersRef.current.size);
     });
 
     socket.on('lead:new', (newLead: any) => {
@@ -501,7 +507,7 @@ export default function LiveControlPage() {
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between">
                   <div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">TỔNG BÌNH LUẬN</p>
-                    <h4 className="text-3xl font-black text-slate-800">{comments.length > 99 ? '99+' : comments.length}</h4>
+                    <h4 className="text-3xl font-black text-slate-800">{totalComments.toLocaleString()}</h4>
                   </div>
                   <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
                     <MessageSquare size={20} className="text-blue-500" />
@@ -519,7 +525,7 @@ export default function LiveControlPage() {
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex items-center justify-between">
                   <div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">NGƯỜI THAM GIA</p>
-                    <h4 className="text-3xl font-black text-green-600">{new Set(comments.map(c => c.name)).size}</h4>
+                    <h4 className="text-3xl font-black text-green-600">{uniqueUsersCount.toLocaleString()}</h4>
                   </div>
                   <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
                     <Users size={20} className="text-green-500" />
