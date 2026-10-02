@@ -376,12 +376,14 @@ export default function SchedulePage() {
             >
               Lịch Phân Công
             </button>
+            {sessionUser?.role === 'ADMIN' && (
             <button 
               onClick={() => setActiveTab('PAYROLL')}
               className={`px-6 py-2 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 ${activeTab === 'PAYROLL' ? 'bg-white shadow-sm text-[#00A859]' : 'text-slate-500 hover:text-slate-700'}`}
             >
               <DollarSign size={16} /> Bảng Nghiệm Thu
             </button>
+            )}
           </div>
           
           {activeTab === 'CALENDAR' && isAdminOrProducer && (
@@ -393,7 +395,7 @@ export default function SchedulePage() {
             </button>
           )}
           
-          {activeTab === 'PAYROLL' && (
+          {activeTab === 'PAYROLL' && sessionUser?.role === 'ADMIN' && (
             <>
               {isAdminOrProducer && (
                 <button onClick={handleSavePayroll} className="flex items-center gap-2 px-5 py-2.5 bg-[#005691] hover:bg-[#004070] rounded-xl text-sm font-bold text-white shadow-md shadow-blue-900/20 transition-all hover:-translate-y-0.5">
