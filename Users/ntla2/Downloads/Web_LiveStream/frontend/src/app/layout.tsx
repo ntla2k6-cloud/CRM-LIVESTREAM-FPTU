@@ -19,11 +19,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body className={`antialiased font-sans bg-slate-50 text-slate-800 overflow-hidden flex h-screen selection:bg-[#F58220] selection:text-white ${inter.className}`}>
+      <body className={`antialiased font-sans bg-slate-50 text-slate-800 overflow-hidden flex h-[100dvh] selection:bg-[#F58220] selection:text-white ${inter.className}`}>
         <AuthProvider>
           <RoleGuard>
             <Sidebar sidebarOpen={true} />
-            <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden pb-16 md:pb-0">
+            <main className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden pb-16 md:pb-0">
               {children}
             </main>
           </RoleGuard>

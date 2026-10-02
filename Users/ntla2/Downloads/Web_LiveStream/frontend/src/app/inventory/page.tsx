@@ -533,7 +533,7 @@ export default function InventoryPage() {
       {/* ══════════════════════════════════════════════════════
           GIFT DRAWER
       ══════════════════════════════════════════════════════ */}
-      <div className={`absolute top-0 right-0 w-[420px] h-full bg-white shadow-[-10px_0_40px_rgba(0,0,0,0.1)] border-l border-slate-200 transition-transform duration-400 z-50 flex flex-col ${selectedGift ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`absolute top-0 right-0 w-full md:w-[420px] h-full bg-white shadow-[-10px_0_40px_rgba(0,0,0,0.1)] border-l border-slate-200 transition-transform duration-400 z-50 flex flex-col ${selectedGift ? 'translate-x-0' : 'translate-x-full'}`}>
         {selectedGift && (
           <>
             <div className="h-[72px] flex items-center justify-between px-5 border-b border-slate-100 bg-slate-50 shrink-0">
@@ -593,7 +593,7 @@ export default function InventoryPage() {
       {/* ══════════════════════════════════════════════════════
           ORDER DRAWER — Full detail edit
       ══════════════════════════════════════════════════════ */}
-      <div className={`absolute top-0 right-0 w-[460px] h-full bg-white shadow-[-10px_0_40px_rgba(0,0,0,0.1)] border-l border-slate-200 transition-transform duration-400 z-50 flex flex-col ${selectedOrder ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`absolute top-0 right-0 w-full md:w-[460px] h-full bg-white shadow-[-10px_0_40px_rgba(0,0,0,0.1)] border-l border-slate-200 transition-transform duration-400 z-50 flex flex-col ${selectedOrder ? 'translate-x-0' : 'translate-x-full'}`}>
         {selectedOrder && (
           <>
             <div className="h-[72px] flex items-center justify-between px-5 border-b border-slate-100 bg-slate-50 shrink-0">
