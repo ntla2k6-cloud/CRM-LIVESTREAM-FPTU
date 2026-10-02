@@ -26,6 +26,8 @@ let PipelineService = PipelineService_1 = class PipelineService {
         this.eventsGateway = eventsGateway;
     }
     async processComment(liveSessionId, payload) {
+        if (!payload.username || !payload.content)
+            return;
         const existing = await this.prisma.liveComment.findUnique({
             where: {
                 platform_platformCommentId: {

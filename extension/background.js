@@ -1,66 +1,85 @@
 let commentQueue = [];
-let flushInterval = null;
-const FLUSH_INTERVAL_MS = 2000; // send every 2 seconds
-const recentCommentsHash = new Set();
+let isCapturing = false;
+let currentSessionId = null;
+let stats = { captured: 0, synced: 0 };
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "newComment") {
-    const { sessionId, comment } = request;
-    
-    // Deduplication check in background as well (using hash of username+content)
-    const hash = `${comment.username}:${comment.content}`;
-    if (!recentCommentsHash.has(hash)) {
-      recentCommentsHash.add(hash);
-      
-      // Cleanup set to prevent memory leaks
-      if (recentCommentsHash.size > 10000) {
-        const iter = recentCommentsHash.values();
-        for (let i = 0; i < 2000; i++) {
-          recentCommentsHash.delete(iter.next().value);
-        }
-      }
+chrome.storage.local.get(['isCapturing', 'liveSessionId', 'stats'], (result) => {
+  isCapturing = result.isCapturing || false;
+  currentSessionId = result.liveSessionId || null;
+  if (result.stats) stats = result.stats;
+});
 
-      commentQueue.push({ sessionId, comment });
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (changes.isCapturing) {
+    isCapturing = changes.isCapturing.newValue;
+    if (!isCapturing) {
+      // Dừng thì flush queue
+      flushQueue();
     }
+  }
+  if (changes.liveSessionId) {
+    currentSessionId = changes.liveSessionId.newValue;
   }
 });
 
-function flushQueue() {
-  if (commentQueue.length === 0) return;
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'newComment' && isCapturing) {
+    commentQueue.push({
+      platformCommentId: `ext-${Date.now()}-${Math.random()}`,
+      username: request.data.username,
+      content: request.data.text,
+      timestamp: Date.now()
+    });
+    stats.captured++;
+    updatePopupStats();
+    sendResponse({ success: true });
+  }
+});
 
-  // Group comments by session ID
-  const grouped = commentQueue.reduce((acc, item) => {
-    if (!acc[item.sessionId]) {
-      acc[item.sessionId] = [];
-    }
-    acc[item.sessionId].push(item.comment);
-    return acc;
-  }, {});
+function updatePopupStats() {
+  chrome.storage.local.set({ stats });
+  chrome.runtime.sendMessage({
+    action: 'updateStats',
+    captured: stats.captured,
+    synced: stats.synced
+  }).catch(() => {});
+}
 
-  commentQueue = []; // clear queue
+async function flushQueue() {
+  if (commentQueue.length === 0 || !currentSessionId) return;
 
-  // Send to backend
-  for (const [sessionId, comments] of Object.entries(grouped)) {
-    const payload = {
-      liveSessionId: sessionId,
-      comments: comments
-    };
+  const commentsToSend = [...commentQueue];
+  commentQueue = [];
 
-    fetch('http://localhost:3001/live-engine/extension-comments', {
+  try {
+    const res = await fetch('http://localhost:3001/live-engine/extension-comments', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(payload)
-    }).then(response => {
-      if (!response.ok) {
-        console.error('Failed to send comments:', response.statusText);
-      }
-    }).catch(error => {
-      console.error('Error sending comments:', error);
+      body: JSON.stringify({
+        liveSessionId: currentSessionId,
+        comments: commentsToSend
+      })
     });
+
+    if (res.ok) {
+      stats.synced += commentsToSend.length;
+      updatePopupStats();
+    } else {
+      console.error('Failed to sync comments', await res.text());
+      // Re-queue if failed
+      commentQueue = [...commentsToSend, ...commentQueue];
+    }
+  } catch (e) {
+    console.error('Network error syncing comments', e);
+    commentQueue = [...commentsToSend, ...commentQueue];
   }
 }
 
-// Start interval for flushing the queue periodically
-flushInterval = setInterval(flushQueue, FLUSH_INTERVAL_MS);
+// Flush every 2 seconds
+setInterval(() => {
+  if (isCapturing) {
+    flushQueue();
+  }
+}, 2000);

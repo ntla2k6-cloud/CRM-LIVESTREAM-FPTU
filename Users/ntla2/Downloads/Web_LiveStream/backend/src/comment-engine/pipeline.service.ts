@@ -17,6 +17,7 @@ export class PipelineService {
   ) {}
 
   async processComment(liveSessionId: string, payload: CommentPayload) {
+    if (!payload.username || !payload.content) return;
     const existing = await this.prisma.liveComment.findUnique({
       where: {
         platform_platformCommentId: {
