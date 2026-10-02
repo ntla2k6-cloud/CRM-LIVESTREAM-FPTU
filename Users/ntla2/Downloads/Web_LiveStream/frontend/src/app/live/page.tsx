@@ -57,7 +57,7 @@ export default function LivePage() {
               type="text" 
               value={inputUrl}
               onChange={(e) => setInputUrl(e.target.value)}
-              placeholder="VD: https://www.tiktok.com/@fptuniversity/live"
+              placeholder="Nhập URL TikTok LIVE, hoặc nhập MOCK để test"
               disabled={isLoading}
               className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-200 rounded-xl outline-none focus:border-[#F58220] focus:ring-4 focus:ring-orange-100 transition-all font-medium text-slate-900 text-lg"
               onKeyDown={(e) => e.key === 'Enter' && handleConnect()}

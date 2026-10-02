@@ -129,7 +129,8 @@ export default function LiveControlPage() {
         time: new Date(dbComment.serverTimestamp || Date.now()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         category: dbComment.category,
         isPhone: dbComment.category === 'LEAD',
-        isHighIntent: dbComment.category === 'ADMISSION'
+        isHighIntent: dbComment.category === 'ADMISSION',
+        isMock: dbComment.platform === 'mock'
       };
       setComments(prev => [newComment, ...prev].slice(0, 100));
     });
@@ -529,6 +530,7 @@ export default function LiveControlPage() {
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
                           <span className={`font-bold text-xs ${cmt.isPhone || cmt.isHighIntent ? 'text-red-400' : 'text-blue-300'}`}>{cmt.name}</span>
+                          {cmt.isMock && <span className="bg-purple-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase">MOCK</span>}
                           {cmt.isPhone && <span className="bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase">CĂ“ SÄT</span>}
                           {cmt.isHighIntent && <span className="bg-orange-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase">Nhu cáº§u cao</span>}
                         </div>
