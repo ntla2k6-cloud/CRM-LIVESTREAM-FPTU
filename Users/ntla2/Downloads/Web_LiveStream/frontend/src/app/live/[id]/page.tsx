@@ -2,12 +2,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Play, Square, MessageSquare, Users, Trash2, Timer, Video, ListTodo, Pin, CheckCircle2, Phone, BellRing, Trophy, Clock, Zap, Target, TrendingUp, AlertTriangle, Gift, Heart
-} from 'lucide-react';
+, ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import io from 'socket.io-client';
 
 let socket: any;
 
 export default function LiveControlPage() {
+  const router = useRouter();
   const [activeTabLeft, setActiveTabLeft] = useState<'SCRIPT' | 'TRIVIA' | 'KEYWORDS'>('SCRIPT');
   const [activeTabRight, setActiveTabRight] = useState<'COMMENTS' | 'LEADS' | 'WINNERS'>('COMMENTS');
   
@@ -272,10 +274,25 @@ export default function LiveControlPage() {
   return (
     <div className="flex h-full bg-slate-50 font-sans text-slate-800">
       
+
       {/* LEFT PANEL: KỊCH BẢN, TRIVIA & KEYWORDS */}
       <div className="w-[500px] border-r border-slate-200 bg-white flex flex-col h-full shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10 shrink-0">
-        <div className="p-6 border-b border-slate-100 bg-white/50 backdrop-blur-sm sticky top-0 z-20">
+        
+        {/* HEADER: NÚT QUAY LẠI VÀ STATUS */}
+        <div className="p-5 border-b border-slate-100 bg-white/50 backdrop-blur-sm sticky top-0 z-20">
+          <div className="flex items-center gap-3 mb-4">
+            <button 
+              onClick={() => router.push('/live')}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
+              title="Quay lại bảng điều khiển"
+            >
+              <ArrowLeft size={16} />
+            </button>
+            <h2 className="text-sm font-black text-slate-800 tracking-tight">ĐIỀU KHIỂN LIVE</h2>
+          </div>
+
           <div className="flex items-center justify-between mb-3">
+
             <div className="flex items-center gap-2">
               <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black shadow-sm uppercase ${
                 sessionData?.status === 'COMPLETED' ? 'bg-slate-100 text-slate-500 border border-slate-200' : 'bg-red-50 text-red-600 border border-red-100'
