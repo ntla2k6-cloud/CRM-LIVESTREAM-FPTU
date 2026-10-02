@@ -19,7 +19,7 @@ export declare class LiveEngineService {
     }>;
     connectToTiktok(liveSessionId: string, tiktokUsername: string): Promise<"DISCONNECTED" | "CONNECTING" | "CONNECTED" | "ERROR">;
     disconnectFromTiktok(liveSessionId: string): void;
-    getTiktokStatus(liveSessionId: string): "DISCONNECTED" | "CONNECTING" | "CONNECTED" | "ERROR";
+    getTiktokStatus(liveSessionId: string): any;
     resolveLiveSession(input: string): Promise<{
         description: string | null;
         id: string;

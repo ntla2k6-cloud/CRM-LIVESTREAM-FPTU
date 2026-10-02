@@ -8,9 +8,13 @@ import {
 import Link from 'next/link';
 
 // ============================================================
+
+
+
+// ============================================================
 // DỮ LIỆU VAI TRÒ (ROLES)
 // ============================================================
-const DEFAULT_ROLES = [
+const UI_ROLES = [
   { value: "GUEST",      label: "Chờ duyệt",              icon: Lock,           color: "bg-slate-100 text-slate-500 border-slate-300",     desc: "Mới đăng nhập, chưa được phân vị trí" },
   { value: "VJ_HOST",    label: "VJ / Host Livestream",    icon: Video,          color: "bg-orange-50 text-orange-700 border-orange-200",   desc: "Dẫn chương trình, điều khiển Live" },
   { value: "CSKH",       label: "CSKH (Trực Comment)",     icon: Headphones,     color: "bg-blue-50 text-blue-700 border-blue-200",         desc: "Xử lý comment, chốt Lead, gọi điện tư vấn" },
@@ -85,7 +89,7 @@ const PERMISSION_GROUPS = [
 ];
 
 const getRoleIcon = (role: string, size = 14) => {
-  const found = DEFAULT_ROLES.find(r => r.value === role);
+  const found = UI_ROLES.find(r => r.value === role);
   if (!found) return <MessageCircle size={size} className="text-slate-400" />;
   const Icon = found.icon;
   return <Icon size={size} />;
@@ -105,7 +109,7 @@ export default function UnifiedStaffPage() {
   const [saving, setSaving] = useState(false);
   
   // --- RBAC STATE ---
-  const [roles, setRoles] = useState(DEFAULT_ROLES.map(r => ({ ...r, permissions: r.value === 'ADMIN' ? ['*'] : [] })));
+  const [roles, setRoles] = useState(UI_ROLES.map(r => ({ ...r, permissions: r.value === 'ADMIN' ? ['*'] : [] })));
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -273,7 +277,7 @@ export default function UnifiedStaffPage() {
                 <button onClick={() => setFilterRole('GUEST')} className={`text-[10px] font-black px-2.5 py-1 rounded-full border transition-all ${filterRole === 'GUEST' ? 'bg-yellow-500 text-white border-yellow-500' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
                   Chờ duyệt {pendingCount > 0 && `(${pendingCount})`}
                 </button>
-                {DEFAULT_ROLES.filter(r => r.value !== 'GUEST').map(r => (
+                {UI_ROLES.filter(r => r.value !== 'GUEST').map(r => (
                   <button key={r.value} onClick={() => setFilterRole(r.value)} className={`text-[10px] font-black px-2.5 py-1 rounded-full border transition-all ${filterRole === r.value ? 'bg-[#005691] text-white border-[#005691]' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
                     {r.label}
                   </button>
@@ -288,7 +292,7 @@ export default function UnifiedStaffPage() {
                 <div className="text-center text-slate-400 text-sm py-10">Không tìm thấy nhân sự</div>
               ) : (
                 filteredUsers.map(user => {
-                  const role = DEFAULT_ROLES.find(r => r.value === user.role) || DEFAULT_ROLES[0];
+                  const role = UI_ROLES.find(r => r.value === user.role) || DEFAULT_ROLES[0];
                   const isActive = selectedUser?.id === user.id;
                   return (
                     <button
@@ -389,7 +393,7 @@ export default function UnifiedStaffPage() {
                         )}
                       </div>
                       <div className="grid grid-cols-4 gap-3">
-                        {DEFAULT_ROLES.filter(r => r.value !== 'GUEST').map(r => {
+                        {UI_ROLES.filter(r => r.value !== 'GUEST').map(r => {
                           const currentRole = editMode ? editForm.role : selectedUser.role;
                           const isSelected = currentRole === r.value;
                           const Icon = r.icon;

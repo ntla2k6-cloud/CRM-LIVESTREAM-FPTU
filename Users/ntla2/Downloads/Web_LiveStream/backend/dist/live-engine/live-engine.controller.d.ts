@@ -59,7 +59,7 @@ export declare class LiveEngineController {
         liveSessionId: string;
     }): Promise<void>;
     getStatus(liveSessionId: string): Promise<{
-        status: "DISCONNECTED" | "CONNECTING" | "CONNECTED" | "ERROR";
+        status: any;
     }>;
     getAnalytics(liveSessionId: string): Promise<{
         totalComments: number;

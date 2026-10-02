@@ -12,6 +12,7 @@ import { Injectable, ConflictException, Logger, BadRequestException } from '@nes
 import { PrismaService } from '../prisma/prisma.service.js';
 import { PipelineService } from '../comment-engine/pipeline.service.js';
 import { TiktokCommentSource } from '../comment-engine/tiktok-comment-source.js';
+import { MockCommentSource } from '../comment-engine/mock-comment-source.js';
 import { EventsGateway } from '../websocket/events.gateway.js';
 let LiveEngineService = LiveEngineService_1 = class LiveEngineService {
     prisma;
@@ -54,7 +55,7 @@ let LiveEngineService = LiveEngineService_1 = class LiveEngineService {
     }
     async connectToTiktok(liveSessionId, tiktokUsername) {
         this.disconnectFromTiktok(liveSessionId);
-        const source = new TiktokCommentSource();
+        const source = (tiktokUsername.toUpperCase() === 'MOCK' || tiktokUsername.toUpperCase() === 'MOCK_LIVE') ? new MockCommentSource() : new TiktokCommentSource();
         this.sources.set(liveSessionId, source);
         source.onComment(async (payload) => {
             await this.pipeline.processComment(liveSessionId, payload);
@@ -91,6 +92,24 @@ let LiveEngineService = LiveEngineService_1 = class LiveEngineService {
                 username = match[1];
         }
         username = username.replace('@', '').trim();
+        if (username.toUpperCase() === 'MOCK' || username.toUpperCase() === 'MOCK_LIVE') {
+            const mockData = {
+                platformLiveId: 'mock-live-' + Date.now(),
+                title: '🔴 [MOCK] Phiên LIVE Giả lập Realtime',
+                creatorUsername: 'mock',
+                creatorDisplayName: 'Mock Streamer',
+                creatorAvatar: '',
+                viewerCount: 9999,
+                likeCount: 9999,
+                status: 'LIVE_NOW',
+                liveUrl: 'https://mock.live/MOCK'
+            };
+            return await this.prisma.liveSession.upsert({
+                where: { platformLiveId: mockData.platformLiveId },
+                update: { ...mockData },
+                create: { ...mockData, platform: 'mock' }
+            });
+        }
         const { TikTokLiveConnection } = await import('tiktok-live-connector');
         const connection = new TikTokLiveConnection(username, {});
         try {
