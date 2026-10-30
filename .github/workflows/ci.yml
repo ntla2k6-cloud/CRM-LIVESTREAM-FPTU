@@ -32,10 +32,10 @@ jobs:
       run:
         working-directory: ${{ env.WL }}/frontend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: ${{ env.WL }}/frontend/package-lock.json
       - run: npm ci --no-audit --no-fund
@@ -48,10 +48,10 @@ jobs:
       run:
         working-directory: ${{ env.WL }}/backend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: ${{ env.WL }}/backend/package-lock.json
       - run: npm ci --no-audit --no-fund
@@ -62,10 +62,10 @@ jobs:
     name: Root app + extension syntax check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
       - run: |
           for f in server.js auth.js extension/*.js; do
             node --check "$f"
@@ -80,7 +80,7 @@ jobs:
     permissions:
       issues: write
     steps:
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@v8
         with:
           script: |
             const title = '🚨 CI failed on main';
@@ -109,7 +109,7 @@ jobs:
     permissions:
       issues: write
     steps:
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@v8
         with:
           script: |
             const { data: open } = await github.rest.issues.listForRepo({

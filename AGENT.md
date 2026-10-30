@@ -51,6 +51,7 @@ Chrome extension (manifest, `background.js`, `content.js`, `popup.*`) bắt comm
   - `ci.yml` — mỗi push/PR: build frontend, build backend, kiểm tra cú pháp root + extension. Fail → GitHub gửi mail cho người push; trên `main` thì mở issue `🚨 CI failed`.
   - `deploy-monitor.yml` — nghe trạng thái deploy Vercel (`deployment_status`). Deploy lỗi hoặc URL deploy không trả 2xx/3xx → mở issue `🚨 Deploy failed` (GitHub gửi thông báo). Deploy sau thành công → tự đóng issue.
 - Chỉ chạy được sau khi các workflow nằm trên `main`.
+- CI dùng **Node 24 / npm 11** (giống máy dev). Lockfile tạo bằng npm 11 không qua được `npm ci` của npm 10 (Node 22) — đừng hạ Node trong CI.
 - Kiểm tra trước khi push (giống CI):
   ```bash
   cd Users/ntla2/Downloads/Web_LiveStream/frontend && npm ci && npm run build
