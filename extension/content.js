@@ -15,12 +15,23 @@ if (!window.__fptuLiveCapture) {
     'div[class*="DivUsernameContainer"]',
     'span[class*="SpanNickName"]',
   ];
-  const TEXT_SELECTORS = [
-    '[data-e2e="chat-message-text"]',
-    'div[class*="DivComment"]:not([class*="Container"])',
-    'span[class*="SpanText"]',
-    'div[class*="DivCommentContent"]',
-  ];
+  // TikTok hiện dùng class Tailwind (không có tên DivComment…) nên nội dung được lấy
+  // bằng cách duyệt text node: bỏ phần tên và ô huy hiệu cấp fan (chỉ 1–2 chữ số).
+  const TEXT_SELECTORS = ['[data-e2e="chat-message-text"]'];
+  const BADGE_TEXT = /^\d{1,2}$/;
+
+  function extractText(node, usernameEl) {
+    const parts = [];
+    const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+    for (let t = walker.nextNode(); t; t = walker.nextNode()) {
+      const text = t.nodeValue.trim();
+      if (!text || usernameEl.contains(t)) continue;
+      const parent = t.parentElement;
+      if (BADGE_TEXT.test(text) && parent && parent.textContent.trim() === text) continue;
+      parts.push(text);
+    }
+    return parts.join(' ').replace(/\s+/g, ' ').trim();
+  }
 
   // Thông báo hệ thống (vào phòng, thả tim, chia sẻ, theo dõi, tặng quà) — không phải comment thật
   const SYSTEM_NODE_SELECTOR = '[data-e2e="social-message"], [data-e2e="enter-message"], [data-e2e="gift-message"], [data-e2e="like-message"]';
@@ -64,14 +75,8 @@ if (!window.__fptuLiveCapture) {
     const avatarEl = node.querySelector('img[src]');
     const avatar = avatarEl ? avatarEl.src : undefined;
 
-    let content = '';
     const textEl = pick(node, TEXT_SELECTORS);
-    if (textEl && !textEl.contains(usernameEl)) {
-      content = textEl.textContent.trim();
-    } else {
-      // Fallback: toàn bộ text của dòng chat trừ phần tên
-      content = node.textContent.replace(usernameEl.textContent, '').trim();
-    }
+    let content = textEl && !textEl.contains(usernameEl) ? textEl.textContent.trim() : extractText(node, usernameEl);
     content = content.replace(/^[:：]\s*/, '');
 
     if (!username || !content) return null;

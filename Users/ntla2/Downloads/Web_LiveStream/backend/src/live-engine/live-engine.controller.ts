@@ -2,6 +2,8 @@ import { Controller, Post, Body, Get, Param, BadRequestException } from '@nestjs
 import { LiveEngineService } from './live-engine.service.js';
 import { PipelineService } from '../comment-engine/pipeline.service.js';
 
+const EXTENSION_CONCURRENCY = 8;
+
 @Controller('live-engine')
 export class LiveEngineController {
   constructor(
@@ -36,26 +38,39 @@ export class LiveEngineController {
     }
     await this.liveEngineService.assertLiveSessionExists(body.liveSessionId);
 
-    let processed = 0;
-    let failed = 0;
+    // Mỗi comment tốn vài truy vấn DB (~1s qua Render↔Neon) → xử lý song song theo người comment.
+    // Comment của cùng 1 người vẫn tuần tự để không tạo trùng Customer/Lead.
+    const byUser = new Map<string, typeof body.comments>();
     for (const c of body.comments) {
       if (!c?.content || !c.username) continue;
-      try {
-        await this.pipelineService.processComment(body.liveSessionId, {
-          platform: 'extension',
-          platformCommentId: c.platformCommentId || Math.random().toString(),
-          username: c.username,
-          displayName: c.displayName,
-          avatar: c.avatar,
-          content: c.content,
-          timestamp: new Date(c.timestamp || Date.now())
-        });
-        processed++;
-      } catch (e) {
-        // 1 comment lỗi không được làm extension gửi lại cả lô
-        failed++;
-      }
+      byUser.set(c.username, [...(byUser.get(c.username) || []), c]);
     }
+
+    let processed = 0;
+    let failed = 0;
+    const queue = [...byUser.values()];
+    const worker = async () => {
+      for (let group = queue.shift(); group; group = queue.shift()) {
+        for (const c of group) {
+          try {
+            await this.pipelineService.processComment(body.liveSessionId, {
+              platform: 'extension',
+              platformCommentId: c.platformCommentId || Math.random().toString(),
+              username: c.username,
+              displayName: c.displayName,
+              avatar: c.avatar,
+              content: c.content,
+              timestamp: new Date(c.timestamp || Date.now())
+            });
+            processed++;
+          } catch (e) {
+            // 1 comment lỗi không được làm extension gửi lại cả lô
+            failed++;
+          }
+        }
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(EXTENSION_CONCURRENCY, queue.length) }, worker));
     return { success: true, processed, failed };
   }
 
