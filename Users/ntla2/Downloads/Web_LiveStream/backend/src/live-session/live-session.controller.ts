@@ -15,6 +15,12 @@ export class LiveSessionController {
     return this.liveSessionService.findAll();
   }
 
+  // Phải đứng trước ':id' để không bị hiểu là id = "overview"
+  @Get('overview')
+  overview() {
+    return this.liveSessionService.overview();
+  }
+
   @Get(':id/history')
   getHistory(@Param('id') id: string) {
     return this.liveSessionService.getHistory(id);

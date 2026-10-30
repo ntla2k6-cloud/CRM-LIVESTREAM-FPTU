@@ -26,8 +26,43 @@ export class LiveSessionService {
   findAll() {
     return this.prisma.liveSession.findMany({
       orderBy: { createdAt: 'desc' },
-      include: { questions: true }
+      include: {
+        questions: true,
+        // Số comment thật (không tính quà) + lead của từng phiên cho danh sách phiên
+        _count: { select: { comments: { where: { category: { not: 'GIFT' } } }, leads: true } },
+      }
     });
+  }
+
+  /** Số liệu thật cho trang Kết nối LIVE: tổng comment, lead có SĐT, các phiên live gần đây. */
+  async overview() {
+    const [totalComments, phoneLeads, recent] = await Promise.all([
+      this.prisma.liveComment.count({ where: { category: { not: 'GIFT' } } }),
+      this.prisma.lead.count({ where: { customer: { phone: { not: null } } } }),
+      this.prisma.liveSession.findMany({
+        where: { OR: [{ startTime: { not: null } }, { comments: { some: {} } }] },
+        orderBy: { createdAt: 'desc' },
+        take: 6,
+        select: {
+          id: true, title: true, status: true, creatorUsername: true, startTime: true, endTime: true, createdAt: true,
+          _count: { select: { comments: { where: { category: { not: 'GIFT' } } }, leads: true } },
+        },
+      }),
+    ]);
+    return {
+      totalComments,
+      phoneLeads,
+      recentSessions: recent.map(s => ({
+        id: s.id,
+        title: s.title,
+        status: s.status,
+        creatorUsername: s.creatorUsername,
+        startedAt: (s.startTime || s.createdAt).toISOString(),
+        endedAt: s.endTime?.toISOString() ?? null,
+        comments: s._count.comments,
+        leads: s._count.leads,
+      })),
+    };
   }
 
   findOne(id: string) {

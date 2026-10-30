@@ -31,15 +31,19 @@ export default function AnalyticsPage() {
         if (apiSessions && apiSessions.length > 0) {
           setActiveSession(apiSessions[0].id);
 
-          // Đọc data từ localStorage cho từng phiên
-          const liveSessions = apiSessions.map((s: any) => ({
-            id: s.id,
-            name: s.title,
-            date: s.date || "Hôm nay",
-            duration: "1h 30m",
-            views: "0",
-            comments: 0
-          }));
+          const liveSessions = apiSessions.map((s: any) => {
+            const start = new Date(s.startTime || s.scheduledAt || s.createdAt);
+            const end = s.endTime ? new Date(s.endTime) : null;
+            const mins = end ? Math.max(0, Math.round((end.getTime() - start.getTime()) / 60000)) : null;
+            return {
+              id: s.id,
+              name: s.title,
+              date: start.toLocaleDateString('vi-VN'),
+              duration: s.status === 'LIVE_NOW' ? 'Đang LIVE' : mins !== null ? (mins >= 60 ? `${Math.floor(mins / 60)}h ${mins % 60}m` : `${mins}m`) : '—',
+              leads: s._count?.leads ?? 0,
+              comments: s._count?.comments ?? 0
+            };
+          });
 
         setSessions(prev => {
           // Merge avoiding duplicates by id
@@ -149,8 +153,8 @@ export default function AnalyticsPage() {
                   <span className="flex items-center gap-1.5"><Clock size={12} /> {s.duration}</span>
                 </div>
                 <div className="mt-3 flex items-center gap-3 pt-3 border-t border-slate-100/80">
-                  <span className="flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-md"><Users size={12} /> {s.views}</span>
-                  <span className="flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-md"><MessageSquare size={12} /> {s.comments}</span>
+                  <span className="flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-md"><MessageSquare size={12} /> {s.comments} cmt</span>
+                  <span className="flex items-center gap-1 text-[11px] font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-md"><Target size={12} /> {s.leads} lead</span>
                 </div>
               </div>
             ))}

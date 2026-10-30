@@ -18,7 +18,8 @@ if (!window.__fptuLiveCapture) {
   // TikTok hiện dùng class Tailwind (không có tên DivComment…) nên nội dung được lấy
   // bằng cách duyệt text node: bỏ phần tên và ô huy hiệu cấp fan (chỉ 1–2 chữ số).
   const TEXT_SELECTORS = ['[data-e2e="chat-message-text"]'];
-  const BADGE_TEXT = /^\d{1,2}$/;
+  // Huy hiệu: cấp fan ("6"), hạng tặng quà ("Hạng 3", "Top 1", "No.2")
+  const BADGE_TEXT = /^(?:\d{1,2}|(?:hạng|top|no\.?)\s?\d{1,2})$/i;
 
   function extractText(node, usernameEl) {
     const parts = [];
@@ -94,7 +95,8 @@ if (!window.__fptuLiveCapture) {
     let content = textEl && !textEl.contains(usernameEl) ? textEl.textContent.trim() : extractText(node, usernameEl);
     content = content.replace(/^[:：]\s*/, '');
 
-    if (!username || !content) return null;
+    // Dòng chỉ lặp lại tên (thông báo dạng icon) không phải comment
+    if (!username || !content || content === displayName) return null;
     const gift = parseGift(node, content);
     if (gift) return { type: 'gift', username, displayName, avatar, content, ...gift };
     if (isSystemMessage(node, content)) return null;
