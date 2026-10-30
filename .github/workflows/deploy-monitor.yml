@@ -1,0 +1,129 @@
+name: Deploy monitor
+
+# Vercel báo trạng thái deploy về GitHub (Deployments). Workflow này nghe trạng thái đó:
+#  - Deploy lỗi                       → mở/ghi thêm vào issue "🚨 Deploy failed (<env>)"
+#  - Production deploy xong nhưng URL không phản hồi 2xx/3xx → cũng mở issue
+#  - Deploy sau thành công            → tự đóng issue
+# GitHub tự gửi thông báo (mail/app) khi có issue mới cho người watch repo.
+# Lưu ý: event deployment_status chỉ chạy workflow nằm trên nhánh mặc định (main).
+
+on:
+  deployment_status:
+  schedule:
+    - cron: "0 */6 * * *" # kiểm tra sức khỏe backend Render mỗi 6 giờ
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  deployments: read
+
+jobs:
+  vercel:
+    if: github.event_name == 'deployment_status' && contains(fromJSON('["success","failure","error"]'), github.event.deployment_status.state)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Health check production URL
+        id: health
+        if: github.event.deployment_status.state == 'success' && contains(github.event.deployment.environment, 'roduction')
+        env:
+          URL: ${{ github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}
+        run: |
+          code=000
+          for i in 1 2 3 4 5; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -L --max-time 30 "$URL" || echo 000)
+            echo "Lần $i: $URL → HTTP $code"
+            if [ "$code" -ge 200 ] && [ "$code" -lt 400 ]; then break; fi
+            sleep 15
+          done
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          if [ "$code" -lt 200 ] || [ "$code" -ge 400 ]; then echo "ok=false" >> "$GITHUB_OUTPUT"; else echo "ok=true" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Open or close issue
+        uses: actions/github-script@v7
+        env:
+          HEALTH_OK: ${{ steps.health.outputs.ok }}
+          HEALTH_CODE: ${{ steps.health.outputs.code }}
+        with:
+          script: |
+            const ds = context.payload.deployment_status;
+            const dep = context.payload.deployment;
+            const envName = dep.environment || 'unknown';
+            const label = 'deploy-failure';
+            const title = `🚨 Deploy failed (${envName})`;
+            const sha = dep.sha.slice(0, 7);
+            const deployFailed = ds.state === 'failure' || ds.state === 'error';
+            const healthFailed = process.env.HEALTH_OK === 'false';
+
+            const { data: open } = await github.rest.issues.listForRepo({ ...context.repo, state: 'open', labels: label });
+            const mine = open.filter(i => i.title === title);
+
+            if (deployFailed || healthFailed) {
+              const reason = deployFailed
+                ? `Vercel báo deploy **${ds.state}**.`
+                : `Deploy xong nhưng URL trả về **HTTP ${process.env.HEALTH_CODE}**.`;
+              const body = [
+                reason,
+                `- Môi trường: ${envName}`,
+                `- Commit: ${sha} (${dep.ref})`,
+                `- Log Vercel: ${ds.target_url || '(không có)'}`,
+                `- URL: ${ds.environment_url || '(không có)'}`,
+                '',
+                'Cách fix: mở log Vercel, sửa lỗi, push lại. Issue tự đóng khi deploy tiếp theo của môi trường này thành công.',
+              ].join('\n');
+              if (mine.length) {
+                await github.rest.issues.createComment({ ...context.repo, issue_number: mine[0].number, body });
+              } else {
+                await github.rest.issues.create({ ...context.repo, title, body, labels: [label] });
+              }
+              core.setFailed(reason);
+            } else {
+              for (const issue of mine) {
+                await github.rest.issues.createComment({
+                  ...context.repo, issue_number: issue.number,
+                  body: `✅ Deploy ${envName} thành công lại ở commit ${sha}: ${ds.environment_url || ''}`,
+                });
+                await github.rest.issues.update({ ...context.repo, issue_number: issue.number, state: 'closed' });
+              }
+            }
+
+  backend-health:
+    if: github.event_name != 'deployment_status'
+    runs-on: ubuntu-latest
+    env:
+      # Đặt biến repo BACKEND_HEALTH_URL nếu backend đổi địa chỉ
+      URL: ${{ vars.BACKEND_HEALTH_URL || 'https://crm-livestream-fptu.onrender.com' }}
+    steps:
+      - name: Ping backend (Render free có thể ngủ, chờ tối đa ~3 phút)
+        id: health
+        run: |
+          code=000
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$URL" || echo 000)
+            echo "Lần $i: $URL → HTTP $code"
+            if [ "$code" -ge 200 ] && [ "$code" -lt 400 ]; then break; fi
+            sleep 10
+          done
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/github-script@v7
+        env:
+          CODE: ${{ steps.health.outputs.code }}
+        with:
+          script: |
+            const code = Number(process.env.CODE);
+            const ok = code >= 200 && code < 400;
+            const label = 'deploy-failure';
+            const title = '🚨 Backend down (Render)';
+            const { data: open } = await github.rest.issues.listForRepo({ ...context.repo, state: 'open', labels: label });
+            const mine = open.filter(i => i.title === title);
+            if (!ok) {
+              const body = `Backend ${process.env.URL} trả về HTTP ${process.env.CODE} lúc ${new Date().toISOString()}.\nKiểm tra dashboard/log trên Render.`;
+              if (mine.length) await github.rest.issues.createComment({ ...context.repo, issue_number: mine[0].number, body });
+              else await github.rest.issues.create({ ...context.repo, title, body, labels: [label] });
+              core.setFailed(body);
+            } else {
+              for (const issue of mine) {
+                await github.rest.issues.createComment({ ...context.repo, issue_number: issue.number, body: `✅ Backend phản hồi lại HTTP ${code}.` });
+                await github.rest.issues.update({ ...context.repo, issue_number: issue.number, state: 'closed' });
+              }
+            }
