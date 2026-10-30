@@ -206,12 +206,14 @@ export class LiveEngineService {
   }
 
   async getAnalytics(liveSessionId: string) {
-    const totalComments = await this.prisma.liveComment.count({ where: { liveSessionId } });
+    // Quà tặng lưu chung bảng LiveComment (category GIFT) → loại khỏi số liệu comment
+    const commentWhere = { liveSessionId, category: { not: 'GIFT' } };
+    const totalComments = await this.prisma.liveComment.count({ where: commentWhere });
     
     // Group by to get unique commenters
     const uniqueCommenters = await this.prisma.liveComment.groupBy({
       by: ['username'],
-      where: { liveSessionId },
+      where: commentWhere,
     });
 
     const totalLeads = await this.prisma.lead.count({ where: { liveSessionId } });
@@ -220,14 +222,14 @@ export class LiveEngineService {
     // Top commenters
     const topCommentersData = await this.prisma.liveComment.groupBy({
       by: ['username', 'avatar'],
-      where: { liveSessionId },
+      where: commentWhere,
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } },
       take: 20,
     });
 
     const topComments = await this.prisma.liveComment.findMany({
-      where: { liveSessionId },
+      where: commentWhere,
       orderBy: [
         { likeCount: 'desc' },
         { replyCount: 'desc' }
@@ -238,7 +240,7 @@ export class LiveEngineService {
     // Keyword analytics (Basic frequency count from recent comments)
     // To do this properly without full text search, we can aggregate in JS for the latest 1000 comments
     const recentComments = await this.prisma.liveComment.findMany({
-      where: { liveSessionId },
+      where: commentWhere,
       select: { content: true },
       orderBy: { serverTimestamp: 'desc' },
       take: 1000

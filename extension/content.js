@@ -7,7 +7,7 @@ if (!window.__fptuLiveCapture) {
   let isCapturing = false;
   const processedComments = new Set();
 
-  const COMMENT_SELECTOR = '[data-e2e="chat-message"], div[class*="DivChatMessage"], div[class*="DivCommentItemContainer"]';
+  const COMMENT_SELECTOR = '[data-e2e="chat-message"], [data-e2e="gift-message"], div[class*="DivChatMessage"], div[class*="DivCommentItemContainer"]';
   const USERNAME_SELECTORS = [
     '[data-e2e="message-owner-name"]',
     'span[class*="SpanIdentity"] a',
@@ -33,14 +33,29 @@ if (!window.__fptuLiveCapture) {
     return parts.join(' ').replace(/\s+/g, ' ').trim();
   }
 
-  // Thông báo hệ thống (vào phòng, thả tim, chia sẻ, theo dõi, tặng quà) — không phải comment thật
-  const SYSTEM_NODE_SELECTOR = '[data-e2e="social-message"], [data-e2e="enter-message"], [data-e2e="gift-message"], [data-e2e="like-message"]';
+  // Dòng tặng quà: "đã gửi Hoa hồng x5" / "sent Rose x5" → lưu riêng (người tặng, quà, số lượng)
+  const GIFT_NODE_SELECTOR = '[data-e2e="gift-message"]';
+  const GIFT_TEXT = /^(?:đã\s+)?(?:gửi|tặng|sent)\b\s*(.*?)\s*(?:[x×]\s*(\d+))?$/i;
+
+  function parseGift(node, content) {
+    const m = content.match(GIFT_TEXT);
+    const isGiftNode = node.matches(GIFT_NODE_SELECTOR) || node.closest(GIFT_NODE_SELECTOR);
+    if (!m && !isGiftNode) return null;
+    const imgs = [...node.querySelectorAll('img[alt], img[title]')];
+    const giftImg = imgs[imgs.length - 1];
+    const giftName = (m && m[1]) || (giftImg && (giftImg.alt || giftImg.title)) || 'Quà tặng';
+    const countMatch = content.match(/[x×]\s*(\d+)\s*$/i);
+    const giftCount = parseInt((m && m[2]) || (countMatch && countMatch[1]) || '1', 10);
+    return { giftName: giftName.trim(), giftCount };
+  }
+
+  // Thông báo hệ thống (vào phòng, thả tim, chia sẻ, theo dõi) — không phải comment thật
+  const SYSTEM_NODE_SELECTOR = '[data-e2e="social-message"], [data-e2e="enter-message"], [data-e2e="like-message"]';
   const SYSTEM_TEXT_PATTERNS = [
     /^(đã )?(tham gia|vào phòng|joined)\b/i,
     /^(đã )?(thả tim|thích|liked)\b/i,
     /^(đã )?(chia sẻ|shared)\b/i,
     /^(đã )?(theo dõi|followed)\b/i,
-    /^(đã )?(gửi|tặng|sent)\b.*(x\s?\d+)?$/i,
     /^is (new to|joining)/i,
   ];
 
@@ -80,8 +95,10 @@ if (!window.__fptuLiveCapture) {
     content = content.replace(/^[:：]\s*/, '');
 
     if (!username || !content) return null;
+    const gift = parseGift(node, content);
+    if (gift) return { type: 'gift', username, displayName, avatar, content, ...gift };
     if (isSystemMessage(node, content)) return null;
-    return { username, displayName, avatar, content };
+    return { type: 'comment', username, displayName, avatar, content };
   }
 
   function handleNode(node) {
@@ -89,7 +106,10 @@ if (!window.__fptuLiveCapture) {
       const parsed = extractComment(node);
       if (!parsed) return;
 
-      const key = `${parsed.username}:${parsed.content}`;
+      // Quà combo hiện x1, x2, x3… → key gồm số lượng để gửi bản cập nhật; backend gộp combo
+      const key = parsed.type === 'gift'
+        ? `gift:${parsed.username}:${parsed.giftName}:${parsed.giftCount}`
+        : `${parsed.username}:${parsed.content}`;
       if (processedComments.has(key)) return;
       processedComments.add(key);
       if (processedComments.size > 2000) {
@@ -101,10 +121,13 @@ if (!window.__fptuLiveCapture) {
         action: 'newComment',
         comment: {
           platformCommentId: `ext-${hash(key)}-${Math.floor(now / 60000)}`,
+          type: parsed.type,
           username: parsed.username,
           displayName: parsed.displayName,
           avatar: parsed.avatar,
           content: parsed.content,
+          giftName: parsed.giftName,
+          giftCount: parsed.giftCount,
           timestamp: now,
         },
       }).catch(() => {});

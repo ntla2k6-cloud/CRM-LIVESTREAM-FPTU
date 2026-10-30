@@ -34,8 +34,11 @@ Mặc định gửi về `https://crm-livestream-fptu.onrender.com`. Đổi tron
 | Hỏi học phí, xét tuyển, KTX, ngành | Lead mức quan tâm (ADMISSION), ghi nhận ngành quan tâm |
 | `A`, `1A`, `1.A` | Đáp án minigame |
 | Link | Spam |
+| Dòng tặng quà ("đã gửi Hoa hồng x5") | Lưu người tặng, tên quà, số lượng (combo x1→x5 gộp thành 1) |
 
 Lead hiện ở trang **CSKH** với nguồn = tên phiên live, kèm lịch sử comment.
+
+Trang **Thống kê** của từng phiên: tab **Comment CRM (đã lọc)** = chỉ comment có giá trị tuyển sinh (SĐT, tư vấn, học phí, ngành, xét tuyển, câu hỏi); **Tất cả Comment** = toàn bộ; **Người tặng quà** = bảng xếp hạng + lịch sử tặng quà.
 
 ## Lưu ý
 - TikTok hay đổi giao diện. Nếu "Đã bắt" đứng yên dù chat đang chạy → cập nhật selector trong `content.js` (`COMMENT_SELECTOR`, `USERNAME_SELECTORS`, `TEXT_SELECTORS`).

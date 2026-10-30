@@ -31,7 +31,7 @@ export class LiveEngineController {
 
   @Post('extension-comments')
   async handleExtensionComments(
-    @Body() body: { liveSessionId: string; comments: Array<{ platformCommentId: string, username: string, displayName?: string, avatar?: string, content: string, timestamp: number }> }
+    @Body() body: { liveSessionId: string; comments: Array<{ platformCommentId: string, type?: 'comment' | 'gift', username: string, displayName?: string, avatar?: string, content: string, giftName?: string, giftCount?: number, timestamp: number }> }
   ) {
     if (!body?.liveSessionId || !Array.isArray(body.comments)) {
       throw new BadRequestException('Thiếu liveSessionId hoặc danh sách comments');
@@ -53,7 +53,7 @@ export class LiveEngineController {
       for (let group = queue.shift(); group; group = queue.shift()) {
         for (const c of group) {
           try {
-            await this.pipelineService.processComment(body.liveSessionId, {
+            const payload = {
               platform: 'extension',
               platformCommentId: c.platformCommentId || Math.random().toString(),
               username: c.username,
@@ -61,7 +61,12 @@ export class LiveEngineController {
               avatar: c.avatar,
               content: c.content,
               timestamp: new Date(c.timestamp || Date.now())
-            });
+            };
+            if (c.type === 'gift') {
+              await this.pipelineService.processGift(body.liveSessionId, { ...payload, giftName: c.giftName || 'Quà tặng', giftCount: Number(c.giftCount) || 1 });
+            } else {
+              await this.pipelineService.processComment(body.liveSessionId, payload);
+            }
             processed++;
           } catch (e) {
             // 1 comment lỗi không được làm extension gửi lại cả lô

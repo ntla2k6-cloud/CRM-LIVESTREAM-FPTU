@@ -30,6 +30,7 @@ Remote: `https://github.com/ntla2k6-cloud/CRM-LIVESTREAM-FPTU` — nhánh chính
 Chrome extension MV3 đọc comment TikTok LIVE trên Chrome thật → `POST {backend}/live-engine/extension-comments` (mặc định backend Render, đổi được trong popup).
 - `content.js`: đọc khung chat (selector ở đầu file — TikTok đổi giao diện thì sửa ở đây), lọc thông báo hệ thống, chống trùng, ID comment ổn định theo người+nội dung+phút.
 - `background.js`: hàng đợi lưu `storage.session`, gửi lô 50 comment/2s, lỗi thì giữ lại thử lại.
+- Quà tặng lưu chung bảng `LiveComment` với `category = 'GIFT'`, `rawPayload = {"giftName","giftCount"}` (không đổi schema DB). Mọi thống kê comment phải loại `GIFT`. Combo cùng người + cùng quà trong 90s được gộp (`PipelineService.processGift`).
 - Backend: `comment-engine/comment-classifier.ts` (hàm thuần, có test) phân loại + bóc SĐT/ngành → `pipeline.service.ts` lưu `LiveComment`, cập nhật `Customer.phone/interestedMajor`, tạo/cập nhật `Lead` (SĐT ⇒ điểm ≥ 80 = lead nóng).
 
 ### 1.3 Vinsoul Academy (root repo, app cũ)
