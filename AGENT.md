@@ -3,7 +3,7 @@
 > AI không nhớ gì giữa các lần prompt. File này + `PROGRESS.md` là "bộ nhớ" của dự án.
 >
 > **Quy trình bắt buộc mỗi task:**
-> 1. Đọc hết `AGENT.md` (file này) và `PROGRESS.md`. Task tính năng mới → đọc thêm `docs/VISION.md` (định hướng, 5 trụ cột).
+> 1. Đọc hết `AGENT.md` (file này) và `PROGRESS.md`. Task tính năng mới → đọc thêm `docs/VISION.md` (định hướng, 5 trụ cột) và `docs/AUDIT-2026-10-31.md` (danh sách lỗi/đề xuất đã xếp ưu tiên).
 > 2. Kiểm tra mục **Đang làm / Việc tiếp theo** và **Vấn đề đã biết** trong `PROGRESS.md` — có liên quan task không.
 > 3. Làm task theo **Quy ước** bên dưới.
 > 4. Làm xong: thêm 1 dòng vào **Nhật ký** trong `PROGRESS.md`, cập nhật Đang làm/Việc tiếp theo. Nếu thay đổi cấu trúc/deploy/quy ước → sửa luôn `AGENT.md`.

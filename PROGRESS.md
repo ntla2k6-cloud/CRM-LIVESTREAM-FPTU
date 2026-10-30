@@ -3,6 +3,7 @@
 > Đọc cùng `AGENT.md` trước mỗi task. Làm xong task nào → cập nhật file này (mới nhất ở trên).
 
 ## Đang làm / Việc tiếp theo
+- [ ] **Xem `docs/AUDIT-2026-10-31.md`** — 31 việc đã xếp ưu tiên. P0 bảo mật: backend Render đang trả lead/staff/order (SĐT, email, địa chỉ) cho người không đăng nhập; repo GitHub public kèm secret cũ trong lịch sử; minigame không chấm điểm được (P1 #7).
 - [ ] Test extension trên 1 buổi TikTok LIVE thật (selector DOM mới chỉ test bằng DOM giả lập) — nếu "Đã bắt" không tăng thì sửa selector trong `extension/content.js`.
 - [ ] Deploy backend Render bản mới (bóc SĐT, API `/lead` trả comment) trước buổi live.
 - [ ] Endpoint `/live-engine/extension-comments` chưa có xác thực — cân nhắc thêm token cho extension.
