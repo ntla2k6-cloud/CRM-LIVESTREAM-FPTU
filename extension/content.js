@@ -121,6 +121,8 @@ if (!window.__fptuLiveCapture) {
       const now = Date.now();
       chrome.runtime.sendMessage({
         action: 'newComment',
+        // URL hiện tại (TikTok là SPA, đổi kênh không reload) → background lọc theo chế độ Khóa 1 phiên
+        pageUrl: location.href,
         comment: {
           platformCommentId: `ext-${hash(key)}-${Math.floor(now / 60000)}`,
           type: parsed.type,
@@ -175,11 +177,14 @@ if (!window.__fptuLiveCapture) {
     }
   });
 
-  // Trang được reload khi đang bắt → tự bật lại
-  chrome.storage.local.get(['isCapturing', 'liveSessionId'], (result) => {
-    if (result.isCapturing && result.liveSessionId) {
-      isCapturing = true;
-      startObserver();
-    }
+  // Mọi tab LIVE đều theo dõi khi đang bật thu thập; background quyết định giữ/bỏ theo chế độ.
+  // Trang reload hoặc bật/tắt từ popup ở tab khác → tự đồng bộ qua storage.
+  function applyCapturing(value) {
+    isCapturing = !!value;
+    isCapturing ? startObserver() : stopObserver();
+  }
+  chrome.storage.local.get(['isCapturing'], (result) => applyCapturing(result.isCapturing));
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes.isCapturing) applyCapturing(changes.isCapturing.newValue);
   });
 }

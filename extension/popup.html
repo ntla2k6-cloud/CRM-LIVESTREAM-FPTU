@@ -231,7 +231,65 @@
       min-height: 0;
     }
 
+    .modes {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mode {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      padding: 8px 10px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      text-transform: none;
+      letter-spacing: 0;
+      margin: 0;
+      font-size: 12px;
+      color: #0f172a;
+    }
+
+    .mode:has(input:checked) {
+      border-color: #f97316;
+      background: #fff7ed;
+    }
+
+    .mode input {
+      width: auto;
+      margin-top: 2px;
+      accent-color: #f97316;
+    }
+
+    .mode small {
+      display: block;
+      font-weight: 500;
+      color: #64748b;
+      font-size: 10.5px;
+      margin-top: 2px;
+    }
+
+    .modes.locked-ui .mode {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .notice {
+      margin: 8px 0 0;
+      font-size: 11px;
+      font-weight: 600;
+      color: #c2410c;
+    }
+
+    .notice:empty {
+      display: none;
+    }
+
     .session-info {
+      white-space: pre-line;
       margin: 6px 0 0;
       font-size: 11px;
       font-weight: 600;
@@ -261,6 +319,20 @@
   
   <div class="container">
     <div class="form-group">
+      <label>Chế độ bắt comment</label>
+      <div class="modes">
+        <label class="mode">
+          <input type="radio" name="mode" value="locked" checked>
+          <span><b>Khóa 1 phiên</b><small>Chỉ bắt đúng tab + kênh đang gắn. Tab chuyển kênh/trang khác → tự dừng.</small></span>
+        </label>
+        <label class="mode">
+          <input type="radio" name="mode" value="multi">
+          <span><b>Nhiều tab cùng lúc</b><small>Bắt mọi tab TikTok LIVE, kể cả tab nền. Mỗi kênh tự vào 1 phiên CRM riêng.</small></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group" id="sessionGroup">
       <label for="sessionId">Link TikTok LIVE hoặc ID phiên CRM</label>
       <input type="text" id="sessionId" placeholder="Để trống = dùng tab TikTok đang mở">
       <p id="sessionInfo" class="session-info"></p>
@@ -277,6 +349,7 @@
     <button id="startBtn">BẮT ĐẦU THU THẬP</button>
     <button id="resetBtn" class="secondary" title="Dừng, xóa số đếm và comment chưa gửi">RESET</button>
     <p id="message" class="message"></p>
+    <p id="notice" class="notice"></p>
     
     <div class="status-card">
       <div class="status-indicator" id="statusDot"></div>
@@ -294,6 +367,10 @@
       <div class="stat-item">
         <div class="stat-value text-orange-500" id="statSyncing" style="color: #f97316;">0</div>
         <div class="stat-label">Đã Gửi</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="statSkipped" style="color: #94a3b8;">0</div>
+        <div class="stat-label">Bỏ qua</div>
       </div>
     </div>
   </div>

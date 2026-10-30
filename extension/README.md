@@ -14,9 +14,17 @@ TikTok LIVE (Chrome) → content.js (đọc khung chat, lọc rác, chống trù
 2. **Load unpacked** → chọn thư mục `extension/` của repo.
 3. Ghim icon extension lên thanh công cụ.
 
+## 2 chế độ bắt comment
+| Chế độ | Bắt từ đâu | Ghi vào đâu | Dùng khi |
+|---|---|---|---|
+| **Khóa 1 phiên** (mặc định) | Chỉ đúng tab + đúng kênh @ đã gắn lúc bấm Bắt đầu. Tab đó chuyển kênh/trang khác → tạm dừng (có cảnh báo cam), quay lại đúng kênh → bắt tiếp. Đóng tab rồi mở lại đúng kênh → tự gắn tab mới. | 1 phiên CRM | Buổi live chính thức của trường, tránh lẫn comment kênh khác |
+| **Nhiều tab cùng lúc** | Mọi tab TikTok LIVE đang mở, kể cả tab chạy nền | Mỗi kênh @ tự vào 1 phiên CRM riêng | Theo dõi nhiều kênh (đối thủ, KOL) cùng lúc |
+
+Đang chạy thì không đổi chế độ được — bấm **Dừng** trước. "Bỏ qua" = số comment đọc được nhưng không thuộc phiên đang khóa.
+
 ## Dùng trong buổi live
 1. Mở trang TikTok LIVE của trường trên Chrome (`tiktok.com/@.../live`).
-2. Bấm icon extension → **BẮT ĐẦU THU THẬP**. Ô nhập có thể:
+2. Bấm icon extension → chọn chế độ → **BẮT ĐẦU THU THẬP**. Ô nhập có thể:
    - **để trống** → dùng link của tab TikTok đang mở,
    - dán **link TikTok LIVE**, hoặc
    - dán **link/ID phiên trên CRM** (`.../live/<id>`) nếu muốn ghi vào một phiên đã lên lịch.
