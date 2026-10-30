@@ -22,6 +22,11 @@ export class LiveEngineController {
   }
 
 
+  @Post('extension-session')
+  async resolveExtensionSession(@Body() body: { input: string; title?: string }) {
+    return this.liveEngineService.resolveExtensionSession(body?.input, body?.title);
+  }
+
   @Post('extension-comments')
   async handleExtensionComments(
     @Body() body: { liveSessionId: string; comments: Array<{ platformCommentId: string, username: string, displayName?: string, avatar?: string, content: string, timestamp: number }> }

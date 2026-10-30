@@ -45,7 +45,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       updatePopupStats();
     });
     sendResponse({ success: true });
-  } else if (request.action === 'resetStats') {
+  } else if (request.action === 'resetAll') {
+    // Nút Reset: bỏ cả comment chưa gửi (vd. bị kẹt do sai phiên)
+    isCapturing = false;
+    commentQueue = [];
+    saveQueue();
     stats = { captured: 0, synced: 0 };
     updatePopupStats();
     sendResponse({ success: true });
@@ -95,7 +99,7 @@ async function flushQueue() {
     }
   } catch (e) {
     console.error('Lỗi mạng khi gửi comment', e);
-    setSyncState(`Không kết nối được ${apiUrl} (server Render có thể đang khởi động, sẽ tự thử lại)`);
+    setSyncState(`Không kết nối được ${apiUrl} (${e.message}). Server Render có thể đang khởi động, sẽ tự thử lại.`);
   } finally {
     flushing = false;
   }

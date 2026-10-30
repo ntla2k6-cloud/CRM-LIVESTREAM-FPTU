@@ -31,6 +31,7 @@
 - **Deploy**: Vercel auto deploy từ `main`, backend trên Render.
 
 ## Nhật ký
+- 2026-10-31 — Test thật: extension bắt được comment nhưng lỗi 500 do dán link TikTok vào ô ID phiên CRM. Thêm `POST /live-engine/extension-session` (link TikTok → tìm/tạo phiên LIVE_NOW của @user; link/ID CRM → phiên đó; 5 test). Popup nhận link TikTok/để trống = tab đang mở, hiện tên phiên CRM; thêm nút RESET (xóa số đếm + hàng đợi). Icon logo FPT. CORS cho origin `chrome-extension://`.
 - 2026-10-30 — Extension → CRM → Lead: sửa bug extension không gửi được comment (sai format message, cứng `localhost:3001`); bắt @handle/tên/avatar, lọc thông báo hệ thống, ID chống trùng, cấu hình server, tự inject vào tab đã mở. Backend: `comment-classifier.ts` bóc SĐT + ngành (24 test), lưu SĐT/ngành vào Customer, lead có SĐT = nóng, báo lỗi rõ khi sai ID phiên. `/lead` trả tên phiên live + 10 comment gần nhất; CSKH hiện nguồn, nhãn ý định tiếng Việt, lịch sử comment, giữ đúng status khi lưu. Thêm `docs/VISION.md`, `extension/README.md`; CI chạy thêm `npm test` backend.
 - 2026-10-30 — Fix CI: backend `npm ci` lỗi trên Node 22/npm 10 ("Missing: typescript@5.9.3 from lock file") → chuyển CI sang Node 24, nâng action lên checkout@v5 / setup-node@v5 / github-script@v8 (hết cảnh báo Node 20 deprecated).
 - 2026-10-30 — Thêm `AGENT.md`, `PROGRESS.md`, `CLAUDE.md` (trỏ tới 2 file trên); thêm GitHub Actions `ci.yml` + `deploy-monitor.yml` (theo dõi deploy Vercel, lỗi → mở issue thông báo).

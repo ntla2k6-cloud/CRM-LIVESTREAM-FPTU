@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const sessionIdInput = document.getElementById('sessionId');
   const apiUrlInput = document.getElementById('apiUrl');
   const message = document.getElementById('message');
+  const sessionInfo = document.getElementById('sessionInfo');
+  const resetBtn = document.getElementById('resetBtn');
+  let confirmReset = false;
   const statusDot = document.getElementById('statusDot');
   const statusTitle = document.getElementById('statusTitle');
   const statusDesc = document.getElementById('statusDesc');
@@ -15,8 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     message.textContent = text || '';
   }
 
-  chrome.storage.local.get(['liveSessionId', 'isCapturing', 'stats', 'apiUrl', 'lastError'], (result) => {
-    if (result.liveSessionId) sessionIdInput.value = result.liveSessionId;
+  chrome.storage.local.get(['sessionInput', 'sessionTitle', 'isCapturing', 'stats', 'apiUrl', 'lastError'], (result) => {
+    if (result.sessionInput) sessionIdInput.value = result.sessionInput;
+    if (result.isCapturing) showSession(result.sessionTitle);
     apiUrlInput.value = result.apiUrl || DEFAULT_API_URL;
     setCapturingState(!!result.isCapturing);
     if (result.stats) {
@@ -37,11 +41,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (area === 'local' && changes.lastError) showMessage(changes.lastError.newValue);
   });
 
-  // Nhận cả ID lẫn link trang CRM dạng .../live/<id>
-  function parseSessionId(value) {
-    let id = value.trim();
-    if (id.includes('/live/')) id = id.split('/live/').pop().split(/[/?#]/)[0];
-    return id;
+  function showSession(title) {
+    sessionInfo.textContent = title ? `Đang ghi vào phiên CRM: ${title}` : '';
+  }
+
+  // Link TikTok / link trang CRM / ID → phiên CRM (backend tự tạo phiên nếu là link TikTok mới)
+  async function resolveSession(apiUrl, input) {
+    let res;
+    try {
+      res = await fetch(`${apiUrl}/live-engine/extension-session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input }),
+      });
+    } catch (e) {
+      throw new Error(`Không kết nối được ${apiUrl}. Server Render có thể đang khởi động, chờ ~1 phút rồi bấm lại.`);
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || `Server trả lỗi ${res.status}`);
+    return data;
   }
 
   async function ensureHostPermission(url) {
@@ -62,15 +80,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   startBtn.addEventListener('click', async () => {
     showMessage('');
-    const sessionId = parseSessionId(sessionIdInput.value);
-    sessionIdInput.value = sessionId;
+    const input = sessionIdInput.value.trim();
     const apiUrl = (apiUrlInput.value.trim() || DEFAULT_API_URL).replace(/\/+$/, '');
 
     const { isCapturing: wasCapturing } = await chrome.storage.local.get(['isCapturing']);
     const isCapturing = !wasCapturing;
 
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const onLivePage = tab && tab.url && /^https:\/\/www\.tiktok\.com\/@[^/]+\/live/.test(tab.url);
+
+    let session = null;
     if (isCapturing) {
-      if (!sessionId) return showMessage('Vui lòng dán link hoặc ID phiên LIVE trên CRM.');
+      if (!onLivePage) {
+        return showMessage('Hãy mở trang TikTok LIVE (tiktok.com/@.../live) rồi bấm lại.');
+      }
       try {
         new URL(apiUrl);
       } catch {
@@ -79,18 +102,27 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!(await ensureHostPermission(apiUrl))) {
         return showMessage('Cần cấp quyền truy cập server CRM để gửi comment.');
       }
+      startBtn.disabled = true;
+      startBtn.textContent = 'ĐANG KẾT NỐI CRM...';
+      try {
+        session = await resolveSession(apiUrl, input || tab.url);
+      } catch (e) {
+        setCapturingState(false);
+        return showMessage(e.message);
+      } finally {
+        startBtn.disabled = false;
+      }
     }
 
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    const onLivePage = tab && tab.url && /^https:\/\/www\.tiktok\.com\/@[^/]+\/live/.test(tab.url);
-    if (isCapturing && !onLivePage) {
-      return showMessage('Hãy mở trang TikTok LIVE (tiktok.com/@.../live) rồi bấm lại.');
-    }
-
-    await chrome.storage.local.set({ liveSessionId: sessionId, apiUrl, isCapturing, lastError: null });
-    if (isCapturing) {
-      chrome.runtime.sendMessage({ action: 'resetStats' }).catch(() => {});
-    }
+    await chrome.storage.local.set({
+      sessionInput: input,
+      ...(session ? { liveSessionId: session.id, sessionTitle: session.title } : {}),
+      apiUrl,
+      isCapturing,
+      lastError: null,
+    });
+    showSession(isCapturing && session ? session.title : '');
+    const sessionId = session ? session.id : undefined;
     setCapturingState(isCapturing);
 
     if (onLivePage) {
@@ -100,6 +132,36 @@ document.addEventListener('DOMContentLoaded', () => {
         showMessage('Không gắn được vào trang TikTok, hãy tải lại trang LIVE rồi thử lại.');
       }
     }
+  });
+
+  resetBtn.addEventListener('click', async () => {
+    if (!confirmReset) {
+      confirmReset = true;
+      resetBtn.textContent = 'BẤM LẦN NỮA ĐỂ XÓA HẾT';
+      setTimeout(() => {
+        confirmReset = false;
+        resetBtn.textContent = 'RESET';
+      }, 3000);
+      return;
+    }
+    confirmReset = false;
+    resetBtn.textContent = 'RESET';
+
+    await chrome.storage.local.set({ isCapturing: false, lastError: null });
+    await chrome.storage.local.remove(['liveSessionId', 'sessionTitle', 'sessionInput']);
+    await chrome.runtime.sendMessage({ action: 'resetAll' }).catch(() => {});
+
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab && tab.url && tab.url.includes('tiktok.com')) {
+      chrome.tabs.sendMessage(tab.id, { action: 'toggleCapture', isCapturing: false }).catch(() => {});
+    }
+
+    sessionIdInput.value = '';
+    statCaptured.textContent = 0;
+    statSyncing.textContent = 0;
+    showSession('');
+    showMessage('');
+    setCapturingState(false);
   });
 
   function setCapturingState(isCapturing) {

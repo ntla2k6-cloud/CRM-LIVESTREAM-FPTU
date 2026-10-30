@@ -15,10 +15,14 @@ TikTok LIVE (Chrome) → content.js (đọc khung chat, lọc rác, chống trù
 3. Ghim icon extension lên thanh công cụ.
 
 ## Dùng trong buổi live
-1. Trên CRM, vào **Live** → mở phiên live → copy link trang (`.../live/<id>`) hoặc ID.
-2. Mở trang TikTok LIVE của trường trên Chrome (`tiktok.com/@.../live`).
-3. Bấm icon extension → dán link/ID → **BẮT ĐẦU THU THẬP**.
-4. "Đã bắt" = comment đọc được, "Đã gửi" = comment CRM đã nhận. Nếu có dòng đỏ báo lỗi, xem nội dung lỗi (sai ID phiên, server Render đang khởi động…). Extension tự thử lại.
+1. Mở trang TikTok LIVE của trường trên Chrome (`tiktok.com/@.../live`).
+2. Bấm icon extension → **BẮT ĐẦU THU THẬP**. Ô nhập có thể:
+   - **để trống** → dùng link của tab TikTok đang mở,
+   - dán **link TikTok LIVE**, hoặc
+   - dán **link/ID phiên trên CRM** (`.../live/<id>`) nếu muốn ghi vào một phiên đã lên lịch.
+   Với link TikTok, CRM tự dùng phiên đang diễn ra của tài khoản đó (trong 12h gần nhất) hoặc tự tạo phiên mới. Popup hiện "Đang ghi vào phiên CRM: …".
+3. "Đã bắt" = comment đọc được, "Đã gửi" = CRM đã nhận. Dòng đỏ = lỗi (server Render đang khởi động…), extension tự thử lại.
+4. **RESET** (bấm 2 lần để xác nhận): dừng, đưa số đếm về 0, xóa comment chưa gửi và phiên đang chọn. Tạm dừng rồi bắt đầu lại thì số đếm được giữ nguyên.
 
 Mặc định gửi về `https://crm-livestream-fptu.onrender.com`. Đổi trong **Cài đặt server CRM** (vd. `http://localhost:3001` khi chạy local).
 

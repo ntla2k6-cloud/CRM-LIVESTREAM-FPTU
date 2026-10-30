@@ -46,6 +46,58 @@ export class LiveEngineService {
     });
   }
 
+  /**
+   * Extension gửi link/ID nào thì trả về phiên LIVE trên CRM tương ứng:
+   * - ID phiên CRM hoặc link trang CRM `.../live/<id>` → phiên đó
+   * - Link TikTok `tiktok.com/@user/live` → phiên đang diễn ra của @user (trong 12h gần nhất), không có thì tạo mới
+   */
+  async resolveExtensionSession(input: string, title?: string) {
+    const value = (input || '').trim();
+    if (!value) throw new BadRequestException('Thiếu link TikTok LIVE hoặc ID phiên CRM');
+
+    const tiktokUser = value.includes('tiktok.com') ? value.match(/@([^/?#\s]+)/)?.[1] : undefined;
+    if (!tiktokUser) {
+      const id = value.includes('/live/') ? value.split('/live/').pop()!.split(/[/?#]/)[0] : value;
+      const session = await this.prisma.liveSession.findUnique({ where: { id } });
+      if (!session) throw new NotFoundException(`Không tìm thấy phiên LIVE "${id}" trên CRM. Dán link TikTok LIVE hoặc link trang Live của CRM.`);
+      return { id: session.id, title: session.title, created: false };
+    }
+
+    const username = decodeURIComponent(tiktokUser);
+    const since = new Date(Date.now() - 12 * 60 * 60 * 1000);
+    const existing = await this.prisma.liveSession.findFirst({
+      where: {
+        creatorUsername: username,
+        status: { in: ['LIVE_NOW', 'SCHEDULED'] },
+        OR: [{ startTime: { gte: since } }, { scheduledAt: { gte: since } }, { createdAt: { gte: since } }],
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (existing) {
+      if (existing.status !== 'LIVE_NOW') {
+        await this.prisma.liveSession.update({
+          where: { id: existing.id },
+          data: { status: 'LIVE_NOW', startTime: existing.startTime ?? new Date() },
+        });
+      }
+      return { id: existing.id, title: existing.title, created: false };
+    }
+
+    const now = new Date();
+    const session = await this.prisma.liveSession.create({
+      data: {
+        title: title?.trim() || `LIVE @${username} ${now.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}`,
+        platform: 'tiktok',
+        creatorUsername: username,
+        liveUrl: `https://www.tiktok.com/@${username}/live`,
+        status: 'LIVE_NOW',
+        startTime: now,
+      },
+    });
+    this.logger.log(`Tạo phiên LIVE mới từ extension cho @${username}: ${session.id}`);
+    return { id: session.id, title: session.title, created: true };
+  }
+
   async assertLiveSessionExists(liveSessionId: string) {
     const session = await this.prisma.liveSession.findUnique({ where: { id: liveSessionId }, select: { id: true } });
     if (!session) {
