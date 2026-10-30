@@ -1,85 +1,106 @@
+// Gom comment từ content script, cứ 2 giây đẩy 1 lô về backend CRM.
+// Backend lưu LiveComment, phân loại và tự tạo/cập nhật Lead (comment-engine/pipeline.service.ts).
+
+const DEFAULT_API_URL = 'https://crm-livestream-fptu.onrender.com';
+const BATCH_SIZE = 50;
+const MAX_QUEUE = 5000;
+
 let commentQueue = [];
 let isCapturing = false;
 let currentSessionId = null;
+let apiUrl = DEFAULT_API_URL;
 let stats = { captured: 0, synced: 0 };
+let flushing = false;
 
-chrome.storage.local.get(['isCapturing', 'liveSessionId', 'stats'], (result) => {
-  isCapturing = result.isCapturing || false;
-  currentSessionId = result.liveSessionId || null;
-  if (result.stats) stats = result.stats;
+// Service worker MV3 có thể bị tắt bất kỳ lúc nào → giữ hàng đợi trong storage.session
+const ready = Promise.all([
+  chrome.storage.local.get(['isCapturing', 'liveSessionId', 'apiUrl', 'stats']),
+  chrome.storage.session.get(['commentQueue']),
+]).then(([local, session]) => {
+  isCapturing = local.isCapturing || false;
+  currentSessionId = local.liveSessionId || null;
+  apiUrl = local.apiUrl || DEFAULT_API_URL;
+  if (local.stats) stats = local.stats;
+  commentQueue = [...(session.commentQueue || []), ...commentQueue];
 });
 
-chrome.storage.onChanged.addListener((changes, namespace) => {
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local') return;
+  if (changes.liveSessionId) currentSessionId = changes.liveSessionId.newValue;
+  if (changes.apiUrl) apiUrl = changes.apiUrl.newValue || DEFAULT_API_URL;
   if (changes.isCapturing) {
     isCapturing = changes.isCapturing.newValue;
-    if (!isCapturing) {
-      // Dừng thì flush queue
-      flushQueue();
-    }
-  }
-  if (changes.liveSessionId) {
-    currentSessionId = changes.liveSessionId.newValue;
+    if (!isCapturing) flushQueue(); // Dừng thì đẩy nốt phần còn lại
   }
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'newComment' && isCapturing) {
-    commentQueue.push({
-      platformCommentId: `ext-${Date.now()}-${Math.random()}`,
-      username: request.data.username,
-      content: request.data.text,
-      timestamp: Date.now()
+  if (request.action === 'newComment' && request.comment) {
+    ready.then(() => {
+      if (!isCapturing) return;
+      commentQueue.push(request.comment);
+      if (commentQueue.length > MAX_QUEUE) commentQueue.splice(0, commentQueue.length - MAX_QUEUE);
+      stats.captured++;
+      saveQueue();
+      updatePopupStats();
     });
-    stats.captured++;
+    sendResponse({ success: true });
+  } else if (request.action === 'resetStats') {
+    stats = { captured: 0, synced: 0 };
     updatePopupStats();
     sendResponse({ success: true });
   }
 });
+
+function saveQueue() {
+  chrome.storage.session.set({ commentQueue }).catch(() => {});
+}
+
+function setSyncState(lastError) {
+  chrome.storage.local.set({ lastError, lastSyncAt: lastError ? undefined : Date.now() });
+}
 
 function updatePopupStats() {
   chrome.storage.local.set({ stats });
   chrome.runtime.sendMessage({
     action: 'updateStats',
     captured: stats.captured,
-    synced: stats.synced
+    synced: stats.synced,
   }).catch(() => {});
 }
 
 async function flushQueue() {
-  if (commentQueue.length === 0 || !currentSessionId) return;
+  await ready;
+  if (flushing || commentQueue.length === 0 || !currentSessionId) return;
+  flushing = true;
 
-  const commentsToSend = [...commentQueue];
-  commentQueue = [];
-
+  const batch = commentQueue.slice(0, BATCH_SIZE);
   try {
-    const res = await fetch('http://localhost:3001/live-engine/extension-comments', {
+    const res = await fetch(`${apiUrl.replace(/\/+$/, '')}/live-engine/extension-comments`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        liveSessionId: currentSessionId,
-        comments: commentsToSend
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ liveSessionId: currentSessionId, comments: batch }),
     });
 
     if (res.ok) {
-      stats.synced += commentsToSend.length;
+      commentQueue.splice(0, batch.length);
+      saveQueue();
+      stats.synced += batch.length;
       updatePopupStats();
+      setSyncState(null);
     } else {
-      console.error('Failed to sync comments', await res.text());
-      // Re-queue if failed
-      commentQueue = [...commentsToSend, ...commentQueue];
+      const text = await res.text();
+      console.error('Gửi comment thất bại', res.status, text);
+      setSyncState(`Server trả lỗi ${res.status}: ${text.slice(0, 120)}`);
     }
   } catch (e) {
-    console.error('Network error syncing comments', e);
-    commentQueue = [...commentsToSend, ...commentQueue];
+    console.error('Lỗi mạng khi gửi comment', e);
+    setSyncState(`Không kết nối được ${apiUrl} (server Render có thể đang khởi động, sẽ tự thử lại)`);
+  } finally {
+    flushing = false;
   }
 }
 
-// Flush every 2 seconds
 setInterval(() => {
-  if (isCapturing) {
-    flushQueue();
-  }
+  if (isCapturing || commentQueue.length) flushQueue();
 }, 2000);

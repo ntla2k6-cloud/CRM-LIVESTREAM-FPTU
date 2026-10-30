@@ -60,7 +60,21 @@ export class LeadService {
 
   findAll() {
     return this.prisma.lead.findMany({
-      include: { customer: true }
+      include: {
+        // Comment gần nhất của thí sinh để CSKH biết họ đã hỏi gì trên live
+        customer: {
+          include: {
+            comments: {
+              select: { content: true, category: true, aiIntent: true, serverTimestamp: true, liveSessionId: true },
+              orderBy: { serverTimestamp: 'desc' },
+              take: 10,
+            },
+          },
+        },
+        liveSession: { select: { id: true, title: true } },
+        campaign: { select: { name: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
     });
   }
 

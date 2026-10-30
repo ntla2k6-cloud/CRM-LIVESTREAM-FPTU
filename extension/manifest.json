@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "TikTok Live Comment Capture",
-  "version": "1.0",
-  "description": "Capture TikTok LIVE comments and send them to CRM",
+  "name": "FPTU LIVE Capture",
+  "version": "1.1.0",
+  "description": "Bắt comment TikTok LIVE và đồng bộ realtime về CRM Tuyển sinh FPTU (lead, minigame, dashboard)",
   "permissions": [
     "storage",
     "activeTab",
@@ -11,7 +11,11 @@
   ],
   "host_permissions": [
     "https://www.tiktok.com/*",
-    "http://localhost:3001/*"
+    "https://crm-livestream-fptu.onrender.com/*",
+    "http://localhost/*"
+  ],
+  "optional_host_permissions": [
+    "https://*/*"
   ],
   "action": {
     "default_popup": "popup.html"

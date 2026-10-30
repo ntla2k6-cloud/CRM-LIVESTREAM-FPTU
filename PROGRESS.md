@@ -3,6 +3,10 @@
 > Đọc cùng `AGENT.md` trước mỗi task. Làm xong task nào → cập nhật file này (mới nhất ở trên).
 
 ## Đang làm / Việc tiếp theo
+- [ ] Test extension trên 1 buổi TikTok LIVE thật (selector DOM mới chỉ test bằng DOM giả lập) — nếu "Đã bắt" không tăng thì sửa selector trong `extension/content.js`.
+- [ ] Deploy backend Render bản mới (bóc SĐT, API `/lead` trả comment) trước buổi live.
+- [ ] Endpoint `/live-engine/extension-comments` chưa có xác thực — cân nhắc thêm token cho extension.
+- [ ] Trụ cột còn thiếu theo `docs/VISION.md`: đếm ngược 30s + xếp hạng mili-giây cho minigame, tạo vận đơn Viettel Post/GHTK, cột "Đã nhập học" trong Kanban, báo cáo ROI.
 - [ ] Merge nhánh `claude/vercel-git-integration-078cd1` (AGENT.md, PROGRESS.md, CI/CD) vào `main` để workflow bắt đầu chạy.
 - [ ] Rotate secrets đã lộ trong git history (Neon DB password, Google OAuth secret, `NEXTAUTH_SECRET`).
 - [ ] Sửa `.gitignore` (đang UTF-16) và gỡ `node_modules`, `backend/dist`, log/bak/zip khỏi git.
@@ -27,6 +31,7 @@
 - **Deploy**: Vercel auto deploy từ `main`, backend trên Render.
 
 ## Nhật ký
+- 2026-10-30 — Extension → CRM → Lead: sửa bug extension không gửi được comment (sai format message, cứng `localhost:3001`); bắt @handle/tên/avatar, lọc thông báo hệ thống, ID chống trùng, cấu hình server, tự inject vào tab đã mở. Backend: `comment-classifier.ts` bóc SĐT + ngành (24 test), lưu SĐT/ngành vào Customer, lead có SĐT = nóng, báo lỗi rõ khi sai ID phiên. `/lead` trả tên phiên live + 10 comment gần nhất; CSKH hiện nguồn, nhãn ý định tiếng Việt, lịch sử comment, giữ đúng status khi lưu. Thêm `docs/VISION.md`, `extension/README.md`; CI chạy thêm `npm test` backend.
 - 2026-10-30 — Fix CI: backend `npm ci` lỗi trên Node 22/npm 10 ("Missing: typescript@5.9.3 from lock file") → chuyển CI sang Node 24, nâng action lên checkout@v5 / setup-node@v5 / github-script@v8 (hết cảnh báo Node 20 deprecated).
 - 2026-10-30 — Thêm `AGENT.md`, `PROGRESS.md`, `CLAUDE.md` (trỏ tới 2 file trên); thêm GitHub Actions `ci.yml` + `deploy-monitor.yml` (theo dõi deploy Vercel, lỗi → mở issue thông báo).
 - 2026-10-03 — Live dashboard realtime, Chrome extension, nút thoát trang live.

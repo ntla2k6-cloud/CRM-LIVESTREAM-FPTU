@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, BadRequestException } from '@nestjs/common';
 import { LiveEngineService } from './live-engine.service.js';
 import { PipelineService } from '../comment-engine/pipeline.service.js';
 
@@ -24,21 +24,34 @@ export class LiveEngineController {
 
   @Post('extension-comments')
   async handleExtensionComments(
-    @Body() body: { liveSessionId: string; comments: Array<{ platformCommentId: string, username: string, content: string, timestamp: number }> }
+    @Body() body: { liveSessionId: string; comments: Array<{ platformCommentId: string, username: string, displayName?: string, avatar?: string, content: string, timestamp: number }> }
   ) {
-    let processed = 0;
-    for (const c of body.comments) {
-      if (!c.content) continue;
-      await this.pipelineService.processComment(body.liveSessionId, {
-        platform: 'extension',
-        platformCommentId: c.platformCommentId || Math.random().toString(),
-        username: c.username,
-        content: c.content,
-        timestamp: new Date(c.timestamp || Date.now())
-      });
-      processed++;
+    if (!body?.liveSessionId || !Array.isArray(body.comments)) {
+      throw new BadRequestException('Thiếu liveSessionId hoặc danh sách comments');
     }
-    return { success: true, processed };
+    await this.liveEngineService.assertLiveSessionExists(body.liveSessionId);
+
+    let processed = 0;
+    let failed = 0;
+    for (const c of body.comments) {
+      if (!c?.content || !c.username) continue;
+      try {
+        await this.pipelineService.processComment(body.liveSessionId, {
+          platform: 'extension',
+          platformCommentId: c.platformCommentId || Math.random().toString(),
+          username: c.username,
+          displayName: c.displayName,
+          avatar: c.avatar,
+          content: c.content,
+          timestamp: new Date(c.timestamp || Date.now())
+        });
+        processed++;
+      } catch (e) {
+        // 1 comment lỗi không được làm extension gửi lại cả lô
+        failed++;
+      }
+    }
+    return { success: true, processed, failed };
   }
 
   @Post('comment')

@@ -1,4 +1,5 @@
-import { Injectable, ConflictException, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, ConflictException, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
+import { HOT_LEAD_SCORE } from '../comment-engine/comment-classifier.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { PipelineService } from '../comment-engine/pipeline.service.js';
 import { TiktokCommentSource } from '../comment-engine/tiktok-comment-source.js';
@@ -43,6 +44,13 @@ export class LiveEngineService {
       });
       return winner;
     });
+  }
+
+  async assertLiveSessionExists(liveSessionId: string) {
+    const session = await this.prisma.liveSession.findUnique({ where: { id: liveSessionId }, select: { id: true } });
+    if (!session) {
+      throw new NotFoundException(`Không tìm thấy phiên LIVE "${liveSessionId}" trên CRM. Hãy copy đúng link/ID phiên trong trang Live của CRM.`);
+    }
   }
 
   async connectToTiktok(liveSessionId: string, tiktokUsername: string) {
@@ -155,7 +163,7 @@ export class LiveEngineService {
     });
 
     const totalLeads = await this.prisma.lead.count({ where: { liveSessionId } });
-    const hotLeads = await this.prisma.lead.count({ where: { liveSessionId, intent: 'HOT' } });
+    const hotLeads = await this.prisma.lead.count({ where: { liveSessionId, leadScore: { gte: HOT_LEAD_SCORE } } });
 
     // Top commenters
     const topCommentersData = await this.prisma.liveComment.groupBy({

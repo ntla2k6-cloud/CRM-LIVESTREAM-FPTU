@@ -6,6 +6,25 @@ import {
 } from "lucide-react";
 import { api } from '@/lib/api';
 
+// Mã ý định do comment-engine (backend) gắn → nhãn tiếng Việt cho CSKH
+const INTENT_LABELS: Record<string, string> = {
+  ADMISSION_PHONE: 'Để lại SĐT trên LIVE',
+  ADMISSION_CONTACT: 'Cần tư vấn / liên hệ',
+  ADMISSION_REGISTER: 'Muốn đăng ký',
+  ADMISSION_TUITION: 'Hỏi học phí / học bổng',
+  ADMISSION_REQUIREMENT: 'Hỏi điều kiện xét tuyển',
+  ADMISSION_DORM: 'Hỏi ký túc xá',
+  ADMISSION_MAJOR: 'Hỏi về ngành học',
+};
+
+const COMMENT_TYPE_LABELS: Record<string, string> = {
+  LEAD: 'Lead LIVE',
+  ADMISSION: 'Hỏi tuyển sinh',
+  QUIZ: 'Minigame',
+  QUESTION: 'Câu hỏi',
+  CHAT: 'Bình luận LIVE',
+};
+
 export default function CSKHBoardPage() {
   const [search, setSearch] = useState("");
   const [selectedLead, setSelectedLead] = useState<any | null>(null);
@@ -97,9 +116,11 @@ export default function CSKHBoardPage() {
               name: String(l.customer?.fullName || ('Khách ' + String(l.id).substring(0,4))),
               phone: String(l.customer?.phone || ''),
               tiktok: String(l.customer?.tiktokAccount || ''),
-              intent: String(l.intent || ''),
-              source: String(l.campaignId || ''),
-              project: String(l.campaign?.name || 'Chưa phân loại'),
+              intent: INTENT_LABELS[l.intent] || String(l.intent || l.customer?.interestedMajor || ''),
+              source: String(l.liveSession?.title || l.campaign?.name || l.source || ''),
+              leadSource: l.source,
+              status: String(l.status || 'NEW'),
+              project: String(l.campaign?.name || (l.liveSessionId ? 'Livestream' : 'Chưa phân loại')),
               score: Number(l.leadScore) || 0,
               isHot: (Number(l.leadScore) || 0) >= 80,
               col: l.status === 'NEW' ? 0 : l.status === 'CONTACTED' ? 1 : l.status === 'CONSULTING' ? 2 : 3,
@@ -109,7 +130,13 @@ export default function CSKHBoardPage() {
               province: String(l.customer?.location || ''),
               cskhStaff: String(l.assignedCskh?.name || ''),
               note: String(l.note || ''),
-              history: Array.isArray(l.history) ? l.history : []
+              history: Array.isArray(l.customer?.comments)
+                ? l.customer.comments.map((c: any) => ({
+                    text: String(c.content || ''),
+                    time: c.serverTimestamp ? new Date(c.serverTimestamp).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : '',
+                    type: COMMENT_TYPE_LABELS[c.category] || 'Bình luận LIVE',
+                  }))
+                : []
             };
           } catch(e) {
             console.error("Lỗi khi parse lead:", l, e);
@@ -928,7 +955,7 @@ export default function CSKHBoardPage() {
                         intent: selectedLead.intent,
                         status: selectedLead.status || 'NEW',
                         leadScore: selectedLead.score ?? 50,
-                        source: selectedLead.source,
+                        source: selectedLead.leadSource ?? selectedLead.source,
                         assignedCskhId: selectedLead.cskhStaffId || undefined,
                       };
                       await api.patch(`/lead/${selectedLead.id}`, payload);
