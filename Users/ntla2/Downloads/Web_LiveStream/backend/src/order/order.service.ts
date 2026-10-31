@@ -1,9 +1,17 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { EmailService, STATUS_LABELS } from '../email/email.service.js';
+import { EmailService, STATUS_LABELS, CARRIER_VISIBLE_STATUSES } from '../email/email.service.js';
 
 // Trạng thái trước khi giao cho đơn vị vận chuyển
-const BEFORE_CARRIER = ['UNPACKED', 'PACKED', 'SENT_TO_ADMIN'];
+const BEFORE_CARRIER = ['UNPACKED', 'PACKED', 'SENT_TO_ADMIN', 'HANDED_OVER'];
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// "@Ten.TikTok " → "ten.tiktok" để so khớp
+export function normalizeTiktok(v?: string | null) {
+  const s = (v ?? '').trim().replace(/^@+/, '').toLowerCase();
+  return s || null;
+}
 
 @Injectable()
 export class OrderService {
@@ -28,6 +36,7 @@ export class OrderService {
         phone:            data.phone || '',
         address:          data.address || '',
         recipientEmail:   data.recipientEmail || null,
+        tiktokAccount:    normalizeTiktok(data.tiktokAccount),
         senderName:       data.senderName || 'Uống Gì Chưa',
         senderAddress:    data.senderAddress || 'FPT University HCM, Lô E2a-7, Đường D1, Long Thạnh Mỹ, TP.HCM',
         status:           data.status || 'PACKED',
@@ -74,6 +83,15 @@ export class OrderService {
   }
 
   async findByTracking(code: string) {
+    return this.toPublic(await this.findByTrackingRaw(code));
+  }
+
+  private toPublic(s: ReturnType<OrderService['formatShipment']>) {
+    if (CARRIER_VISIBLE_STATUSES.includes(s.status)) return s;
+    return { ...s, lastMileCarrier: null, lastMileTrackingCode: null, lastMileTrackingLink: null, shippingProvider: null, trackingLink: null };
+  }
+
+  private async findByTrackingRaw(code: string) {
     // Search by trackingCode / mã vận đơn ĐVVC → orderId → phone
     let s = await this.prisma.shipment.findFirst({
       where: { OR: [{ trackingCode: code }, { lastMileTrackingCode: code }] },
@@ -125,6 +143,7 @@ export class OrderService {
     if (data.address)              updateData.address = data.address;
     if (data.phone)                updateData.phone = data.phone;
     if (data.recipientEmail)       updateData.recipientEmail = data.recipientEmail;
+    if (data.tiktokAccount !== undefined) updateData.tiktokAccount = normalizeTiktok(data.tiktokAccount);
     if (data.winnerName || data.recipientName) {
       updateData.recipientName = data.winnerName || data.recipientName;
     }
@@ -198,13 +217,44 @@ export class OrderService {
         lastMileTrackingCode: trackingCode,
         lastMileTrackingLink: row.trackingLink?.trim() || undefined,
         ...(BEFORE_CARRIER.includes(existing.status) && {
-          status: 'HANDED_OVER',
+          status: 'IN_TRANSIT',
           note: `Hành chính gửi ${carrier || 'ĐVVC'} — mã vận đơn ${trackingCode}`,
         }),
       });
       result.updated++;
     }
     return result;
+  }
+
+  /**
+   * Thủ kho nhập email (người trúng nhắn qua TikTok) rồi gửi mail chúc mừng kèm mã đơn dự án + link tracking.
+   * items: [{ id, email? }] — có email thì lưu trước khi gửi. Mỗi đơn báo kết quả riêng.
+   */
+  async sendCongrats(items: Array<{ id: string; email?: string }>, resend = false) {
+    if (!Array.isArray(items) || items.length === 0) throw new BadRequestException('Chưa chọn đơn nào');
+    if (!this.emailService.isConfigured) {
+      throw new BadRequestException('Chưa kết nối email: đặt SMTP_HOST, SMTP_USER, SMTP_PASS (và SMTP_FROM_EMAIL) trên Render');
+    }
+    const results: Array<{ id: string; ok: boolean; error?: string }> = [];
+    for (const item of items) {
+      const email = item.email?.trim();
+      try {
+        if (email && !EMAIL_RE.test(email)) throw new Error('Email không hợp lệ');
+        const existing = await this.prisma.shipment.findUnique({ where: { id: item.id } });
+        if (!existing) throw new Error('Không tìm thấy đơn');
+        if (existing.congratsSentAt && !resend) throw new Error('Đã gửi mail chúc mừng trước đó');
+        const shipment = email && email !== existing.recipientEmail
+          ? await this.prisma.shipment.update({ where: { id: item.id }, data: { recipientEmail: email } })
+          : existing;
+        if (!shipment.recipientEmail) throw new Error('Chưa có email');
+        await this.emailService.sendCongrats(shipment);
+        await this.prisma.shipment.update({ where: { id: item.id }, data: { congratsSentAt: new Date() } });
+        results.push({ id: item.id, ok: true });
+      } catch (e: any) {
+        results.push({ id: item.id, ok: false, error: e.message });
+      }
+    }
+    return { sent: results.filter((r) => r.ok).length, results };
   }
 
   async remove(id: string) {
@@ -234,6 +284,8 @@ export class OrderService {
       phone:                s.phone || '',
       address:              s.address || '',
       recipientEmail:       s.recipientEmail || null,
+      tiktokAccount:        s.tiktokAccount || null,
+      congratsSentAt:       s.congratsSentAt || null,
       // Quà & phiên
       gift:                 s.giftName || 'Quà tặng',
       liveSessionId:        s.liveSessionId || null,

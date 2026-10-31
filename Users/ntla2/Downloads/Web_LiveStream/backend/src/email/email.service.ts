@@ -12,6 +12,17 @@ export const STATUS_LABELS: Record<string, { label: string; location: string; em
   RETURNED:     { label: 'Hoàn hàng - Giao thất bại',        location: 'Đang hoàn về kho',           emoji: '↩️' },
 };
 
+// Mã dự án (shipment.id) để khách tra cứu suốt quá trình; mã ĐVVC chỉ hiện khi đang vận chuyển
+export const CARRIER_VISIBLE_STATUSES = ['IN_TRANSIT', 'COMPLETED', 'RETURNED'];
+
+export function trackingUrlFor(shipment: { id: string; trackingCode?: string | null }) {
+  const base = process.env.TRACKING_BASE_URL || 'https://crm-livestream-fptu.vercel.app/tracking';
+  return `${base}?code=${encodeURIComponent(shipment.trackingCode || shipment.id)}`;
+}
+
+const escapeHtml = (s: unknown) =>
+  String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
@@ -35,6 +46,69 @@ export class EmailService {
     }
   }
 
+  get isConfigured() {
+    return this.transporter !== null;
+  }
+
+  /** Mail "Chúc mừng trúng quà" kèm mã đơn của dự án + link tracking. Lỗi gửi → throw để Thủ kho biết. */
+  async sendCongrats(shipment: any): Promise<void> {
+    if (!this.transporter) throw new Error('Chưa cấu hình email (SMTP_HOST, SMTP_USER, SMTP_PASS trên Render)');
+    if (!shipment.recipientEmail) throw new Error(`Đơn ${shipment.id} chưa có email`);
+    const trackingUrl = trackingUrlFor(shipment);
+    const fromEmail = process.env.SMTP_FROM_EMAIL || 'uonggichua@fpt.edu.vn';
+    const fromName = process.env.SMTP_FROM_NAME || 'Uống Gì Chưa';
+    const name = escapeHtml(shipment.recipientName || shipment.tiktokAccount || 'bạn');
+    const gift = escapeHtml(shipment.giftName || 'phần quà từ FPTU');
+    const code = escapeHtml(shipment.id);
+
+    const html = `<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f4f6f8;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f8;padding:40px 0;"><tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;max-width:600px;width:100%;">
+      <tr><td style="background:linear-gradient(135deg,#005691,#F58220);padding:32px 40px;text-align:center;">
+        <div style="font-size:40px;margin-bottom:8px;">🎉</div>
+        <div style="color:#ffffff;font-size:24px;font-weight:800;">Chúc mừng bạn đã trúng quà!</div>
+        <div style="color:rgba(255,255,255,0.85);font-size:13px;margin-top:4px;">Livestream Tuyển sinh FPT University HCM</div>
+      </td></tr>
+      <tr><td style="padding:32px 40px 8px;">
+        <p style="color:#1a1a2e;font-size:17px;font-weight:600;margin:0 0 12px;">Xin chào ${name},</p>
+        <p style="color:#555;font-size:15px;line-height:1.7;margin:0 0 16px;">
+          Cảm ơn bạn đã tham gia livestream của FPTU. Bạn đã trúng <strong style="color:#F58220;">${gift}</strong>.
+          Phần quà đang được chuẩn bị và sẽ gửi tới địa chỉ bạn đã cung cấp.
+        </p>
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin:16px 0;">
+          <tr><td style="padding:16px 20px;border-bottom:1px solid #e2e8f0;">
+            <span style="color:#888;font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Phần quà</span><br>
+            <span style="color:#1a1a2e;font-size:15px;font-weight:700;">🎁 ${gift}</span>
+          </td></tr>
+          <tr><td style="padding:16px 20px;">
+            <span style="color:#888;font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Mã vận đơn (tra cứu)</span><br>
+            <span style="color:#005691;font-size:18px;font-weight:800;font-family:monospace;">${code}</span>
+          </td></tr>
+        </table>
+        <p style="color:#555;font-size:14px;line-height:1.7;margin:0;">Dùng mã trên để theo dõi phần quà: đóng gói → gửi đi → đang vận chuyển → đã giao. Khi đơn vị vận chuyển nhận hàng, trang tra cứu sẽ hiện thêm mã của đơn vị vận chuyển.</p>
+      </td></tr>
+      <tr><td style="padding:24px 40px 32px;text-align:center;">
+        <a href="${trackingUrl}" style="display:inline-block;background:#005691;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:8px;font-size:16px;font-weight:700;">📍 Theo dõi phần quà</a>
+        <p style="color:#999;font-size:12px;margin-top:12px;">hoặc mở link: <a href="${trackingUrl}" style="color:#005691;">${trackingUrl}</a></p>
+      </td></tr>
+      <tr><td style="background:#f8fafc;padding:20px 40px;text-align:center;border-top:1px solid #e2e8f0;">
+        <p style="color:#aaa;font-size:12px;margin:0;">Email tự động từ hệ thống <strong>Uống Gì Chưa</strong> — FPT University HCM. Vui lòng không trả lời email này.</p>
+      </td></tr>
+    </table>
+  </td></tr></table>
+</body></html>`;
+
+    await this.transporter.sendMail({
+      from: `"${fromName}" <${fromEmail}>`,
+      to: shipment.recipientEmail,
+      subject: `🎉 Chúc mừng bạn đã trúng ${shipment.giftName || 'quà'} — Mã vận đơn ${shipment.id}`,
+      html,
+    });
+    this.logger.log(`[EMAIL-SENT] congrats ${shipment.id} → ${shipment.recipientEmail}`);
+  }
+
   async sendStatusUpdate(shipment: any, newStatus: string): Promise<void> {
     if (!shipment.recipientEmail) {
       this.logger.log(`[EMAIL-SKIP] No email for shipment ${shipment.id}`);
@@ -53,7 +127,7 @@ export class EmailService {
 
     const statusInfo = STATUS_LABELS[newStatus] || { label: newStatus, location: 'Kho Uống Gì Chưa', emoji: '🔄' };
     const cInfo = CUSTOMER_MAPPING_LABELS[newStatus] || { label: newStatus, emoji: '🔄' };
-    const trackingUrl = `${process.env.TRACKING_BASE_URL || 'https://crm.student.fptu.mobot.app/tracking'}?code=${encodeURIComponent(shipment.trackingCode || shipment.id)}`;
+    const trackingUrl = trackingUrlFor(shipment);
     const fromEmail = process.env.SMTP_FROM_EMAIL || 'uonggichua@fpt.edu.vn';
     const fromName = process.env.SMTP_FROM_NAME || 'Uống Gì Chưa';
 
@@ -110,7 +184,7 @@ export class EmailService {
             </tr>
           </table>
 
-          ${newStatus === 'IN_TRANSIT' && shipment.lastMileCarrier ? `
+          ${CARRIER_VISIBLE_STATUSES.includes(newStatus) && shipment.lastMileCarrier ? `
           <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;margin:16px 0;padding:16px 20px;">
             <tr><td>
               <p style="color:#9a3412;font-weight:700;margin:0 0 8px;">📦 Giao hàng chặng cuối</p>

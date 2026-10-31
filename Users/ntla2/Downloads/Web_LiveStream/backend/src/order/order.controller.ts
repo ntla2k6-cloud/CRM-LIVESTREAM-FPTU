@@ -28,6 +28,12 @@ export class OrderController {
     return this.orderService.bulkTracking(body?.rows);
   }
 
+  @Roles('THU_KHO')
+  @Post('congrats')
+  sendCongrats(@Body() body: { items: Array<{ id: string; email?: string }>; resend?: boolean }) {
+    return this.orderService.sendCongrats(body?.items, !!body?.resend);
+  }
+
   // Customer tracking — search by trackingCode, orderId, or phone
   @Public()
   @Get('tracking/:trackingCode')

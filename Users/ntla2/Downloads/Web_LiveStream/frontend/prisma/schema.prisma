@@ -309,6 +309,8 @@ model Shipment {
   phone          String
   address        String
   recipientEmail String? // Email để gửi thông báo tự động
+  tiktokAccount  String? // TikTok ID người trúng (Thủ kho nhập email theo ID này)
+  congratsSentAt DateTime? // Đã gửi mail chúc mừng trúng quà
 
   // Liên kết livestream (để filter)
   liveSessionId String?

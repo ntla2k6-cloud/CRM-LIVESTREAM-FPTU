@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { api } from '@/lib/api';
 import { parseTrackingFile, toCsv, ADMIN_FILE_HEADER, type TrackingRow } from '@/lib/trackingImport';
+import { printLabels, esc, trackingLink, LABEL_LAYOUTS, type LabelLayout } from '@/lib/labels';
 
 // ─── Status Config ──────────────────────────────────────────────────────────
 const ORDER_STATUSES = [
@@ -26,7 +27,7 @@ ORDER_STATUSES.forEach(s => { STATUS_MAP[s.key] = s; });
 
 // ─── Word Document Export (Fix Font) ────────────────────────────────────────────
 const exportLabelWord = (ordersToExport: any[]) => {
-  if (!ordersToExport.length) { alert('Không có đơn nào để xuất!'); return; }
+  if (!ordersToExport.length) return;
 
   let tableRows = '';
   for (let i = 0; i < ordersToExport.length; i += 2) {
@@ -48,12 +49,13 @@ const exportLabelWord = (ordersToExport: any[]) => {
           <div style="${textStyle}">${o.senderAddress || 'FPT University HCM, Lô E2a-7, D1, Long Thạnh Mỹ, Q9, TP.HCM'}</div>
           <div style="${divStyle}"></div>
           <div style="${headStyle}">NGƯỜI NHẬN / TO</div>
-          <div style="${nameStyle}">${o.recipientName || o.recipient}</div>
-          <div style="${textStyle}">📞 ${o.phone}</div>
-          <div style="${textStyle}">📍 ${o.address}</div>
+          <div style="${nameStyle}">${esc(o.recipientName || o.recipient)}</div>
+          <div style="${textStyle}">ĐT: ${esc(o.phone)}</div>
+          <div style="${textStyle}">Địa chỉ: ${esc(o.address)}</div>
           <div style="${divStyle}"></div>
-          <div style="${textStyle} font-weight: bold; color: #005691;">Mã đơn: ${o.id}</div>
-          ${o.gift ? `<div style="${textStyle} color: #F58220; font-weight: bold;">🎁 ${o.gift}</div>` : ''}
+          <div style="${textStyle} font-weight: bold; color: #005691;">Mã vận đơn: ${esc(o.id)}</div>
+          ${o.gift ? `<div style="${textStyle} color: #F58220; font-weight: bold;">Quà: ${esc(o.gift)}</div>` : ''}
+          <div style="font-size: 9pt; color: #666; font-family: 'Times New Roman', serif;">Tra cứu: ${esc(trackingLink(window.location.origin, o.id))}</div>
         </td>
       `;
     };
@@ -137,6 +139,19 @@ export default function InventoryPage() {
   const [importText, setImportText] = useState('');
   const [importResult, setImportResult] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  // Mail chúc mừng: Thủ kho nhập email (người trúng nhắn qua TikTok) theo TikTok ID
+  const [congratsOpen, setCongratsOpen] = useState(false);
+  const [congratsSearch, setCongratsSearch] = useState('');
+  const [congratsShowSent, setCongratsShowSent] = useState(false);
+  const [congratsEmails, setCongratsEmails] = useState<Record<string, string>>({});
+  const [congratsStatus, setCongratsStatus] = useState<Record<string, string>>({});
+  // In tem: lọc + chọn đơn (mặc định đơn Chưa đóng gói), không in hết mọi lần
+  const [printOpen, setPrintOpen] = useState(false);
+  const [printStatuses, setPrintStatuses] = useState<string[]>(['UNPACKED']);
+  const [printSession, setPrintSession] = useState('ALL');
+  const [printSearch, setPrintSearch] = useState('');
+  const [printSelected, setPrintSelected] = useState<Set<string>>(new Set());
+  const [printLayout, setPrintLayout] = useState<LabelLayout>('A4_6');
 
   const refreshData = async () => {
     try {
@@ -157,11 +172,15 @@ export default function InventoryPage() {
   const handleSaveOrder = async () => {
     if (!selectedOrder || isSubmitting) return;
     if (selectedOrder.status === 'IN_TRANSIT' && !selectedOrder.lastMileCarrier?.trim()) {
-      alert('Vui lòng nhập Tên đơn vị vận chuyển (NCC) khi chọn trạng thái "Đơn vị vận chuyển"!');
+      showNotice('Vui lòng nhập tên đơn vị vận chuyển khi chọn trạng thái "Đơn vị vận chuyển đang xử lý"');
       return;
     }
     setIsSubmitting(true);
     try {
+      if (selectedOrder.recipientEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(selectedOrder.recipientEmail.trim())) {
+        showNotice('Email không hợp lệ');
+        return;
+      }
       if (selectedOrder.id && orders.find(o => o.id === selectedOrder.id)) {
         await api.patch(`/order/${selectedOrder.id}`, {
           status:               selectedOrder.status,
@@ -174,6 +193,7 @@ export default function InventoryPage() {
           phone:                selectedOrder.phone,
           address:              selectedOrder.address,
           recipientEmail:       selectedOrder.recipientEmail,
+          tiktokAccount:        selectedOrder.tiktokAccount ?? undefined,
           gift:                 selectedOrder.gift,
         });
       } else {
@@ -183,6 +203,7 @@ export default function InventoryPage() {
           phone:         selectedOrder.phone || '',
           address:       selectedOrder.address || '',
           recipientEmail:selectedOrder.recipientEmail || null,
+          tiktokAccount: selectedOrder.tiktokAccount || null,
           gift:          selectedOrder.gift || '',
           status:        selectedOrder.status || 'UNPACKED',
           liveSessionId: selectedOrder.liveSessionId || null,
@@ -193,7 +214,7 @@ export default function InventoryPage() {
       setSelectedOrder(null);
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.message || 'Lỗi khi lưu đơn hàng!');
+      showNotice(err.message || 'Lỗi khi lưu đơn hàng!');
     } finally { setIsSubmitting(false); }
   };
 
@@ -214,7 +235,7 @@ export default function InventoryPage() {
 
   const handleSaveGift = async () => {
     if (!selectedGift || isSubmitting) return;
-    if (!selectedGift.name?.trim() || !selectedGift.sku?.trim()) { alert('Vui lòng nhập Tên Quà và Mã SKU!'); return; }
+    if (!selectedGift.name?.trim() || !selectedGift.sku?.trim()) { showNotice('Vui lòng nhập Tên Quà và Mã SKU'); return; }
     setIsSubmitting(true);
     try {
       if (gifts.find(g => g.id === selectedGift.id)) {
@@ -222,7 +243,7 @@ export default function InventoryPage() {
       } else { await api.post('/gift', selectedGift); }
       await refreshData(); setSelectedGift(null);
     } catch (err: any) {
-      console.error(err); alert(err.response?.data?.message || 'Lỗi lưu quà tặng! Có thể SKU đã tồn tại.');
+      console.error(err); showNotice(err.message || 'Lỗi lưu quà tặng! Có thể SKU đã tồn tại.');
       await refreshData();
     } finally { setIsSubmitting(false); }
   };
@@ -233,7 +254,7 @@ export default function InventoryPage() {
     try {
       if (selectedGift.id) await api.delete(`/gift/${selectedGift.id}`);
       await refreshData(); setSelectedGift(null);
-    } catch (err) { console.error(err); alert('Lỗi khi xóa!'); }
+    } catch (err) { console.error(err); showNotice('Lỗi khi xóa quà tặng'); }
     finally { setIsSubmitting(false); }
   };
 
@@ -306,6 +327,61 @@ export default function InventoryPage() {
     } finally { setIsSubmitting(false); }
   };
 
+  // ─── Mail chúc mừng trúng quà ───────────────────────────────────────────────
+  const congratsOrders = useMemo(() => {
+    const q = congratsSearch.trim().replace(/^@/, '').toLowerCase();
+    return orders
+      .filter(o => congratsShowSent || !o.congratsSentAt)
+      .filter(o => !q || (o.tiktokAccount || '').includes(q) || (o.recipient || o.recipientName || '').toLowerCase().includes(q) || (o.id || '').toLowerCase().includes(q));
+  }, [orders, congratsSearch, congratsShowSent]);
+  const congratsEmailOf = (o: any) => congratsEmails[o.id] ?? o.recipientEmail ?? '';
+
+  const handleSendCongrats = async (targets: any[]) => {
+    const items = targets.filter(o => congratsEmailOf(o).trim()).map(o => ({ id: o.id, email: congratsEmailOf(o).trim() }));
+    if (!items.length || isSubmitting) return;
+    setIsSubmitting(true);
+    setCongratsStatus(prev => ({ ...prev, ...Object.fromEntries(items.map(i => [i.id, 'Đang gửi...'])) }));
+    try {
+      const res = await api.post('/order/congrats', { items, resend: congratsShowSent });
+      setCongratsStatus(prev => ({ ...prev, ...Object.fromEntries(res.data.results.map((r: any) => [r.id, r.ok ? '✅ Đã gửi' : `❌ ${r.error}`])) }));
+      showNotice(`Đã gửi ${res.data.sent}/${items.length} mail chúc mừng`);
+      await refreshData();
+    } catch (err: any) {
+      setCongratsStatus(prev => ({ ...prev, ...Object.fromEntries(items.map(i => [i.id, `❌ ${err.message}`])) }));
+    } finally { setIsSubmitting(false); }
+  };
+
+  const printCandidates = useMemo(() => {
+    const q = printSearch.trim().replace(/^@/, '').toLowerCase();
+    return orders
+      .filter(o => printStatuses.length === 0 || printStatuses.includes(o.status))
+      .filter(o => printSession === 'ALL' || o.liveSessionId === printSession)
+      .filter(o => !q || (o.id || '').toLowerCase().includes(q) || (o.recipient || o.recipientName || '').toLowerCase().includes(q)
+        || (o.phone || '').includes(q) || (o.tiktokAccount || '').includes(q));
+  }, [orders, printStatuses, printSession, printSearch]);
+  const printChosen = useMemo(() => printCandidates.filter(o => printSelected.has(o.id)), [printCandidates, printSelected]);
+
+  // Đổi bộ lọc → chọn sẵn toàn bộ đơn khớp lọc (bỏ tích từng đơn nếu không muốn in)
+  useEffect(() => {
+    if (printOpen) setPrintSelected(new Set(printCandidates.map(o => o.id)));
+  }, [printOpen, printStatuses, printSession, printSearch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const openPrint = (status?: string) => {
+    setPrintStatuses(status ? [status] : ['UNPACKED']);
+    setPrintSession(sessionFilter);
+    setPrintSearch('');
+    setPrintOpen(true);
+  };
+  const togglePrintStatus = (key: string) =>
+    setPrintStatuses(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
+  const togglePrintOrder = (id: string) =>
+    setPrintSelected(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+
+  const handlePrintLabels = () => {
+    const error = printLabels(printChosen, printLayout);
+    if (error) showNotice(error);
+  };
+
   // ─── Export Excel CSV ───────────────────────────────────────────────────────
   const handleExportExcel = () => {
     const rows = [
@@ -355,9 +431,13 @@ export default function InventoryPage() {
                 className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-[#00A859] hover:bg-[#008f4c] rounded-xl text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5">
                 <Plus size={15} /> Tạo đơn hàng
               </button>
-              <button onClick={() => exportLabelWord(filteredOrders)}
+              <button onClick={() => { setCongratsOpen(true); setCongratsStatus({}); }}
+                className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-[#F58220] hover:bg-[#e07010] rounded-xl text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5">
+                <Mail size={15} /> Gửi mail chúc mừng
+              </button>
+              <button onClick={() => openPrint()}
                 className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-[#005691] hover:bg-[#004270] rounded-xl text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5">
-                <FileText size={15} /> Xuất Tem Word
+                <FileText size={15} /> In tem giao hàng
               </button>
             </>
           )}
@@ -494,8 +574,8 @@ export default function InventoryPage() {
                     <button onClick={handleExportExcel} className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-xl text-xs font-bold hover:bg-green-700 transition-colors">
                       <Download size={13} /> Excel
                     </button>
-                    <button onClick={() => exportLabelWord(filteredOrders)} className="flex items-center gap-1.5 px-3 py-2 bg-[#005691] text-white rounded-xl text-xs font-bold hover:bg-[#004270] transition-colors">
-                      <FileText size={13} /> Xuất Tem Word
+                    <button onClick={() => openPrint(orderFilter !== 'ALL' ? orderFilter : undefined)} className="flex items-center gap-1.5 px-3 py-2 bg-[#005691] text-white rounded-xl text-xs font-bold hover:bg-[#004270] transition-colors">
+                      <FileText size={13} /> In tem
                     </button>
                   </div>
                 </div>
@@ -528,6 +608,8 @@ export default function InventoryPage() {
                     <div className="col-span-3">
                       <span className="font-bold text-sm text-slate-900 block">{order.recipient || order.recipientName}</span>
                       <span className="text-xs font-bold text-[#F58220]">{order.phone}</span>
+                      {order.tiktokAccount && <span className="block text-[11px] font-semibold text-slate-500">@{order.tiktokAccount}</span>}
+                      {order.congratsSentAt && <span className="inline-block mt-1 text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 rounded px-1.5 py-0.5">✉️ Đã gửi mail chúc mừng</span>}
                       {order.recipientEmail && <span className="text-[10px] text-slate-400 block truncate">{order.recipientEmail}</span>}
                     </div>
                     <div className="col-span-3">
@@ -682,6 +764,7 @@ export default function InventoryPage() {
                 {[
                   { label: 'Họ tên', key: 'recipientName', placeholder: 'Nguyễn Văn A', type: 'text' },
                   { label: 'Số điện thoại', key: 'phone', placeholder: '0901234567', type: 'tel' },
+                  { label: 'TikTok ID người trúng', key: 'tiktokAccount', placeholder: '@ten.tiktok', type: 'text' },
                   { label: 'Email (nhận thông báo)', key: 'recipientEmail', placeholder: 'email@example.com', type: 'email' },
                 ].map(f => (
                   <div key={f.key} className="space-y-1">
@@ -810,6 +893,147 @@ export default function InventoryPage() {
 
       {notice && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] max-w-lg bg-slate-900 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-xl">{notice}</div>
+      )}
+
+      {/* In tem giao hàng: lọc + chọn đơn */}
+      {printOpen && (
+        <div className="fixed inset-0 z-[60] bg-slate-900/50 flex items-center justify-center p-4" onClick={() => setPrintOpen(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90dvh] flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between gap-4">
+              <div>
+                <h3 className="font-black text-slate-900 flex items-center gap-2"><FileText size={18} className="text-[#005691]" /> In tem giao hàng</h3>
+                <p className="text-xs text-slate-500 mt-1">Lọc rồi tích chọn đơn cần in. Mặc định: đơn <b>Chưa đóng gói</b>.</p>
+              </div>
+              <button onClick={() => setPrintOpen(false)} className="text-slate-400 hover:text-slate-700"><X size={20} /></button>
+            </div>
+            <div className="px-5 pt-4 space-y-3">
+              <div className="flex flex-wrap gap-1.5">
+                {ORDER_STATUSES.map(st => {
+                  const on = printStatuses.includes(st.key);
+                  const cnt = orders.filter(o => o.status === st.key).length;
+                  return (
+                    <button key={st.key} onClick={() => togglePrintStatus(st.key)}
+                      className={`px-2.5 py-1.5 rounded-lg border text-[11px] font-bold transition-colors ${on ? 'bg-[#005691] text-white border-[#005691]' : 'bg-white text-slate-600 border-slate-200 hover:border-[#005691]'}`}>
+                      {st.label} <span className={on ? 'text-white/80' : 'text-slate-400'}>({cnt})</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <div className="relative flex-1 min-w-[200px]">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                  <input value={printSearch} onChange={e => setPrintSearch(e.target.value)} placeholder="Tìm mã đơn, tên, SĐT, TikTok..."
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-[#005691]" />
+                </div>
+                <select value={printSession} onChange={e => setPrintSession(e.target.value)} className="px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none bg-white max-w-[240px]">
+                  <option value="ALL">Tất cả phiên live</option>
+                  {sessions.map(se => <option key={se.id} value={se.id}>{se.title || se.id}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="p-5 overflow-y-auto flex-1">
+              {printCandidates.length === 0 ? (
+                <p className="text-sm text-slate-400 text-center py-8">Không có đơn nào khớp bộ lọc.</p>
+              ) : (
+                <div className="border border-slate-200 rounded-xl overflow-hidden">
+                  <label className="flex items-center gap-3 px-3 py-2 bg-slate-50 text-[11px] font-black text-slate-500 uppercase cursor-pointer">
+                    <input type="checkbox" checked={printChosen.length === printCandidates.length}
+                      onChange={e => setPrintSelected(new Set(e.target.checked ? printCandidates.map(o => o.id) : []))} />
+                    Chọn tất cả ({printChosen.length}/{printCandidates.length})
+                  </label>
+                  <div className="divide-y divide-slate-100 max-h-[40dvh] overflow-y-auto">
+                    {printCandidates.map(o => (
+                      <label key={o.id} className={`grid grid-cols-12 gap-2 px-3 py-2 items-center text-xs cursor-pointer ${printSelected.has(o.id) ? 'bg-blue-50/40' : ''}`}>
+                        <div className="col-span-1"><input type="checkbox" checked={printSelected.has(o.id)} onChange={() => togglePrintOrder(o.id)} /></div>
+                        <div className="col-span-2 font-mono font-bold text-[#005691]">{o.id}</div>
+                        <div className="col-span-3"><div className="font-bold truncate">{o.recipient || o.recipientName}</div><div className="text-slate-500">{o.phone}</div></div>
+                        <div className="col-span-4 text-slate-600 line-clamp-2">{o.address || <span className="text-red-500 font-bold">Thiếu địa chỉ</span>}</div>
+                        <div className="col-span-2"><StatusBadge status={o.status} /></div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="p-5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-2">
+                {(Object.keys(LABEL_LAYOUTS) as LabelLayout[]).map(k => (
+                  <label key={k} title={LABEL_LAYOUTS[k].hint}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-bold cursor-pointer ${printLayout === k ? 'border-[#005691] bg-blue-50 text-[#005691]' : 'border-slate-200 text-slate-600'}`}>
+                    <input type="radio" name="printLayout" checked={printLayout === k} onChange={() => setPrintLayout(k)} /> {LABEL_LAYOUTS[k].name}
+                  </label>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => exportLabelWord(printChosen)} disabled={!printChosen.length}
+                  className="px-3 py-2 bg-white border border-slate-200 text-slate-600 text-xs font-bold rounded-xl disabled:opacity-40">Tải file Word</button>
+                <button onClick={handlePrintLabels} disabled={!printChosen.length}
+                  className="px-4 py-2 bg-[#005691] text-white text-sm font-black rounded-xl disabled:opacity-40">In {printChosen.length} tem</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Gửi mail chúc mừng trúng quà */}
+      {congratsOpen && (
+        <div className="fixed inset-0 z-[60] bg-slate-900/50 flex items-center justify-center p-4" onClick={() => setCongratsOpen(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90dvh] flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between gap-4">
+              <div>
+                <h3 className="font-black text-slate-900 flex items-center gap-2"><Mail size={18} className="text-[#F58220]" /> Gửi mail chúc mừng trúng quà</h3>
+                <p className="text-xs text-slate-500 mt-1">Người trúng nhắn email qua TikTok → tìm theo TikTok ID, nhập email, bấm Gửi. Mail gồm tên quà, <b>mã vận đơn của dự án</b> và link tracking.</p>
+              </div>
+              <button onClick={() => setCongratsOpen(false)} className="text-slate-400 hover:text-slate-700"><X size={20} /></button>
+            </div>
+            <div className="px-5 pt-4 flex flex-wrap items-center gap-3">
+              <div className="relative flex-1 min-w-[220px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                <input value={congratsSearch} onChange={e => setCongratsSearch(e.target.value)} placeholder="Tìm TikTok ID, tên, mã đơn..."
+                  className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-[#005691]" />
+              </div>
+              <label className="flex items-center gap-2 text-xs font-bold text-slate-500">
+                <input type="checkbox" checked={congratsShowSent} onChange={e => setCongratsShowSent(e.target.checked)} /> Hiện cả đơn đã gửi (gửi lại)
+              </label>
+            </div>
+            <div className="p-5 overflow-y-auto">
+              {congratsOrders.length === 0 ? (
+                <p className="text-sm text-slate-400 text-center py-8">Không có đơn nào cần gửi mail.</p>
+              ) : (
+                <div className="border border-slate-200 rounded-xl overflow-hidden min-w-[720px]">
+                  <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-slate-50 text-[10px] font-black text-slate-500 uppercase">
+                    <div className="col-span-2">TikTok ID</div><div className="col-span-2">Người nhận</div><div className="col-span-2">Quà / Mã đơn</div><div className="col-span-3">Email</div><div className="col-span-3">Gửi</div>
+                  </div>
+                  <div className="divide-y divide-slate-100">
+                    {congratsOrders.map(o => (
+                      <div key={o.id} className="grid grid-cols-12 gap-2 px-3 py-2 items-center text-xs">
+                        <div className="col-span-2 font-bold text-slate-700 truncate">{o.tiktokAccount ? `@${o.tiktokAccount}` : <span className="text-slate-400 font-normal">(chưa có)</span>}</div>
+                        <div className="col-span-2 truncate">{o.recipient || o.recipientName}</div>
+                        <div className="col-span-2"><div className="truncate text-[#F58220] font-bold">{o.gift}</div><code className="text-[10px] text-slate-500">{o.id}</code></div>
+                        <div className="col-span-3">
+                          <input type="email" value={congratsEmailOf(o)} onChange={e => setCongratsEmails(prev => ({ ...prev, [o.id]: e.target.value }))} placeholder="email@gmail.com"
+                            className="w-full px-2 py-1.5 border border-slate-200 rounded-lg outline-none focus:border-[#005691]" />
+                        </div>
+                        <div className="col-span-3 flex items-center gap-2">
+                          <button onClick={() => handleSendCongrats([o])} disabled={isSubmitting || !congratsEmailOf(o).trim()}
+                            className="px-3 py-1.5 bg-[#F58220] text-white font-bold rounded-lg disabled:opacity-40">Gửi</button>
+                          <span className="text-[11px] font-semibold text-slate-600 truncate" title={congratsStatus[o.id]}>{congratsStatus[o.id] || (o.congratsSentAt ? '✉️ Đã gửi trước đó' : '')}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="p-5 border-t border-slate-100 flex justify-end gap-2">
+              <button onClick={() => setCongratsOpen(false)} className="px-4 py-2 bg-slate-100 text-slate-600 text-sm font-bold rounded-xl">Đóng</button>
+              <button onClick={() => handleSendCongrats(congratsOrders)} disabled={isSubmitting || !congratsOrders.some(o => congratsEmailOf(o).trim())}
+                className="px-4 py-2 bg-[#F58220] text-white text-sm font-black rounded-xl disabled:opacity-40">
+                {isSubmitting ? 'Đang gửi...' : `Gửi tất cả (${congratsOrders.filter(o => congratsEmailOf(o).trim()).length} có email)`}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Nhập mã vận đơn Hành chính gửi lại */}

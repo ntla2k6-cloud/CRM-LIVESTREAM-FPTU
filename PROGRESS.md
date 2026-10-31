@@ -3,6 +3,7 @@
 > Đọc cùng `AGENT.md` trước mỗi task. Làm xong task nào → cập nhật file này (mới nhất ở trên).
 
 ## Đang làm / Việc tiếp theo
+- [ ] **Kho: in tem + mail chúc mừng (code trên nhánh, chưa deploy)** — trước deploy phải `ALTER TABLE "Shipment" ADD COLUMN IF NOT EXISTS "tiktokAccount" TEXT, ADD COLUMN IF NOT EXISTS "congratsSentAt" TIMESTAMP(3)`; mail cần SMTP_* trên Render. Sau deploy test E2E trang Kho bằng đơn test.
 - [ ] **Minigame đã lên production** (2026-10-31, `e3d8f7cb`, đã thêm cột `Question.options`; API `/question` test OK). Còn: test trên live thật — tạo câu → Bắt đầu → comment `A/B/C/D` → bảng xếp hạng. Trang `/play` vẫn nối `localhost:3001` (chưa chạy trên production).
 - [ ] Chuyển repo GitHub sang Private + đổi mật khẩu Neon, Google OAuth secret, `NEXTAUTH_SECRET`, `JWT_SECRET` (AUDIT #3 — người dùng tự làm).
 - [ ] **Vận đơn qua Hành chính đã lên production** (2026-10-31, `33bfa31d`; API bulk test OK, quyền BIEN_TAP bị 403). Còn: Thủ kho thử 1 vòng thật (Chuyển Hành chính → nhập file mã vận đơn → `/tracking`), xem giao diện trang Kho.
@@ -20,6 +21,8 @@
 - `.gitignore` root và `Web_LiveStream/.gitignore` mã hóa UTF-16 → git không đọc → ~17.6k file `node_modules` đã bị commit.
 - `users.json` chứa email thật + password hash.
 - Frontend build bỏ qua lỗi ESLint/TS (`next.config.mjs`).
+- Trang `/claim` (`api/claim/route.ts`) dùng `customer.name/username/email` — không có trong schema Customer → lỗi khi người trúng tự điền thông tin.
+- Email chưa gửi được: Render chưa có `SMTP_HOST/USER/PASS`.
 - App Vinsoul root ghi file JSON → không lưu bền trên Vercel.
 
 ## Đã xong (tóm tắt theo module)
@@ -34,6 +37,7 @@
 - **Deploy**: Vercel auto deploy từ `main`, backend trên Render.
 
 ## Nhật ký
+- 2026-10-31 — Kho: **In tem giao hàng** mới (`frontend/src/lib/labels.ts`): cửa sổ lọc theo trạng thái (mặc định Chưa đóng gói) / phiên / tìm kiếm + tích chọn từng đơn; khổ A4 6 tem/trang hoặc 100×150 máy in nhiệt; tên/SĐT to, địa chỉ không bị cắt (tự thu nhỏ chữ), ô MÃ VẬN ĐƠN (mã dự án) nổi bật — đã kiểm tra bằng ảnh chụp Chrome headless. Word export bỏ emoji. **Mail chúc mừng trúng quà**: Shipment thêm `tiktokAccount`, `congratsSentAt`; form đơn có ô TikTok ID; cửa sổ "Gửi mail chúc mừng" tìm theo TikTok ID, nhập email, gửi (`POST /order/congrats`, THU_KHO) — mail gồm tên quà + mã vận đơn dự án + link tracking; không gửi lại trừ khi chọn. **Mã ĐVVC chỉ hiện cho khách từ IN_TRANSIT** (`/order/tracking` ẩn trước đó; email trạng thái cũng vậy); nhập file mã từ Hành chính → IN_TRANSIT. Sửa link tracking trong mail (tên miền cũ `crm.student.fptu.mobot.app` chết → `crm-livestream-fptu.vercel.app`). 4 test mới.
 - 2026-10-31 — Vận đơn qua Hành chính (AUDIT #27): trạng thái mới `SENT_TO_ADMIN` "Đã chuyển Hành chính" (khách vẫn thấy "Đã xử lý", không gửi mail). Trang Kho: nút **Chuyển Hành chính (N)** xuất file CSV các đơn Đã đóng gói (cột ĐVVC/Mã vận đơn/Link trống cho HC điền) + chuyển trạng thái; nút **Nhập mã vận đơn** nhận file CSV hoặc dán từ Excel (tự nhận cột theo tiêu đề, xem trước từng dòng) → `POST /order/bulk-tracking` gắn ĐVVC + mã, đơn chưa giao → HANDED_OVER (lịch sử + mail khách). API `bulk-status`/`bulk-tracking` chỉ THU_KHO/ADMIN/MANAGER. `/tracking` tra được bằng mã vận đơn ĐVVC. 3 test mới.
 - 2026-10-31 — Sửa minigame (AUDIT #7, #8): câu hỏi lưu DB qua API `/question` (tạo/sửa/xóa, `POST :id/start|end`, `GET :id/leaderboard`); Bắt đầu → câu ACTIVE + `startedAt` (đóng câu khác), Kết thúc/hết giờ → CLOSED; socket `gameStarted/gameEnded` phát theo phòng phiên (bỏ handler socket không xác thực); chấm điểm bỏ qua đáp án sau `timeLimit + 2s`, tốc độ tính theo giờ extension thấy comment (lệch >30s/tương lai → giờ server); trang Điều khiển LIVE bỏ MOCK_QUESTIONS, có "Tạo 3 câu mẫu", "+ Thêm câu hỏi", tải lại trang giữa câu → chạy tiếp đồng hồ + bảng xếp hạng. Schema thêm `Question.options Json?` (cả 2 file). 6 test mới.
 - 2026-10-31 — Bật xác thực backend trên production: `INTERNAL_API_KEY` (Vercel + Render) và `EXTENSION_TOKEN` (Render) đã đặt; kiểm chứng: giả `x-user-role: ADMIN`/sai khóa → 401, CSKH đăng nhập tải lead bình thường, extension 1.3.0 có ô Mã truy cập.
