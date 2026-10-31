@@ -4,7 +4,7 @@
 
 ## Đang làm / Việc tiếp theo
 - [ ] **Kho: in tem + mail chúc mừng đã lên production** (2026-10-31, đã thêm cột `Shipment.tiktokAccount/congratsSentAt`). Test E2E trên production bằng đơn test (đã xóa): tạo đơn + TikTok ID ✅, lọc/chọn in tem ✅, chuyển Hành chính chỉ đơn đang lọc ✅, nhập mã (dán Excel) → IN_TRANSIT + lịch sử ✅, `/tracking` bằng mã dự án và mã ĐVVC ✅, mail chúc mừng báo "chưa kết nối email" ✅. Còn: đặt SMTP_* trên Render rồi gửi thử 1 mail; in tem trên máy thật.
-- [ ] **Minigame đã lên production** (2026-10-31, `e3d8f7cb`, đã thêm cột `Question.options`; API `/question` test OK). Còn: test trên live thật — tạo câu → Bắt đầu → comment `A/B/C/D` → bảng xếp hạng. Trang `/play` vẫn nối `localhost:3001` (chưa chạy trên production).
+- [ ] **Minigame đã lên production** (2026-10-31, `e3d8f7cb`, đã thêm cột `Question.options`; API `/question` test OK). Còn: test trên live thật — tạo câu → Bắt đầu → comment `A/B/C/D` → bảng xếp hạng.
 - [ ] Chuyển repo GitHub sang Private + đổi mật khẩu Neon, Google OAuth secret, `NEXTAUTH_SECRET`, `JWT_SECRET` (AUDIT #3 — người dùng tự làm).
 - [ ] **Vận đơn qua Hành chính đã lên production** (2026-10-31, `33bfa31d`; API bulk test OK, quyền BIEN_TAP bị 403). Còn: Thủ kho thử 1 vòng thật (Chuyển Hành chính → nhập file mã vận đơn → `/tracking`), xem giao diện trang Kho.
 - [ ] **Xem `docs/AUDIT-2026-10-31.md`** — 31 việc đã xếp ưu tiên. P0 bảo mật: backend Render đang trả lead/staff/order (SĐT, email, địa chỉ) cho người không đăng nhập; repo GitHub public kèm secret cũ trong lịch sử; minigame không chấm điểm được (P1 #7).
@@ -21,7 +21,6 @@
 - `.gitignore` root và `Web_LiveStream/.gitignore` mã hóa UTF-16 → git không đọc → ~17.6k file `node_modules` đã bị commit.
 - `users.json` chứa email thật + password hash.
 - Frontend build bỏ qua lỗi ESLint/TS (`next.config.mjs`).
-- Trang `/play` (người xem trả lời qua web) chưa chạy: nối cứng `localhost:3001`, backend không có handler `submitAnswer`, không vào phòng phiên → chỉ chơi minigame qua comment TikTok.
 - Phiên LIVE không tự kết thúc khi extension dừng → danh sách phiên luôn "Đang LIVE" (3 phiên hiện tại).
 - Frontend còn lỗi type ở `schedule/page.tsx`, `Sidebar.tsx`, `live/[id]/report` (chỉ sai khai báo kiểu, chạy vẫn đúng).
 - Email chưa gửi được: Render chưa có `SMTP_HOST/USER/PASS`.
@@ -39,6 +38,7 @@
 - **Deploy**: Vercel auto deploy từ `main`, backend trên Render.
 
 ## Nhật ký
+- 2026-10-31 — Gỡ trang `/play` (người xem trả lời minigame qua web — buộc rời TikTok LIVE, trái mục tiêu giữ chân người xem; chưa từng chạy được) và handler socket `submitAnswer` (không xác thực, ai cũng bắn được comment giả). Ghi nguyên tắc "mọi tương tác trên TikTok" vào `AGENT.md` §4.
 - 2026-10-31 — Kiểm tra toàn bộ: backend 53/53 test, build frontend + backend OK; production: API chưa đăng nhập / giả ADMIN / extension không token → 401, tra cứu đơn công khai 200; mọi trang đăng nhập tải dữ liệu thật, các API chính trả 200. Sửa: `/api/claim` lỗi 500 (dùng `customer.username/name/email` không tồn tại → tìm theo SĐT hoặc TikTok ID, lưu `fullName`, đơn tạo ra kèm `tiktokAccount`); trang Nhân sự crash khi user có role lạ (`DEFAULT_ROLES` không định nghĩa); trang `live/[id]/history` luôn rỗng (đọc sai `{data}`); trang Điều khiển LIVE mở lại hiện 0 comment → tải sẵn comment/lead của phiên; `alert` lỗi TikTok → toast.
 - 2026-10-31 — Chuẩn hóa 3 đơn trạng thái kiểu cũ trên DB production (không khớp bộ lọc nào): `DON-788` "Đơn vị đang vận chuyển" và `DON-TEST999` "Đang vận chuyển" → `IN_TRANSIT`, `DON-003` "Đã tạo đơn" → `UNPACKED`; có ghi lịch sử, không gửi mail. Bộ lọc trang Kho giờ đủ 6/6 đơn. `DON-788`, `DON-003` thiếu tên người nhận (dữ liệu test cũ).
 - 2026-10-31 — In tem đổi sang iframe ẩn (trình duyệt chặn pop-up làm `window.open` trả null → không in được, phát hiện khi test E2E); thông báo trang Kho lên đầu màn hình (trước bị thanh menu dưới che).

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // Trang khách/thí sinh dùng không cần đăng nhập
-const PUBLIC_PAGES = ['/login', '/claim', '/tracking', '/play'];
+const PUBLIC_PAGES = ['/login', '/claim', '/tracking'];
 
 // next-auth dùng session lưu DB (PrismaAdapter) → middleware (Edge) không truy vấn DB được,
 // chỉ chặn sớm khi chưa có cookie phiên. Kiểm tra quyền thật nằm ở proxy /api/backend + backend.

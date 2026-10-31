@@ -55,7 +55,7 @@ Chrome extension MV3 đọc comment TikTok LIVE trên Chrome thật → `POST {b
 - `EXTENSION_TOKEN` (Render): extension gửi `x-extension-token` cho route `@ExtensionAccess()` (`extension-session`, `extension-comments`); nhập trong popup → "Cài đặt server CRM".
 - Chưa đặt 2 biến → chế độ cũ (tin header, log cảnh báo) để không sập production khi deploy.
 - Route mới: mặc định cần đăng nhập. Trang công khai gọi API → gắn `@Public()` (hiện có: `GET /`, `GET /order/tracking/:code`). Frontend luôn gọi qua `/api/backend`, không gọi thẳng `NEXT_PUBLIC_API_URL`.
-- `frontend/src/middleware.ts`: chưa có cookie phiên → về `/login`, trừ `/login`, `/claim`, `/tracking`, `/play`.
+- `frontend/src/middleware.ts`: chưa có cookie phiên → về `/login`, trừ `/login`, `/claim`, `/tracking`.
 - Socket.io (websocket) chưa xác thực.
 
 ## 3. Deploy & CI/CD
@@ -73,6 +73,8 @@ Chrome extension MV3 đọc comment TikTok LIVE trên Chrome thật → `POST {b
   ```
 
 ## 4. Quy ước
+
+- **Nguyên tắc sản phẩm: mọi tương tác của người xem diễn ra NGAY TRÊN TikTok LIVE** (comment A/B/C/D, để lại SĐT, tặng quà) để giữ chân người xem. Không làm trang web/link bắt người xem rời live trong lúc live (đã gỡ `/play` vì lý do này). Trang ngoài chỉ dùng SAU live: `/claim` (người trúng điền địa chỉ), `/tracking`.
 
 - Commit: `type(scope): mô tả` (vd. `feat(live): ...`, `fix(rbac): ...`).
 - Làm trên nhánh riêng + PR; **không push thẳng `main`** (push `main` = deploy production). Không dùng `Day_Code_Len_Mang.bat` (`git add .` đẩy cả rác/secret).
