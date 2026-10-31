@@ -16,7 +16,7 @@ export default function LiveHistoryPage({ params }: { params: { id: string } }) 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/live-session/' + params.id + '/history').then(data => {
+    api.get('/live-session/' + params.id + '/history').then(({ data }) => {
       setComments(data.comments || []);
       setLeads(data.leads || []);
       setWinners(data.winners || []);

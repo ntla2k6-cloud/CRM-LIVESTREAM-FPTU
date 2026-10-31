@@ -8,11 +8,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Thiếu số điện thoại hoặc ID' }, { status: 400 });
   }
 
+  // Người trúng nhập SĐT hoặc TikTok ID (có/không có @)
+  const id = identifier.trim();
   const customer = await prisma.customer.findFirst({
     where: {
       OR: [
-        { phone: identifier },
-        { username: identifier }
+        { phone: id },
+        { tiktokAccount: id.replace(/^@/, '') },
+        { tiktokAccount: id }
       ]
     }
   });
@@ -53,7 +56,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     id: winner.id,
-    customerName: customer.name || customer.username,
+    customerName: customer.fullName || customer.tiktokAccount || '',
     customerPhone: customer.phone || '',
     giftName: winner.gift.name,
     liveSessionName: winner.liveSession.title
@@ -89,10 +92,9 @@ export async function POST(req: NextRequest) {
 
     await prisma.customer.update({
       where: { id: winner.customerId },
-      data: { 
-        name, 
-        phone: winner.customer.phone ? winner.customer.phone : phone,
-        email: winner.customer.email ? winner.customer.email : email
+      data: {
+        fullName: name,
+        phone: winner.customer.phone ? winner.customer.phone : phone
       }
     });
 
@@ -108,6 +110,7 @@ export async function POST(req: NextRequest) {
         recipientEmail: email || null,
         giftName: winner.gift.name,
         liveSessionId: winner.liveSessionId,
+        tiktokAccount: winner.customer.tiktokAccount,
         status: 'UNPACKED',
         currentLocation: 'Hệ thống ghi nhận',
       }

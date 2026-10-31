@@ -3,7 +3,7 @@
 > Đọc cùng `AGENT.md` trước mỗi task. Làm xong task nào → cập nhật file này (mới nhất ở trên).
 
 ## Đang làm / Việc tiếp theo
-- [ ] **Kho: in tem + mail chúc mừng đã lên production** (2026-10-31, đã thêm cột `Shipment.tiktokAccount/congratsSentAt`). Test E2E trên production bằng đơn test (đã xóa): tạo đơn + TikTok ID ✅, lọc/chọn in tem ✅, chuyển Hành chính chỉ đơn đang lọc ✅, nhập mã (dán Excel) → IN_TRANSIT + lịch sử ✅, `/tracking` bằng mã dự án và mã ĐVVC ✅, mail chúc mừng báo "chưa kết nối email" ✅. Còn: đặt SMTP_* trên Render rồi gửi thử 1 mail; in tem trên máy thật. 3 đơn cũ (DON-788, DON-003, DON-TEST999) có trạng thái kiểu cũ ("Đã tạo đơn", "Đang vận chuyển"…) không khớp bộ lọc.
+- [ ] **Kho: in tem + mail chúc mừng đã lên production** (2026-10-31, đã thêm cột `Shipment.tiktokAccount/congratsSentAt`). Test E2E trên production bằng đơn test (đã xóa): tạo đơn + TikTok ID ✅, lọc/chọn in tem ✅, chuyển Hành chính chỉ đơn đang lọc ✅, nhập mã (dán Excel) → IN_TRANSIT + lịch sử ✅, `/tracking` bằng mã dự án và mã ĐVVC ✅, mail chúc mừng báo "chưa kết nối email" ✅. Còn: đặt SMTP_* trên Render rồi gửi thử 1 mail; in tem trên máy thật.
 - [ ] **Minigame đã lên production** (2026-10-31, `e3d8f7cb`, đã thêm cột `Question.options`; API `/question` test OK). Còn: test trên live thật — tạo câu → Bắt đầu → comment `A/B/C/D` → bảng xếp hạng. Trang `/play` vẫn nối `localhost:3001` (chưa chạy trên production).
 - [ ] Chuyển repo GitHub sang Private + đổi mật khẩu Neon, Google OAuth secret, `NEXTAUTH_SECRET`, `JWT_SECRET` (AUDIT #3 — người dùng tự làm).
 - [ ] **Vận đơn qua Hành chính đã lên production** (2026-10-31, `33bfa31d`; API bulk test OK, quyền BIEN_TAP bị 403). Còn: Thủ kho thử 1 vòng thật (Chuyển Hành chính → nhập file mã vận đơn → `/tracking`), xem giao diện trang Kho.
@@ -21,7 +21,9 @@
 - `.gitignore` root và `Web_LiveStream/.gitignore` mã hóa UTF-16 → git không đọc → ~17.6k file `node_modules` đã bị commit.
 - `users.json` chứa email thật + password hash.
 - Frontend build bỏ qua lỗi ESLint/TS (`next.config.mjs`).
-- Trang `/claim` (`api/claim/route.ts`) dùng `customer.name/username/email` — không có trong schema Customer → lỗi khi người trúng tự điền thông tin.
+- Trang `/play` (người xem trả lời qua web) chưa chạy: nối cứng `localhost:3001`, backend không có handler `submitAnswer`, không vào phòng phiên → chỉ chơi minigame qua comment TikTok.
+- Phiên LIVE không tự kết thúc khi extension dừng → danh sách phiên luôn "Đang LIVE" (3 phiên hiện tại).
+- Frontend còn lỗi type ở `schedule/page.tsx`, `Sidebar.tsx`, `live/[id]/report` (chỉ sai khai báo kiểu, chạy vẫn đúng).
 - Email chưa gửi được: Render chưa có `SMTP_HOST/USER/PASS`.
 - App Vinsoul root ghi file JSON → không lưu bền trên Vercel.
 
@@ -37,6 +39,7 @@
 - **Deploy**: Vercel auto deploy từ `main`, backend trên Render.
 
 ## Nhật ký
+- 2026-10-31 — Kiểm tra toàn bộ: backend 53/53 test, build frontend + backend OK; production: API chưa đăng nhập / giả ADMIN / extension không token → 401, tra cứu đơn công khai 200; mọi trang đăng nhập tải dữ liệu thật, các API chính trả 200. Sửa: `/api/claim` lỗi 500 (dùng `customer.username/name/email` không tồn tại → tìm theo SĐT hoặc TikTok ID, lưu `fullName`, đơn tạo ra kèm `tiktokAccount`); trang Nhân sự crash khi user có role lạ (`DEFAULT_ROLES` không định nghĩa); trang `live/[id]/history` luôn rỗng (đọc sai `{data}`); trang Điều khiển LIVE mở lại hiện 0 comment → tải sẵn comment/lead của phiên; `alert` lỗi TikTok → toast.
 - 2026-10-31 — Chuẩn hóa 3 đơn trạng thái kiểu cũ trên DB production (không khớp bộ lọc nào): `DON-788` "Đơn vị đang vận chuyển" và `DON-TEST999` "Đang vận chuyển" → `IN_TRANSIT`, `DON-003` "Đã tạo đơn" → `UNPACKED`; có ghi lịch sử, không gửi mail. Bộ lọc trang Kho giờ đủ 6/6 đơn. `DON-788`, `DON-003` thiếu tên người nhận (dữ liệu test cũ).
 - 2026-10-31 — In tem đổi sang iframe ẩn (trình duyệt chặn pop-up làm `window.open` trả null → không in được, phát hiện khi test E2E); thông báo trang Kho lên đầu màn hình (trước bị thanh menu dưới che).
 - 2026-10-31 — Kho: **In tem giao hàng** mới (`frontend/src/lib/labels.ts`): cửa sổ lọc theo trạng thái (mặc định Chưa đóng gói) / phiên / tìm kiếm + tích chọn từng đơn; khổ A4 6 tem/trang hoặc 100×150 máy in nhiệt; tên/SĐT to, địa chỉ không bị cắt (tự thu nhỏ chữ), ô MÃ VẬN ĐƠN (mã dự án) nổi bật — đã kiểm tra bằng ảnh chụp Chrome headless. Word export bỏ emoji. **Mail chúc mừng trúng quà**: Shipment thêm `tiktokAccount`, `congratsSentAt`; form đơn có ô TikTok ID; cửa sổ "Gửi mail chúc mừng" tìm theo TikTok ID, nhập email, gửi (`POST /order/congrats`, THU_KHO) — mail gồm tên quà + mã vận đơn dự án + link tracking; không gửi lại trừ khi chọn. **Mã ĐVVC chỉ hiện cho khách từ IN_TRANSIT** (`/order/tracking` ẩn trước đó; email trạng thái cũng vậy); nhập file mã từ Hành chính → IN_TRANSIT. Sửa link tracking trong mail (tên miền cũ `crm.student.fptu.mobot.app` chết → `crm-livestream-fptu.vercel.app`). 4 test mới.

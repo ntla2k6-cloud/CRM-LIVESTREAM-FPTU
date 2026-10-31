@@ -292,7 +292,7 @@ export default function UnifiedStaffPage() {
                 <div className="text-center text-slate-400 text-sm py-10">Không tìm thấy nhân sự</div>
               ) : (
                 filteredUsers.map(user => {
-                  const role = UI_ROLES.find(r => r.value === user.role) || DEFAULT_ROLES[0];
+                  const role = UI_ROLES.find(r => r.value === user.role) || UI_ROLES[0];
                   const isActive = selectedUser?.id === user.id;
                   return (
                     <button

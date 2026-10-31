@@ -153,7 +153,8 @@ export default function LiveControlPage() {
     socket.on('tiktokStatus', (data: any) => {
       setTiktokStatus(data.status);
       if (data.status === 'error') {
-        alert("Lỗi kết nối TikTok: " + data.message);
+        setToastMessage("Lỗi kết nối TikTok: " + data.message);
+        setTimeout(() => setToastMessage(null), 5000);
       }
     });
 
@@ -162,18 +163,38 @@ export default function LiveControlPage() {
       setTimeout(() => setToastMessage(null), 3000);
     });
 
+    const toUiComment = (dbComment: any) => ({
+      id: dbComment.platformCommentId || dbComment.id,
+      name: dbComment.username,
+      text: dbComment.content,
+      time: new Date(dbComment.serverTimestamp || Date.now()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      category: dbComment.category,
+      isPhone: dbComment.category === 'LEAD',
+      isHighIntent: dbComment.category === 'ADMISSION',
+      isMock: dbComment.platform === 'mock'
+    });
+
+    // Mở lại trang giữa buổi live → hiện comment/lead đã có (quà tặng không tính là comment)
+    fetchApi(`/live-session/${params}/history`).then((h: any) => {
+      const old = (h?.comments || []).filter((c: any) => c.category !== 'GIFT');
+      setComments(old.map(toUiComment).reverse().slice(0, 500));
+      setTotalComments(old.length);
+      old.forEach((c: any) => uniqueUsersRef.current.add(c.username));
+      setUniqueUsersCount(uniqueUsersRef.current.size);
+      setLeads((h?.leads || []).map((l: any) => ({
+        id: l.id,
+        name: l.customer?.tiktokAccount || l.customerId,
+        phone: l.customer?.phone || 'Chưa có',
+        intent: l.intent || 'WARM',
+        text: l.intent,
+        time: new Date(l.createdAt).toLocaleTimeString(),
+        status: l.status || 'NEW'
+      })));
+    }).catch(() => {});
+
     // Server-side Engine Events
     socket.on('comment:new', (dbComment: any) => {
-      const newComment = {
-        id: dbComment.platformCommentId || dbComment.id,
-        name: dbComment.username,
-        text: dbComment.content,
-        time: new Date(dbComment.serverTimestamp || Date.now()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-        category: dbComment.category,
-        isPhone: dbComment.category === 'LEAD',
-        isHighIntent: dbComment.category === 'ADMISSION',
-        isMock: dbComment.platform === 'mock'
-      };
+      const newComment = toUiComment(dbComment);
       setComments(prev => [newComment, ...prev].slice(0, 500));
       setTotalComments(prev => prev + 1);
       uniqueUsersRef.current.add(dbComment.username);
