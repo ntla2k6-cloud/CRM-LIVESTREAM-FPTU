@@ -3,7 +3,7 @@
 > Đọc cùng `AGENT.md` trước mỗi task. Làm xong task nào → cập nhật file này (mới nhất ở trên).
 
 ## Đang làm / Việc tiếp theo
-- [ ] **Bật xác thực backend**: code đã lên production (2026-10-31, `814d54d6`) nhưng Render **chưa nhận** `INTERNAL_API_KEY`/`EXTENSION_TOKEN` (gửi `x-user-role: ADMIN` thẳng lên Render vẫn 200). Đặt trên Render → Save, rebuild and deploy; kiểm tra: `curl -H 'x-user-role: ADMIN' https://crm-livestream-fptu.onrender.com/lead` phải ra 401. Sau đó nhập `EXTENSION_TOKEN` vào popup extension.
+- [ ] Xác thực backend **đã bật trên Render** (2026-10-31: giả `x-user-role` → 401, token extension bắt buộc). Còn xác nhận: Vercel có đúng `INTERNAL_API_KEY` (đăng nhập CRM, trang CSKH tải được lead) + extension đã nhập token.
 - [ ] Chuyển repo GitHub sang Private + đổi mật khẩu Neon, Google OAuth secret, `NEXTAUTH_SECRET`, `JWT_SECRET` (AUDIT #3 — người dùng tự làm).
 - [ ] Vận đơn theo quy trình Hành chính (AUDIT #27, flow đã chốt).
 - [ ] **Xem `docs/AUDIT-2026-10-31.md`** — 31 việc đã xếp ưu tiên. P0 bảo mật: backend Render đang trả lead/staff/order (SĐT, email, địa chỉ) cho người không đăng nhập; repo GitHub public kèm secret cũ trong lịch sử; minigame không chấm điểm được (P1 #7).
