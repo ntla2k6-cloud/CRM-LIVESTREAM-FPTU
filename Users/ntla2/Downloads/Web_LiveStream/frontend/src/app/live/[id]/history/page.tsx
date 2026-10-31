@@ -17,7 +17,7 @@ export default function LiveHistoryPage({ params }: { params: { id: string } }) 
 
   useEffect(() => {
     api.get('/live-session/' + params.id + '/history').then(({ data }) => {
-      setComments(data.comments || []);
+      setComments((data.comments || []).filter((c: any) => c.category !== 'GIFT'));
       setLeads(data.leads || []);
       setWinners(data.winners || []);
       setLoading(false);
@@ -77,7 +77,7 @@ export default function LiveHistoryPage({ params }: { params: { id: string } }) 
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-bold text-slate-700">{cmt.displayName || cmt.username}</span>
-                        <span className="text-xs text-slate-400 font-medium">{new Date(cmt.createdAt).toLocaleTimeString()}</span>
+                        <span className="text-xs text-slate-400 font-medium">{new Date(cmt.serverTimestamp).toLocaleTimeString('vi-VN')}</span>
                       </div>
                       <p className="text-slate-800">{cmt.content}</p>
                     </div>
