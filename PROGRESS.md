@@ -3,13 +3,12 @@
 > Đọc cùng `AGENT.md` trước mỗi task. Làm xong task nào → cập nhật file này (mới nhất ở trên).
 
 ## Đang làm / Việc tiếp theo
-- [ ] **Bật xác thực backend**: đặt `INTERNAL_API_KEY` (giống nhau) trên Vercel + Render, `EXTENSION_TOKEN` trên Render, rồi nhập token vào popup extension. Chưa đặt = backend vẫn mở như cũ.
+- [ ] **Bật xác thực backend**: code đã lên production (2026-10-31, `814d54d6`) nhưng Render **chưa nhận** `INTERNAL_API_KEY`/`EXTENSION_TOKEN` (gửi `x-user-role: ADMIN` thẳng lên Render vẫn 200). Đặt trên Render → Save, rebuild and deploy; kiểm tra: `curl -H 'x-user-role: ADMIN' https://crm-livestream-fptu.onrender.com/lead` phải ra 401. Sau đó nhập `EXTENSION_TOKEN` vào popup extension.
 - [ ] Chuyển repo GitHub sang Private + đổi mật khẩu Neon, Google OAuth secret, `NEXTAUTH_SECRET`, `JWT_SECRET` (AUDIT #3 — người dùng tự làm).
 - [ ] Vận đơn theo quy trình Hành chính (AUDIT #27, flow đã chốt).
 - [ ] **Xem `docs/AUDIT-2026-10-31.md`** — 31 việc đã xếp ưu tiên. P0 bảo mật: backend Render đang trả lead/staff/order (SĐT, email, địa chỉ) cho người không đăng nhập; repo GitHub public kèm secret cũ trong lịch sử; minigame không chấm điểm được (P1 #7).
 - [ ] Test extension trên 1 buổi TikTok LIVE thật (selector DOM mới chỉ test bằng DOM giả lập) — nếu "Đã bắt" không tăng thì sửa selector trong `extension/content.js`.
 - [ ] Deploy backend Render bản mới (bóc SĐT, API `/lead` trả comment) trước buổi live.
-- [ ] Endpoint `/live-engine/extension-comments` chưa có xác thực — cân nhắc thêm token cho extension.
 - [ ] Trụ cột còn thiếu theo `docs/VISION.md`: đếm ngược 30s + xếp hạng mili-giây cho minigame, tạo vận đơn Viettel Post/GHTK, cột "Đã nhập học" trong Kanban, báo cáo ROI.
 - [ ] Merge nhánh `claude/vercel-git-integration-078cd1` (AGENT.md, PROGRESS.md, CI/CD) vào `main` để workflow bắt đầu chạy.
 - [ ] Rotate secrets đã lộ trong git history (Neon DB password, Google OAuth secret, `NEXTAUTH_SECRET`).
