@@ -6,18 +6,20 @@ import {
   Calendar, Copy, ExternalLink, FileText, AlertTriangle, Mail, Link2
 } from "lucide-react";
 import { api } from '@/lib/api';
+import { parseTrackingFile, toCsv, ADMIN_FILE_HEADER, type TrackingRow } from '@/lib/trackingImport';
 
 // ─── Status Config ──────────────────────────────────────────────────────────
 const ORDER_STATUSES = [
   { key: 'UNPACKED',    label: 'Chưa đóng gói',                    color: 'bg-slate-50 text-slate-600 border-slate-200',     dot: 'bg-slate-400' },
   { key: 'PACKED',      label: 'Đã đóng gói',                      color: 'bg-orange-50 text-orange-600 border-orange-200',  dot: 'bg-orange-500' },
+  { key: 'SENT_TO_ADMIN', label: 'Đã chuyển Hành chính',          color: 'bg-amber-50 text-amber-700 border-amber-200',     dot: 'bg-amber-500' },
   { key: 'HANDED_OVER', label: 'Đã chuyển tới đơn vị vận chuyển', color: 'bg-purple-50 text-purple-600 border-purple-200',  dot: 'bg-purple-500' },
   { key: 'IN_TRANSIT',  label: 'Đơn vị vận chuyển đang xử lý',    color: 'bg-blue-50 text-blue-600 border-blue-200',        dot: 'bg-blue-500' },
   { key: 'COMPLETED',   label: 'Hoàn tất',                          color: 'bg-green-50 text-green-600 border-green-200',     dot: 'bg-green-500' },
   { key: 'RETURNED',    label: 'Hoàn hàng',                         color: 'bg-red-50 text-red-600 border-red-200',           dot: 'bg-red-500' },
 ] as const;
 
-type StatusKey = 'UNPACKED' | 'PACKED' | 'HANDED_OVER' | 'IN_TRANSIT' | 'COMPLETED' | 'RETURNED';
+type StatusKey = 'UNPACKED' | 'PACKED' | 'SENT_TO_ADMIN' | 'HANDED_OVER' | 'IN_TRANSIT' | 'COMPLETED' | 'RETURNED';
 
 const STATUS_MAP: Record<string, { label: string; color: string; dot: string }> = {};
 ORDER_STATUSES.forEach(s => { STATUS_MAP[s.key] = s; });
@@ -129,6 +131,12 @@ export default function InventoryPage() {
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const [drawerGiftOpen, setDrawerGiftOpen] = useState(false);
   const [drawerStatusOpen, setDrawerStatusOpen] = useState(false);
+  // Quy trình Hành chính: đóng gói xong → chuyển HC (xuất file) → HC gửi lại mã vận đơn → Thủ kho nhập
+  const [confirmSendAdmin, setConfirmSendAdmin] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [importResult, setImportResult] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const refreshData = async () => {
     try {
@@ -241,6 +249,62 @@ export default function InventoryPage() {
           || (o.phone || '').includes(q);
       }),
   [orders, orderFilter, sessionFilter, search]);
+
+  // ─── Quy trình Hành chính ───────────────────────────────────────────────────
+  const showNotice = (msg: string) => { setNotice(msg); setTimeout(() => setNotice(null), 5000); };
+  const packedOrders = useMemo(() => filteredOrders.filter(o => o.status === 'PACKED'), [filteredOrders]);
+
+  const downloadCsv = (rows: unknown[][], filename: string) => {
+    const blob = new Blob([toCsv(rows)], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob); const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
+  };
+
+  // Xuất file gửi Hành chính (cột ĐVVC/mã vận đơn để trống cho HC điền) + chuyển trạng thái
+  const handleSendToAdmin = async () => {
+    if (!packedOrders.length || isSubmitting) return;
+    if (!confirmSendAdmin) {
+      setConfirmSendAdmin(true);
+      setTimeout(() => setConfirmSendAdmin(false), 4000);
+      return;
+    }
+    setConfirmSendAdmin(false);
+    setIsSubmitting(true);
+    try {
+      downloadCsv(
+        [ADMIN_FILE_HEADER, ...packedOrders.map(o => [o.id, o.recipient || o.recipientName, o.phone, o.address, o.gift, '', '', ''])],
+        `GuiHanhChinh_${new Date().toLocaleDateString('vi-VN').replace(/\//g, '-')}.csv`,
+      );
+      const res = await api.post('/order/bulk-status', { ids: packedOrders.map(o => o.id), status: 'SENT_TO_ADMIN', note: 'Thủ kho chuyển Hành chính gửi vận chuyển' });
+      showNotice(`Đã chuyển ${res.data.updated} đơn sang Hành chính. Gửi file vừa tải cho Hành chính điền đơn vị vận chuyển + mã vận đơn.`);
+      await refreshData();
+    } catch (err: any) {
+      showNotice(`Lỗi chuyển Hành chính: ${err.message}`);
+    } finally { setIsSubmitting(false); }
+  };
+
+  const importParsed = useMemo(() => importText.trim() ? parseTrackingFile(importText) : { rows: [] as TrackingRow[] }, [importText]);
+  const orderIds = useMemo(() => new Set(orders.map(o => o.id)), [orders]);
+
+  const handleImportFile = async (file: File | undefined) => {
+    if (!file) return;
+    setImportResult(null);
+    setImportText(await file.text());
+  };
+
+  const handleApplyTracking = async () => {
+    const rows = importParsed.rows.filter(r => r.id && r.trackingCode);
+    if (!rows.length || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const res = await api.post('/order/bulk-tracking', { rows });
+      const { updated, notFound, invalid } = res.data;
+      setImportResult(`Đã cập nhật ${updated} đơn.` + (notFound.length ? ` Không tìm thấy: ${notFound.join(', ')}.` : '') + (invalid.length ? ` Thiếu mã vận đơn: ${invalid.join(', ')}.` : ''));
+      await refreshData();
+    } catch (err: any) {
+      setImportResult(`Lỗi: ${err.message}`);
+    } finally { setIsSubmitting(false); }
+  };
 
   // ─── Export Excel CSV ───────────────────────────────────────────────────────
   const handleExportExcel = () => {
@@ -420,6 +484,13 @@ export default function InventoryPage() {
                     <span className="text-xs text-slate-400 font-medium">{filteredOrders.length} đơn</span>
                   </div>
                   <div className="flex gap-2">
+                    <button onClick={handleSendToAdmin} disabled={!packedOrders.length || isSubmitting} title="Xuất file các đơn Đã đóng gói gửi Hành chính và chuyển trạng thái"
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-colors disabled:opacity-40 ${confirmSendAdmin ? 'bg-red-600 text-white' : 'bg-amber-500 text-white hover:bg-amber-600'}`}>
+                      <Truck size={13} /> {confirmSendAdmin ? `Bấm lần nữa: chuyển ${packedOrders.length} đơn` : `Chuyển Hành chính (${packedOrders.length})`}
+                    </button>
+                    <button onClick={() => { setImportOpen(true); setImportResult(null); }} className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:border-[#005691] hover:text-[#005691] transition-colors">
+                      <ListChecks size={13} /> Nhập mã vận đơn
+                    </button>
                     <button onClick={handleExportExcel} className="flex items-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-xl text-xs font-bold hover:bg-green-700 transition-colors">
                       <Download size={13} /> Excel
                     </button>
@@ -489,9 +560,9 @@ export default function InventoryPage() {
                         </div>
 
                         {/* NCC info when IN_TRANSIT */}
-                        {order.status === 'IN_TRANSIT' && order.lastMileCarrier && (
+                        {['HANDED_OVER', 'IN_TRANSIT'].includes(order.status) && (order.lastMileCarrier || order.lastMileTrackingCode) && (
                           <div className="mt-2 space-y-1 text-[10px]">
-                            <div className="font-bold text-slate-600">🚚 {order.lastMileCarrier}</div>
+                            {order.lastMileCarrier && <div className="font-bold text-slate-600">🚚 {order.lastMileCarrier}</div>}
                             {order.lastMileTrackingCode && (
                               <div className="flex items-center gap-1">
                                 <code className="text-[#F58220] font-mono font-bold">{order.lastMileTrackingCode}</code>
@@ -691,7 +762,7 @@ export default function InventoryPage() {
               </div>
 
               {/* IN_TRANSIT: NCC fields */}
-              {selectedOrder.status === 'IN_TRANSIT' && (
+              {['HANDED_OVER', 'IN_TRANSIT'].includes(selectedOrder.status) && (
                 <div className="space-y-3 p-4 bg-orange-50 border border-orange-200 rounded-xl">
                   <h4 className="text-xs font-black text-orange-700 uppercase tracking-wider flex items-center gap-1.5"><Truck size={13} /> Đơn vị vận chuyển chặng cuối (NCC)</h4>
                   {[
@@ -736,6 +807,66 @@ export default function InventoryPage() {
           </>
         )}
       </div>
+
+      {notice && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] max-w-lg bg-slate-900 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-xl">{notice}</div>
+      )}
+
+      {/* Nhập mã vận đơn Hành chính gửi lại */}
+      {importOpen && (
+        <div className="fixed inset-0 z-[60] bg-slate-900/50 flex items-center justify-center p-4" onClick={() => setImportOpen(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90dvh] flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="font-black text-slate-900 flex items-center gap-2"><ListChecks size={18} className="text-[#005691]" /> Nhập mã vận đơn từ Hành chính</h3>
+                <p className="text-xs text-slate-500 mt-1">Cần cột <b>Mã Đơn</b> và <b>Mã vận đơn</b> (thêm <b>Đơn vị vận chuyển</b>, <b>Link tra cứu</b> nếu có). Đơn chưa giao sẽ chuyển sang &quot;Đã chuyển tới đơn vị vận chuyển&quot; và gửi email cho khách.</p>
+              </div>
+              <button onClick={() => setImportOpen(false)} className="text-slate-400 hover:text-slate-700"><X size={20} /></button>
+            </div>
+            <div className="p-5 space-y-3 overflow-y-auto">
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="px-3 py-2 bg-[#005691] text-white rounded-xl text-xs font-bold cursor-pointer">
+                  Chọn file CSV
+                  <input type="file" accept=".csv,.txt,text/csv" className="hidden" onChange={e => handleImportFile(e.target.files?.[0])} />
+                </label>
+                <span className="text-xs text-slate-500">hoặc mở file Excel → chọn cả bảng (Ctrl+A) → Copy → dán vào ô dưới</span>
+              </div>
+              <textarea value={importText} onChange={e => { setImportText(e.target.value); setImportResult(null); }} rows={5}
+                placeholder={ADMIN_FILE_HEADER.join('\t')}
+                className="w-full text-xs font-mono border border-slate-200 rounded-xl p-3 outline-none focus:border-[#005691]" />
+              {importParsed.error && <p className="text-xs font-bold text-red-600">{importParsed.error}</p>}
+              {importParsed.rows.length > 0 && (
+                <div className="border border-slate-200 rounded-xl overflow-hidden">
+                  <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-slate-50 text-[10px] font-black text-slate-500 uppercase">
+                    <div className="col-span-3">Mã đơn</div><div className="col-span-3">Đơn vị vận chuyển</div><div className="col-span-3">Mã vận đơn</div><div className="col-span-3">Kiểm tra</div>
+                  </div>
+                  <div className="max-h-64 overflow-y-auto divide-y divide-slate-100">
+                    {importParsed.rows.map((r, i) => {
+                      const problem = !r.id ? 'Thiếu mã đơn' : !orderIds.has(r.id) ? 'Không có đơn này' : !r.trackingCode ? 'Thiếu mã vận đơn' : null;
+                      return (
+                        <div key={i} className="grid grid-cols-12 gap-2 px-3 py-2 text-xs">
+                          <div className="col-span-3 font-mono font-bold">{r.id}</div>
+                          <div className="col-span-3">{r.carrier}</div>
+                          <div className="col-span-3 font-mono">{r.trackingCode}</div>
+                          <div className={`col-span-3 font-bold ${problem ? 'text-red-600' : 'text-green-600'}`}>{problem || 'OK'}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              {importResult && <p className="text-sm font-bold text-[#005691]">{importResult}</p>}
+            </div>
+            <div className="p-5 border-t border-slate-100 flex justify-end gap-2">
+              <button onClick={() => setImportOpen(false)} className="px-4 py-2 bg-slate-100 text-slate-600 text-sm font-bold rounded-xl">Đóng</button>
+              <button onClick={handleApplyTracking} disabled={isSubmitting || !importParsed.rows.some(r => r.id && r.trackingCode && orderIds.has(r.id))}
+                className="px-4 py-2 bg-[#F58220] text-white text-sm font-black rounded-xl disabled:opacity-40">
+                {isSubmitting ? 'Đang cập nhật...' : `Cập nhật ${importParsed.rows.filter(r => r.id && r.trackingCode && orderIds.has(r.id)).length} đơn`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

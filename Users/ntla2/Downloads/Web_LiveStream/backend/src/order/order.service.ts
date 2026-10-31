@@ -1,6 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { EmailService, STATUS_LABELS } from '../email/email.service.js';
+
+// Trạng thái trước khi giao cho đơn vị vận chuyển
+const BEFORE_CARRIER = ['UNPACKED', 'PACKED', 'SENT_TO_ADMIN'];
 
 @Injectable()
 export class OrderService {
@@ -71,9 +74,9 @@ export class OrderService {
   }
 
   async findByTracking(code: string) {
-    // Search by trackingCode → orderId → phone
+    // Search by trackingCode / mã vận đơn ĐVVC → orderId → phone
     let s = await this.prisma.shipment.findFirst({
-      where: { trackingCode: code },
+      where: { OR: [{ trackingCode: code }, { lastMileTrackingCode: code }] },
       include: { histories: { orderBy: { timestamp: 'desc' } } }
     });
 
@@ -104,7 +107,7 @@ export class OrderService {
     
     // CUSTOMER STATUS MAPPING (Prevent duplicate emails if customer doesn't see a change)
     const CUSTOMER_MAP: Record<string, string> = {
-      UNPACKED: 'RECEIVED', PACKED: 'PROCESSED', HANDED_OVER: 'SHIPPING', IN_TRANSIT: 'SHIPPING', COMPLETED: 'DELIVERED', RETURNED: 'RETURNED'
+      UNPACKED: 'RECEIVED', PACKED: 'PROCESSED', SENT_TO_ADMIN: 'PROCESSED', HANDED_OVER: 'SHIPPING', IN_TRANSIT: 'SHIPPING', COMPLETED: 'DELIVERED', RETURNED: 'RETURNED'
     };
     const oldCustStatus = CUSTOMER_MAP[existing.status] || existing.status;
     const newCustStatus = CUSTOMER_MAP[data.status] || data.status;
@@ -150,6 +153,58 @@ export class OrderService {
     }
 
     return updated;
+  }
+
+  /** Thủ kho chọn nhiều đơn đã đóng gói → "Chuyển Hành chính" (hoặc đổi trạng thái hàng loạt). */
+  async bulkStatus(ids: string[], status: string, note?: string) {
+    if (!Array.isArray(ids) || ids.length === 0) throw new BadRequestException('Chưa chọn đơn nào');
+    if (!STATUS_LABELS[status]) throw new BadRequestException(`Trạng thái không hợp lệ: ${status}`);
+    let updated = 0;
+    const notFound: string[] = [];
+    for (const id of ids) {
+      try {
+        await this.update(id, { status, note });
+        updated++;
+      } catch (e) {
+        if (e instanceof NotFoundException) notFound.push(id); else throw e;
+      }
+    }
+    return { updated, notFound };
+  }
+
+  /**
+   * Hành chính gửi lại file mã vận đơn → Thủ kho nhập: gắn ĐVVC + mã + link cho từng đơn.
+   * Đơn chưa giao ĐVVC (UNPACKED/PACKED/SENT_TO_ADMIN) chuyển sang HANDED_OVER (ghi lịch sử, gửi mail khách).
+   */
+  async bulkTracking(rows: Array<{ id?: string; carrier?: string; trackingCode?: string; trackingLink?: string }>) {
+    if (!Array.isArray(rows) || rows.length === 0) throw new BadRequestException('File không có dòng nào');
+    if (rows.length > 1000) throw new BadRequestException('Tối đa 1000 dòng mỗi lần');
+    const result = { updated: 0, notFound: [] as string[], invalid: [] as string[] };
+    for (const row of rows) {
+      const id = row.id?.trim();
+      const trackingCode = row.trackingCode?.trim();
+      if (!id || !trackingCode) {
+        result.invalid.push(id || '(thiếu mã đơn)');
+        continue;
+      }
+      const existing = await this.prisma.shipment.findUnique({ where: { id } });
+      if (!existing) {
+        result.notFound.push(id);
+        continue;
+      }
+      const carrier = row.carrier?.trim() || existing.lastMileCarrier || '';
+      await this.update(id, {
+        lastMileCarrier: carrier,
+        lastMileTrackingCode: trackingCode,
+        lastMileTrackingLink: row.trackingLink?.trim() || undefined,
+        ...(BEFORE_CARRIER.includes(existing.status) && {
+          status: 'HANDED_OVER',
+          note: `Hành chính gửi ${carrier || 'ĐVVC'} — mã vận đơn ${trackingCode}`,
+        }),
+      });
+      result.updated++;
+    }
+    return result;
   }
 
   async remove(id: string) {

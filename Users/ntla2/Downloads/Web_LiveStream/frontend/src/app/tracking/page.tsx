@@ -12,6 +12,7 @@ import Link from 'next/link';
 const CUSTOMER_MAPPING: Record<string, string> = {
   UNPACKED: 'RECEIVED',
   PACKED: 'PROCESSED',
+  SENT_TO_ADMIN: 'PROCESSED',
   HANDED_OVER: 'SHIPPING',
   IN_TRANSIT: 'SHIPPING',
   COMPLETED: 'DELIVERED',

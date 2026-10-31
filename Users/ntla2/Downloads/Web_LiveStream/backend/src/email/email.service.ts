@@ -5,6 +5,7 @@ import * as nodemailer from 'nodemailer';
 export const STATUS_LABELS: Record<string, { label: string; location: string; emoji: string }> = {
   UNPACKED:     { label: 'Chưa đóng gói',                    location: 'Kho Uống Gì Chưa',          emoji: '⏳' },
   PACKED:       { label: 'Đã đóng gói',                      location: 'Kho Uống Gì Chưa',          emoji: '📦' },
+  SENT_TO_ADMIN: { label: 'Đã chuyển Hành chính',            location: 'Phòng Hành chính FPTU',      emoji: '🗂️' },
   HANDED_OVER:  { label: 'Đã chuyển tới đơn vị vận chuyển',  location: 'Trung tâm phân loại hàng',  emoji: '🚉' },
   IN_TRANSIT:   { label: 'Đơn vị vận chuyển đang xử lý',     location: 'Đang trên đường vận chuyển', emoji: '🚚' },
   COMPLETED:    { label: 'Hoàn tất - Đã giao hàng',          location: 'Địa chỉ người nhận',         emoji: '✅' },
@@ -43,6 +44,7 @@ export class EmailService {
     const CUSTOMER_MAPPING_LABELS: Record<string, { label: string; emoji: string }> = {
       UNPACKED: { label: 'Đã tiếp nhận', emoji: '📥' },
       PACKED: { label: 'Đã xử lý', emoji: '🛠️' },
+      SENT_TO_ADMIN: { label: 'Đã xử lý', emoji: '🛠️' },
       HANDED_OVER: { label: 'Đang vận chuyển', emoji: '🚚' },
       IN_TRANSIT: { label: 'Đang vận chuyển', emoji: '🚚' },
       COMPLETED: { label: 'Đã giao', emoji: '✅' },
