@@ -3,6 +3,7 @@
 > Đọc cùng `AGENT.md` trước mỗi task. Làm xong task nào → cập nhật file này (mới nhất ở trên).
 
 ## Đang làm / Việc tiếp theo
+- [ ] **Minigame (code trên nhánh, chưa deploy)**: trước khi đưa lên main phải thêm cột DB `ALTER TABLE "Question" ADD COLUMN IF NOT EXISTS "options" JSONB` (Neon production) — thiếu cột thì backend mới lỗi mọi truy vấn Question. Sau đó test trên live thật: tạo câu → Bắt đầu → comment `A/B/C/D` → bảng xếp hạng.
 - [ ] Chuyển repo GitHub sang Private + đổi mật khẩu Neon, Google OAuth secret, `NEXTAUTH_SECRET`, `JWT_SECRET` (AUDIT #3 — người dùng tự làm).
 - [ ] Vận đơn theo quy trình Hành chính (AUDIT #27, flow đã chốt).
 - [ ] **Xem `docs/AUDIT-2026-10-31.md`** — 31 việc đã xếp ưu tiên. P0 bảo mật: backend Render đang trả lead/staff/order (SĐT, email, địa chỉ) cho người không đăng nhập; repo GitHub public kèm secret cũ trong lịch sử; minigame không chấm điểm được (P1 #7).
@@ -33,6 +34,7 @@
 - **Deploy**: Vercel auto deploy từ `main`, backend trên Render.
 
 ## Nhật ký
+- 2026-10-31 — Sửa minigame (AUDIT #7, #8): câu hỏi lưu DB qua API `/question` (tạo/sửa/xóa, `POST :id/start|end`, `GET :id/leaderboard`); Bắt đầu → câu ACTIVE + `startedAt` (đóng câu khác), Kết thúc/hết giờ → CLOSED; socket `gameStarted/gameEnded` phát theo phòng phiên (bỏ handler socket không xác thực); chấm điểm bỏ qua đáp án sau `timeLimit + 2s`, tốc độ tính theo giờ extension thấy comment (lệch >30s/tương lai → giờ server); trang Điều khiển LIVE bỏ MOCK_QUESTIONS, có "Tạo 3 câu mẫu", "+ Thêm câu hỏi", tải lại trang giữa câu → chạy tiếp đồng hồ + bảng xếp hạng. Schema thêm `Question.options Json?` (cả 2 file). 6 test mới.
 - 2026-10-31 — Bật xác thực backend trên production: `INTERNAL_API_KEY` (Vercel + Render) và `EXTENSION_TOKEN` (Render) đã đặt; kiểm chứng: giả `x-user-role: ADMIN`/sai khóa → 401, CSKH đăng nhập tải lead bình thường, extension 1.3.0 có ô Mã truy cập.
 - 2026-10-31 — P0 bảo mật (AUDIT #1, #2, #4, #6, #13): `RolesGuard` toàn cục yêu cầu `x-internal-key` (proxy Next.js gửi) và role đã đăng nhập cho mọi route trừ `@Public` (`/`, tra cứu đơn); route extension dùng `x-extension-token`; proxy bỏ qua phiên hết hạn; trang `live/[id]` gọi qua proxy thay vì thẳng Render; thêm `middleware.ts` chặn trang khi chưa đăng nhập; extension 1.3.0 có ô "Mã truy cập"; backend `listen(PORT)`. 7 test guard. Chỉ có hiệu lực sau khi đặt env. Chốt flow vận đơn qua Hành chính (#27). Chưa làm: #3 (repo private + đổi secret), #5 (RBAC vào DB), xác thực socket.
 - 2026-10-31 — Extension 2 chế độ: **Khóa 1 phiên** (chỉ tab + kênh đã gắn; chuyển kênh/trang → tự dừng; quay lại → bắt tiếp) và **Nhiều tab** (mọi tab LIVE, mỗi kênh 1 phiên CRM riêng — trước đây dồn chung 1 phiên làm sai số liệu). Popup chọn chế độ, hiện kênh/phiên đang ghi, số "Bỏ qua". 404 phiên đã xóa → bỏ hàng đợi phiên đó, báo RESET.

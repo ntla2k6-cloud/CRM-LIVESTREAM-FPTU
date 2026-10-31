@@ -1,10 +1,11 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { 
+import {
   Play, Square, MessageSquare, Users, Trash2, Timer, Video, ListTodo, Pin, CheckCircle2, Phone, BellRing, Trophy, Clock, Zap, Target, TrendingUp, AlertTriangle, Gift, Heart
 , ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import io from 'socket.io-client';
+import { fetchApi } from '@/lib/api';
 
 let socket: any;
 
@@ -12,7 +13,7 @@ export default function LiveControlPage() {
   const router = useRouter();
   const [activeTabLeft, setActiveTabLeft] = useState<'SCRIPT' | 'TRIVIA' | 'KEYWORDS'>('SCRIPT');
   const [activeTabRight, setActiveTabRight] = useState<'COMMENTS' | 'LEADS' | 'WINNERS'>('COMMENTS');
-  
+
   // ============ STATES: KỊCH BẢN & DỮ LIỆU ============
   const [scriptContent, setScriptContent] = useState(
     "1. Chào hỏi & Minigame đầu giờ (15p)\n- Kêu gọi thả tim, share livestream\n\n2. Q&A Giải đáp thắc mắc\n- Tập trung trả lời câu hỏi được ghim\n\n3. Trắc nghiệm Minigame\n- Chơi 3 câu nhận Balo FPTU"
@@ -43,7 +44,8 @@ export default function LiveControlPage() {
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<any>(null);
 
-  const MOCK_QUESTIONS = [
+  // Câu mẫu: chỉ dùng khi MC bấm "Tạo 3 câu mẫu" (lưu DB rồi mới chạy được)
+  const SAMPLE_QUESTIONS = [
     { id: 'q1', code: 'Q1', content: 'Cơ sở vật chất của FPTU HCM có gì đặc biệt?', answer: 'C', timeLimit: 30, options: { A: 'Hồ bơi Olympic', B: 'Sân golf 9 lỗ', C: 'Thư viện 3 tầng, sân bóng tiêu chuẩn FIFA, hồ sen', D: 'Khu vườn ươm cây' } },
     { id: 'q2', code: 'Q2', content: 'FPTU HCM thuộc hệ thống Đại học nào?', answer: 'A', timeLimit: 30, options: { A: 'FPT University', B: 'Đại học Quốc gia HCM', C: 'Đại học Bách Khoa', D: 'Đại học Khoa học Tự nhiên' } },
     { id: 'q3', code: 'Q3', content: 'Ngành học hot nhất tại FPTU HCM năm 2026 là gì?', answer: 'B', timeLimit: 30, options: { A: 'Quản trị kinh doanh', B: 'Kỹ thuật phần mềm & AI', C: 'Báo chí đa phương tiện', D: 'Thiết kế đồ họa' } },
@@ -62,20 +64,26 @@ export default function LiveControlPage() {
           if (current.status === 'COMPLETED') {
             setTiktokStatus('disconnected'); // or 'completed'
           }
-          const apiQuestions = current.questions?.map((q: any) => ({
-            id: q.id,
-            code: q.code,
-            content: q.content,
-            answer: q.correctAnswer,
-            timeLimit: 30,
-            options: { A: '', B: '', C: '', D: '' }
-          })) || [];
-          setQuestions(apiQuestions.length > 0 ? apiQuestions : MOCK_QUESTIONS);
+          const apiQuestions = (current.questions || []).map(toUiQuestion)
+            .sort((a: any, b: any) => a.code.localeCompare(b.code, undefined, { numeric: true }));
+          setQuestions(apiQuestions);
+          // Câu đang chạy (MC tải lại trang giữa chừng) → chạy tiếp đồng hồ + dựng lại bảng xếp hạng
+          const running = current.questions?.find((q: any) => q.status === 'ACTIVE');
+          if (running?.startedAt) {
+            const left = running.timeLimit - Math.floor((Date.now() - new Date(running.startedAt).getTime()) / 1000);
+            if (left > 0) {
+              setActiveQuestion(running.id);
+              setTimeLeft(left);
+              loadLeaderboard(running.id);
+            } else {
+              fetchApi(`/question/${running.id}/end`, { method: 'POST' }).catch(() => {});
+            }
+          }
         } else {
-          setQuestions(MOCK_QUESTIONS);
+          setQuestions([]);
         }
       })
-      .catch(() => setQuestions(MOCK_QUESTIONS));
+      .catch(() => setQuestions([]));
   }, [params]);
 
   // Auto connect
@@ -103,6 +111,31 @@ export default function LiveControlPage() {
 
   const activeQ = questions.find(q => q.id === activeQuestion);
 
+  function toUiQuestion(q: any) {
+    return {
+      id: q.id,
+      code: q.code,
+      content: q.content || '',
+      answer: q.correctAnswer,
+      timeLimit: q.timeLimit || 30,
+      status: q.status,
+      options: { A: '', B: '', C: '', D: '', ...(q.options || {}) },
+    };
+  }
+
+  async function loadLeaderboard(questionId: string) {
+    try {
+      const data = await fetchApi(`/question/${questionId}/leaderboard`);
+      setStats({ total: data.total, correct: data.correct.length });
+      setLeaderboard(data.correct.map((a: any) => ({ name: a.username, speed: (Math.max(0.1, a.responseSpeed / 1000)).toFixed(1), text: a.answer })));
+    } catch {}
+  }
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
+  };
+
   // ============ ENGINE TỔNG HỢP ============
   const [comments, setComments] = useState<any[]>([]);
   const [totalComments, setTotalComments] = useState(0);
@@ -128,7 +161,7 @@ export default function LiveControlPage() {
       setToastMessage(`TikTok: ${data.uniqueId} đã gửi quà!`);
       setTimeout(() => setToastMessage(null), 3000);
     });
-    
+
     // Server-side Engine Events
     socket.on('comment:new', (dbComment: any) => {
       const newComment = {
@@ -192,9 +225,7 @@ export default function LiveControlPage() {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timerInterval);
-          setActiveQuestion(null);
-          // Phát sự kiện kết thúc game
-          socket?.emit('endGame', { liveSessionId: params, questionCode: 'Minigame' });
+          endGame(activeQuestion);
           return 0;
         }
         return prev - 1;
@@ -242,21 +273,70 @@ export default function LiveControlPage() {
   }, [comments, leads, leaderboard, keywordStats, params]);
 
   // ============ ACTIONS ============
-  const startGame = (qId: string, timeLimit: number) => {
+  // Backend đặt câu hỏi ACTIVE → comment "A/B/C/D" từ extension mới được chấm điểm
+  const startGame = async (qId: string, timeLimit: number) => {
+    try {
+      await fetchApi(`/question/${qId}/start`, { method: 'POST' });
+    } catch (e: any) {
+      return showToast(`Không mở được câu hỏi: ${e.message}`);
+    }
+    setQuestions(prev => prev.map(q => q.id === qId ? { ...q, status: 'ACTIVE' } : q));
     setActiveQuestion(qId);
     setTimeLeft(timeLimit);
     setLeaderboard([]);
     setStats({ total: 0, correct: 0 });
     setStartTime(Date.now());
-
-    // Bắn sự kiện sang Socket để máy học sinh hiển thị câu hỏi
-    const qObj = questions.find(q => q.id === qId);
-    socket?.emit('startGame', { 
-      liveSessionId: params, 
-      questionCode: qObj?.code || 'Minigame', 
-      timeLimit 
-    });
     setActiveTabRight('WINNERS');
+  };
+
+  const endGame = async (qId: string | null) => {
+    setActiveQuestion(null);
+    if (!qId) return;
+    setQuestions(prev => prev.map(q => q.id === qId ? { ...q, status: 'CLOSED' } : q));
+    try {
+      await fetchApi(`/question/${qId}/end`, { method: 'POST' });
+    } catch (e: any) {
+      showToast(`Không đóng được câu hỏi: ${e.message}`);
+    }
+  };
+
+  const saveQuestion = async (draft: any) => {
+    const body = { content: draft.content, correctAnswer: draft.answer, options: draft.options, timeLimit: draft.timeLimit };
+    try {
+      const saved = draft.isNew
+        ? await fetchApi('/question', { method: 'POST', body: JSON.stringify({ ...body, liveSessionId: params }) })
+        : await fetchApi(`/question/${draft.id}`, { method: 'PATCH', body: JSON.stringify(body) });
+      setQuestions(prev => prev.map(q => q.id === draft.id ? toUiQuestion(saved) : q));
+      setEditingQuestionId(null);
+      setEditDraft(null);
+    } catch (e: any) {
+      showToast(`Không lưu được câu hỏi: ${e.message}`);
+    }
+  };
+
+  const addQuestion = () => {
+    const draft = { id: `new-${Date.now()}`, isNew: true, code: `Q${questions.length + 1}`, content: '', answer: 'A', timeLimit: 30, options: { A: '', B: '', C: '', D: '' } };
+    setQuestions(prev => [...prev, draft]);
+    setEditingQuestionId(draft.id);
+    setEditDraft(draft);
+  };
+
+  const cancelEdit = (q: any) => {
+    if (q.isNew) setQuestions(prev => prev.filter(x => x.id !== q.id));
+    setEditingQuestionId(null);
+    setEditDraft(null);
+  };
+
+  const createSampleQuestions = async () => {
+    try {
+      const created = [];
+      for (const q of SAMPLE_QUESTIONS) {
+        created.push(await fetchApi('/question', { method: 'POST', body: JSON.stringify({ liveSessionId: params, code: q.code, content: q.content, correctAnswer: q.answer, options: q.options, timeLimit: q.timeLimit }) }));
+      }
+      setQuestions(created.map(toUiQuestion));
+    } catch (e: any) {
+      showToast(`Không tạo được câu mẫu: ${e.message}`);
+    }
   };
 
   const handleSendDMs = () => {
@@ -273,15 +353,15 @@ export default function LiveControlPage() {
 
   return (
     <div className="flex h-full bg-slate-50 font-sans text-slate-800">
-      
+
 
       {/* LEFT PANEL: KỊCH BẢN, TRIVIA & KEYWORDS */}
       <div className="w-[500px] border-r border-slate-200 bg-white flex flex-col h-full shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10 shrink-0">
-        
+
         {/* HEADER: NÚT QUAY LẠI VÀ STATUS */}
         <div className="p-5 border-b border-slate-100 bg-white/50 backdrop-blur-sm sticky top-0 z-20">
           <div className="flex items-center gap-3 mb-4">
-            <button 
+            <button
               onClick={() => router.push('/live')}
               className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
               title="Quay lại bảng điều khiển"
@@ -344,14 +424,14 @@ export default function LiveControlPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 bg-white">
-          
+
           {/* SCRIPT TAB */}
           {activeTabLeft === 'SCRIPT' && (
             <div className="h-full flex flex-col">
               <div className="flex items-center justify-between mb-3">
                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">Trình soạn thảo Kịch bản</label>
               </div>
-              <textarea 
+              <textarea
                 value={scriptContent}
                 onChange={(e) => setScriptContent(e.target.value)}
                 className="flex-1 w-full p-5 bg-yellow-50/50 border border-yellow-200 rounded-2xl text-slate-800 text-[15px] font-medium leading-relaxed focus:outline-none focus:ring-2 focus:ring-yellow-400/50 resize-none custom-scrollbar shadow-inner"
@@ -362,18 +442,23 @@ export default function LiveControlPage() {
           {/* TRIVIA TAB */}
           {activeTabLeft === 'TRIVIA' && (
             <div className="flex flex-col gap-5">
-              {questions.length === 0 ? <p className="text-sm text-slate-400 text-center py-10">Không có câu hỏi nào.</p> : 
+              {questions.length === 0 ? (
+                <div className="text-center py-10 space-y-3">
+                  <p className="text-sm text-slate-400">Phiên này chưa có câu hỏi minigame.</p>
+                  <button onClick={createSampleQuestions} className="px-4 py-2 bg-[#F58220] text-white text-xs font-bold rounded-xl">Tạo 3 câu mẫu</button>
+                </div>
+              ) : 
                 questions.map((q) => (
                 <div key={q.id} className={`rounded-2xl border transition-all duration-300 relative overflow-hidden ${activeQuestion === q.id ? 'border-[#F58220] shadow-[0_8px_30px_rgba(245,130,32,0.12)] bg-white' : editingQuestionId === q.id ? 'border-[#005691] shadow-lg bg-white' : 'border-slate-200 bg-slate-50/50'}`}>
                   {activeQuestion === q.id && <div className="absolute top-0 left-0 h-1 bg-[#F58220] transition-all duration-1000 ease-linear" style={{ width: `${(timeLeft / q.timeLimit) * 100}%` }} />}
-                  
+
                   <div className="p-5 pl-6 pt-6">
                     <div className="flex justify-between items-center mb-4">
                       <span className={`text-[10px] font-black px-2.5 py-1 rounded-md ${activeQuestion === q.id ? 'bg-[#F58220] text-white' : editingQuestionId === q.id ? 'bg-[#005691] text-white' : 'bg-slate-200 text-slate-600'}`}>{q.code}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] font-bold text-[#00A859] bg-green-50 px-2 py-1 rounded-md border border-green-100">Đáp án: {editingQuestionId === q.id ? editDraft?.answer : q.answer}</span>
                         {editingQuestionId !== q.id && activeQuestion !== q.id && (
-                          <button 
+                          <button
                             onClick={() => { setEditingQuestionId(q.id); setEditDraft({ ...q }); }}
                             className="w-7 h-7 rounded-lg bg-slate-100 text-slate-400 hover:bg-[#005691] hover:text-white flex items-center justify-center transition-colors"
                           >
@@ -403,30 +488,26 @@ export default function LiveControlPage() {
                                 onClick={() => setEditDraft({ ...editDraft, answer: opt })}
                                 className={`w-5 h-5 rounded-full text-[9px] font-black flex items-center justify-center shrink-0 border-2 transition-colors ${editDraft.answer === opt ? 'bg-[#00A859] border-[#00A859] text-white' : 'bg-white border-slate-300 text-slate-500'}`}
                               >{opt}</button>
-                              <input 
-                                type="text" 
-                                value={editDraft.options?.[opt] || ''} 
+                              <input
+                                type="text"
+                                value={editDraft.options?.[opt] || ''}
                                 onChange={e => setEditDraft({ ...editDraft, options: { ...editDraft.options, [opt]: e.target.value } })}
-                                placeholder={`Đáp án ${opt}...`} 
-                                className="w-full text-xs font-semibold text-slate-700 outline-none bg-transparent" 
+                                placeholder={`Đáp án ${opt}...`}
+                                className="w-full text-xs font-semibold text-slate-700 outline-none bg-transparent"
                               />
                             </div>
                           ))}
                         </div>
 
                         <div className="flex gap-2 pt-1">
-                          <button 
-                            onClick={() => {
-                              setQuestions(questions.map(qs => qs.id === q.id ? { ...editDraft } : qs));
-                              setEditingQuestionId(null);
-                              setEditDraft(null);
-                            }}
+                          <button
+                            onClick={() => saveQuestion(editDraft)}
                             className="flex-1 py-2 bg-[#005691] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1"
                           >
                             <CheckCircle2 size={13} /> Lưu câu hỏi
                           </button>
-                          <button 
-                            onClick={() => { setEditingQuestionId(null); setEditDraft(null); }}
+                          <button
+                            onClick={() => cancelEdit(q)}
                             className="px-4 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl"
                           >Hủy</button>
                         </div>
@@ -434,7 +515,7 @@ export default function LiveControlPage() {
                     ) : (
                       <>
                         <p className="text-sm font-bold text-slate-800 leading-snug mb-3">{q.content}</p>
-                        
+
                         <div className="grid grid-cols-2 gap-2 mb-5">
                           {(['A', 'B', 'C', 'D'] as const).map(opt => (
                             <div key={opt} className={`flex items-center gap-2 rounded-xl border px-2.5 py-1.5 ${q.answer === opt ? 'bg-green-50 border-green-200' : 'bg-white border-slate-200'}`}>
@@ -445,11 +526,11 @@ export default function LiveControlPage() {
                         </div>
 
                         {activeQuestion === q.id ? (
-                          <button onClick={() => setActiveQuestion(null)} className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl text-xs font-bold shadow-lg">
+                          <button onClick={() => endGame(q.id)} className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl text-xs font-bold shadow-lg">
                             <Square size={14} className="fill-white" /> KẾT THÚC CÂU HỎI
                           </button>
                         ) : (
-                          <button onClick={() => startGame(q.id, q.timeLimit)} disabled={activeQuestion !== null} className={`w-full flex items-center justify-center gap-2 border-2 py-3 rounded-xl text-xs font-bold transition-all ${activeQuestion !== null ? 'bg-slate-50 border-slate-200 text-slate-400' : 'bg-white border-slate-200 hover:border-[#F58220] hover:text-[#F58220]'}`}>
+                          <button onClick={() => startGame(q.id, q.timeLimit)} disabled={activeQuestion !== null || q.isNew} className={`w-full flex items-center justify-center gap-2 border-2 py-3 rounded-xl text-xs font-bold transition-all ${activeQuestion !== null || q.isNew ? 'bg-slate-50 border-slate-200 text-slate-400' : 'bg-white border-slate-200 hover:border-[#F58220] hover:text-[#F58220]'}`}>
                             <Play size={14} /> BẮT ĐẦU ({q.timeLimit}s)
                           </button>
                         )}
@@ -464,6 +545,9 @@ export default function LiveControlPage() {
                   )}
                 </div>
               ))}
+              {questions.length > 0 && !editingQuestionId && (
+                <button onClick={addQuestion} disabled={activeQuestion !== null} className="w-full py-3 border-2 border-dashed border-slate-200 rounded-2xl text-xs font-bold text-slate-500 hover:border-[#F58220] hover:text-[#F58220] disabled:opacity-50">+ Thêm câu hỏi</button>
+              )}
             </div>
           )}
 
@@ -515,7 +599,7 @@ export default function LiveControlPage() {
         </div>
 
         <div className="flex-1 overflow-hidden relative p-8">
-          
+
           {/* TAB: COMMENTS */}
           {activeTabRight === 'COMMENTS' && (
             <div className="absolute inset-0 p-8 flex flex-col">
@@ -557,10 +641,10 @@ export default function LiveControlPage() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-2"><MessageSquare size={14} className="text-[#005691]" /> Comment trực tiếp</h3>
-                
+
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
                     <span className="relative flex h-3 w-3">
@@ -571,10 +655,10 @@ export default function LiveControlPage() {
                       {tiktokStatus === 'connected' ? 'AI ĐANG LẮNG NGHE' : tiktokStatus === 'connecting' ? 'ĐANG KẾT NỐI' : 'NGẮT KẾT NỐI'}
                     </span>
                   </div>
-                  
+
                   {tiktokStatus === 'connected' && (
-                    <button onClick={async () => { 
-                      setTiktokStatus('disconnected'); 
+                    <button onClick={async () => {
+                      setTiktokStatus('disconnected');
                       const baseUrl = '/api/backend';
                       await fetch(`${baseUrl}/live-engine/disconnect`, {
                         method: 'POST',
@@ -587,7 +671,7 @@ export default function LiveControlPage() {
                   )}
                 </div>
               </div>
-              
+
               <div className="flex-1 bg-slate-900 rounded-3xl shadow-xl p-6 flex flex-col overflow-hidden relative border border-slate-800">
                 <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-slate-900 to-transparent z-10 pointer-events-none"></div>
                 <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-4 custom-scrollbar">
@@ -677,7 +761,7 @@ export default function LiveControlPage() {
                           <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black bg-[#F58220] text-white shadow-sm">{user.rank}</div>
                           <div>
                             <p className="font-bold text-slate-900 flex items-center gap-2">
-                              {user.name} 
+                              {user.name}
                               {user.winCount > 0 && <span className="bg-purple-100 text-purple-700 border border-purple-200 text-[9px] px-1.5 py-0.5 rounded flex items-center gap-1"><Gift size={10}/> Trúng lần {user.winCount + 1}</span>}
                             </p>
                             <p className="text-[11px] font-bold text-slate-500 flex items-center gap-1"><Clock size={12}/> Tốc độ: {user.speed}</p>
@@ -689,7 +773,7 @@ export default function LiveControlPage() {
                         </div>
                       </div>
                     ))}
-                    
+
                     {leaderboard.length > 3 && (
                       <div className="mt-4 mb-2 text-xs font-black text-slate-400 uppercase tracking-widest pl-2">⚠️ TOP DỰ BỊ (PHÒNG HỜ BOM HÀNG)</div>
                     )}
@@ -707,8 +791,8 @@ export default function LiveControlPage() {
                     ))}
 
                     {!activeQuestion && (
-                      <button 
-                        onClick={handleSendDMs} 
+                      <button
+                        onClick={handleSendDMs}
                         disabled={sendingDMs}
                         className="mt-4 w-full py-4 rounded-2xl font-bold bg-[#005691] hover:bg-[#004a7c] text-white shadow-lg shadow-blue-900/20 transition-all flex items-center justify-center gap-2"
                       >
@@ -724,10 +808,10 @@ export default function LiveControlPage() {
               </div>
             </div>
           )}
-          
+
         </div>
       </div>
-      
+
       {/* Real-time Alert Overlay */}
       {newLeadAlert && (
         <div className="fixed bottom-8 right-8 bg-gradient-to-r from-red-500 to-orange-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 animate-in slide-in-from-bottom-10 fade-in z-50 border border-red-400">
@@ -746,7 +830,7 @@ export default function LiveControlPage() {
           <p className="font-bold text-sm">{toastMessage}</p>
         </div>
       )}
-      
+
     </div>
   );
 }

@@ -15,40 +15,8 @@ export class MinigameGateway {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  // Frontend sẽ gọi method này khi người điều khiển bấm "BẮT ĐẦU CHẠY"
-  @SubscribeMessage('startGame')
-  async handleStartGame(
-    @MessageBody() data: { liveSessionId: string; questionCode: string; timeLimit: number },
-    @ConnectedSocket() client: Socket,
-  ) {
-    console.log('Admin started game for question:', data.questionCode);
-    
-    // Broadcast cho tất cả clients biết game đã bắt đầu
-    this.server.emit('gameStarted', {
-      questionCode: data.questionCode,
-      timeLimit: data.timeLimit,
-      startedAt: Date.now(),
-    });
-    
-    // Ở đây có thể lưu trạng thái Question -> ACTIVE vào DB
-    return { status: 'success' };
-  }
-
-  // Frontend sẽ gọi method này khi bấm "ĐÓNG CÂU HỎI"
-  @SubscribeMessage('endGame')
-  async handleEndGame(
-    @MessageBody() data: { liveSessionId: string; questionCode: string },
-    @ConnectedSocket() client: Socket,
-  ) {
-    console.log('Admin ended game for question:', data.questionCode);
-    
-    this.server.emit('gameEnded', {
-      questionCode: data.questionCode,
-    });
-    
-    // Lưu trạng thái Question -> CLOSED vào DB
-    return { status: 'success' };
-  }
+  // Mở/đóng câu hỏi đi qua REST có xác thực: POST /question/:id/start|end (QuestionService),
+  // không nhận qua socket vì socket chưa xác thực.
 
   // Lắng nghe học sinh trả lời từ trang /play
   @SubscribeMessage('submitAnswer')

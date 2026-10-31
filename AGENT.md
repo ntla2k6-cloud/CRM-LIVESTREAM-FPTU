@@ -31,6 +31,7 @@ Chrome extension MV3 đọc comment TikTok LIVE trên Chrome thật → `POST {b
 - `content.js`: đọc khung chat (selector ở đầu file — TikTok đổi giao diện thì sửa ở đây), lọc thông báo hệ thống, chống trùng, ID comment ổn định theo người+nội dung+phút.
 - `background.js`: hàng đợi lưu `storage.session` (mỗi phần tử kèm `liveSessionId`), gửi lô 50 comment/2s theo từng phiên, lỗi thì giữ lại thử lại. 2 chế độ (`captureMode`): `locked` = chỉ nhận từ `boundTabId` + `boundUsername` (lọc theo `pageUrl` content script gửi kèm, vì TikTok là SPA); `multi` = mọi tab LIVE, `sessionMap` @user → phiên CRM, tự tạo qua `/live-engine/extension-session`.
 - Quà tặng lưu chung bảng `LiveComment` với `category = 'GIFT'`, `rawPayload = {"giftName","giftCount"}` (không đổi schema DB). Mọi thống kê comment phải loại `GIFT`. Combo cùng người + cùng quà trong 90s được gộp (`PipelineService.processGift`).
+- Minigame: câu hỏi ở bảng `Question` (API `/question`, `minigame/question.service.ts`). Chỉ câu `ACTIVE` mới được `QuizService` chấm từ comment `A/B/C/D` → MC bấm Bắt đầu/Kết thúc phải gọi `POST /question/:id/start|end`, không dùng socket.
 - Backend: `comment-engine/comment-classifier.ts` (hàm thuần, có test) phân loại + bóc SĐT/ngành → `pipeline.service.ts` lưu `LiveComment`, cập nhật `Customer.phone/interestedMajor`, tạo/cập nhật `Lead` (SĐT ⇒ điểm ≥ 80 = lead nóng).
 
 ### 1.3 Vinsoul Academy (root repo, app cũ)

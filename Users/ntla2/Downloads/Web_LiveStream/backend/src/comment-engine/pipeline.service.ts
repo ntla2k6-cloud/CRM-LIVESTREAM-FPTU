@@ -137,7 +137,7 @@ export class PipelineService {
     });
 
     if (comment.category === 'QUIZ') {
-      await this.quizService.processQuizAnswer(liveSessionId, comment);
+      await this.quizService.processQuizAnswer(liveSessionId, comment, payload.timestamp);
     } else if (comment.category === 'ADMISSION' || comment.category === 'LEAD') {
       await this.leadService.processPotentialLead(liveSessionId, comment, customer.id, categoryAndIntent);
     }
