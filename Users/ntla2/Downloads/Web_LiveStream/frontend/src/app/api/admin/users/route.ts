@@ -1,9 +1,12 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getSessionUser, isStaff, isManager } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const me = await getSessionUser(req);
+  if (!isStaff(me?.role)) return NextResponse.json({ error: 'Chưa đăng nhập hoặc chưa được duyệt' }, { status: 401 });
   try {
     const users = await prisma.user.findMany({
       orderBy: { createdAt: 'desc' },
@@ -28,8 +31,16 @@ export async function GET() {
 
 export async function PATCH(req: NextRequest) {
   try {
+    // Chỉ ADMIN/MANAGER được duyệt/đổi vai trò; chỉ ADMIN được cấp hoặc sửa quyền ADMIN/MANAGER
+    const me = await getSessionUser(req);
+    if (!isManager(me?.role)) return NextResponse.json({ error: 'Không có quyền' }, { status: 403 });
     const { userId, role, phone, department } = await req.json();
     if (!userId) return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+    const target = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
+    if (!target) return NextResponse.json({ error: 'Không tìm thấy người dùng' }, { status: 404 });
+    if (me!.role !== 'ADMIN' && (isManager(target.role) || isManager(role))) {
+      return NextResponse.json({ error: 'Chỉ Admin được cấp/sửa quyền Admin hoặc Manager' }, { status: 403 });
+    }
 
     // Cập nhật User
     const updated = await prisma.user.update({

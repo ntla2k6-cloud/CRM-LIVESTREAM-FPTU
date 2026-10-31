@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
+import { getSessionUser } from '@/lib/session';
 
 export async function PATCH(req: NextRequest) {
   try {
-    const { email, name, phone, image } = await req.json();
-    if (!email) return NextResponse.json({ error: 'Missing email' }, { status: 400 });
+    // Chỉ sửa hồ sơ của chính mình (email lấy từ phiên, không tin body)
+    const me = await getSessionUser(req);
+    if (!me?.email) return NextResponse.json({ error: 'Chưa đăng nhập' }, { status: 401 });
+    const email = me.email;
+    const { name, phone, image } = await req.json();
 
     const updated = await prisma.user.update({
       where: { email },

@@ -23,7 +23,7 @@
 - Frontend build bỏ qua lỗi ESLint/TS (`next.config.mjs`).
 - Phiên LIVE không tự kết thúc khi extension dừng → danh sách phiên luôn "Đang LIVE" (3 phiên hiện tại).
 - Frontend còn lỗi type ở `schedule/page.tsx`, `Sidebar.tsx`, `live/[id]/report` (chỉ sai khai báo kiểu, chạy vẫn đúng).
-- Email chưa gửi được: đã đặt SMTP Gmail trên Render (backend nhận cấu hình) nhưng gửi lỗi `connect ENETUNREACH …:587` sau 120s — gói Free của Render chặn SMTP ra ngoài. Hướng xử lý: Brevo SMTP cổng 2525 (`smtp-relay.brevo.com`, không sửa code) hoặc nâng gói Render.
+- Email: cần đặt `SMTP_*` (Gmail `ntla2k6@gmail.com` + mật khẩu ứng dụng) trên **Vercel** và `MAIL_RELAY_URL` trên Render rồi gửi thử (Render Free chặn SMTP; Brevo không xác minh được SĐT).
 - App Vinsoul root ghi file JSON → không lưu bền trên Vercel.
 
 ## Đã xong (tóm tắt theo module)
@@ -38,6 +38,7 @@
 - **Deploy**: Vercel auto deploy từ `main`, backend trên Render.
 
 ## Nhật ký
+- 2026-10-31 — Gửi mail qua Vercel: `POST /api/internal/send-mail` (khóa `INTERNAL_API_KEY`, nodemailer + `SMTP_*` trên Vercel); backend `EmailService` dùng `mail-relay.ts` khi có `MAIL_RELAY_URL` (2 test). **Vá lỗ hổng**: `/api/admin/users` cho người chưa đăng nhập xem email nhân sự (đã xác nhận trên production) và PATCH đổi role bất kỳ → tự lên ADMIN; `/api/profile` sửa hồ sơ người khác theo email trong body. Thêm `lib/session.ts`: GET users cần nhân sự đã duyệt, PATCH chỉ ADMIN/MANAGER (cấp/sửa ADMIN, MANAGER chỉ ADMIN), profile chỉ sửa của chính mình.
 - 2026-10-31 — Test mail chúc mừng thật (đơn test, đã xóa): Gmail SMTP từ Render Free → `ENETUNREACH` cổng 587 sau 120s. Rút timeout SMTP (kết nối 15s, chào 10s, socket 30s) để Thủ kho không treo 2 phút khi lỗi.
 - 2026-10-31 — Gỡ trang `/play` (người xem trả lời minigame qua web — buộc rời TikTok LIVE, trái mục tiêu giữ chân người xem; chưa từng chạy được) và handler socket `submitAnswer` (không xác thực, ai cũng bắn được comment giả). Ghi nguyên tắc "mọi tương tác trên TikTok" vào `AGENT.md` §4.
 - 2026-10-31 — Kiểm tra toàn bộ: backend 53/53 test, build frontend + backend OK; production: API chưa đăng nhập / giả ADMIN / extension không token → 401, tra cứu đơn công khai 200; mọi trang đăng nhập tải dữ liệu thật, các API chính trả 200. Sửa: `/api/claim` lỗi 500 (dùng `customer.username/name/email` không tồn tại → tìm theo SĐT hoặc TikTok ID, lưu `fullName`, đơn tạo ra kèm `tiktokAccount`); trang Nhân sự crash khi user có role lạ (`DEFAULT_ROLES` không định nghĩa); trang `live/[id]/history` luôn rỗng (đọc sai `{data}`) và giờ "Invalid Date" (dùng `serverTimestamp`, bỏ GIFT); trang Điều khiển LIVE mở lại hiện 0 comment → tải sẵn comment/lead của phiên; `alert` lỗi TikTok → toast.

@@ -44,11 +44,13 @@ Chrome extension MV3 đọc comment TikTok LIVE trên Chrome thật → `POST {b
 
 | App | Biến |
 |---|---|
-| frontend | `INTERNAL_API_KEY`, `DATABASE_URL`, `DIRECT_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `BACKEND_URL`, `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SOCKET_URL`, `NEXT_PUBLIC_MOCK_MODE` |
-| backend | `INTERNAL_API_KEY`, `EXTENSION_TOKEN`, `DATABASE_URL`, `DIRECT_URL`, `FRONTEND_URL`, `TRACKING_BASE_URL`, `SMTP_HOST/PORT/SECURE/USER/PASS/FROM_EMAIL/FROM_NAME` |
+| frontend | `INTERNAL_API_KEY`, `DATABASE_URL`, `DIRECT_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `BACKEND_URL`, `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SOCKET_URL`, `NEXT_PUBLIC_MOCK_MODE`, `SMTP_HOST/PORT/SECURE/USER/PASS/FROM_EMAIL/FROM_NAME` (gửi mail thay backend) |
+| backend | `INTERNAL_API_KEY`, `EXTENSION_TOKEN`, `DATABASE_URL`, `DIRECT_URL`, `FRONTEND_URL`, `TRACKING_BASE_URL`, `MAIL_RELAY_URL` (`https://crm-livestream-fptu.vercel.app/api/internal/send-mail`) |
 | root Vinsoul | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `JWT_SECRET`, `NODE_ENV` |
 
 Đặt trên dashboard Vercel/Render. **Không bao giờ commit `.env`.**
+
+**Email:** Render Free chặn cổng SMTP (25/465/587, đã thử Gmail → `ENETUNREACH`). Backend `EmailService` có `MAIL_RELAY_URL` thì POST mail sang `frontend/src/app/api/internal/send-mail` (khóa `x-internal-key`), route đó gửi bằng nodemailer với `SMTP_*` đặt trên **Vercel** (Gmail + mật khẩu ứng dụng). Không có `MAIL_RELAY_URL` → dùng `SMTP_*` của Render như cũ.
 
 **Xác thực backend** (`backend/src/auth/roles.guard.ts`, guard toàn cục):
 - `INTERNAL_API_KEY` phải **giống nhau** trên Vercel và Render. Proxy `/api/backend/*` gửi `x-internal-key` + `x-user-role` (role lấy từ phiên next-auth trong DB, phiên hết hạn = GUEST). Backend chỉ tin role khi khóa đúng; role `GUEST` bị chặn ở mọi route trừ `@Public()`.
@@ -56,6 +58,7 @@ Chrome extension MV3 đọc comment TikTok LIVE trên Chrome thật → `POST {b
 - Chưa đặt 2 biến → chế độ cũ (tin header, log cảnh báo) để không sập production khi deploy.
 - Route mới: mặc định cần đăng nhập. Trang công khai gọi API → gắn `@Public()` (hiện có: `GET /`, `GET /order/tracking/:code`). Frontend luôn gọi qua `/api/backend`, không gọi thẳng `NEXT_PUBLIC_API_URL`.
 - `frontend/src/middleware.ts`: chưa có cookie phiên → về `/login`, trừ `/login`, `/claim`, `/tracking`.
+- API route của Next (`frontend/src/app/api/*`) **không qua middleware** → mỗi route tự kiểm tra phiên bằng `getSessionUser(req)` trong `frontend/src/lib/session.ts` (`isStaff`, `isManager`). Ngoại lệ công khai: `/api/claim`, `/api/auth/*`; `/api/internal/*` dùng `x-internal-key`.
 - Socket.io (websocket) chưa xác thực.
 
 ## 3. Deploy & CI/CD

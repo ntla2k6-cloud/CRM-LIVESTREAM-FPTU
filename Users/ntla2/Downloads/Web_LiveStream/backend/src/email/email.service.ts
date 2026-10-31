@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
+import { relayTransport, type MailSender } from './mail-relay.js';
 
 // 6 Status labels
 export const STATUS_LABELS: Record<string, { label: string; location: string; emoji: string }> = {
@@ -26,14 +27,20 @@ const escapeHtml = (s: unknown) =>
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
-  private transporter: nodemailer.Transporter | null = null;
+  private transporter: MailSender | null = null;
 
   constructor() {
     const host = process.env.SMTP_HOST;
     const user = process.env.SMTP_USER;
     const pass = process.env.SMTP_PASS;
+    const relayUrl = process.env.MAIL_RELAY_URL;
+    const internalKey = process.env.INTERNAL_API_KEY;
 
-    if (host && user && pass) {
+    if (relayUrl && internalKey) {
+      // Ưu tiên gửi qua Vercel (SMTP_* đặt trên Vercel) vì Render Free chặn cổng SMTP
+      this.transporter = relayTransport(relayUrl, internalKey);
+      this.logger.log(`Email service initialized with relay: ${relayUrl}`);
+    } else if (host && user && pass) {
       this.transporter = nodemailer.createTransport({
         host,
         port: parseInt(process.env.SMTP_PORT || '587'),
@@ -46,7 +53,7 @@ export class EmailService {
       });
       this.logger.log(`Email service initialized with SMTP: ${host}`);
     } else {
-      this.logger.warn('SMTP not configured — emails will be logged to console only. Set SMTP_HOST, SMTP_USER, SMTP_PASS in .env to enable.');
+      this.logger.warn('Email not configured — emails will be logged to console only. Set MAIL_RELAY_URL (+ INTERNAL_API_KEY) or SMTP_HOST, SMTP_USER, SMTP_PASS.');
     }
   }
 
@@ -56,7 +63,7 @@ export class EmailService {
 
   /** Mail "Chúc mừng trúng quà" kèm mã đơn của dự án + link tracking. Lỗi gửi → throw để Thủ kho biết. */
   async sendCongrats(shipment: any): Promise<void> {
-    if (!this.transporter) throw new Error('Chưa cấu hình email (SMTP_HOST, SMTP_USER, SMTP_PASS trên Render)');
+    if (!this.transporter) throw new Error('Chưa cấu hình email (MAIL_RELAY_URL trên Render + SMTP_* trên Vercel)');
     if (!shipment.recipientEmail) throw new Error(`Đơn ${shipment.id} chưa có email`);
     const trackingUrl = trackingUrlFor(shipment);
     const fromEmail = process.env.SMTP_FROM_EMAIL || 'uonggichua@fpt.edu.vn';
