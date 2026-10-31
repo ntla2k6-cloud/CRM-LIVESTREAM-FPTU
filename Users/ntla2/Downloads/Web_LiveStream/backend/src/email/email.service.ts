@@ -39,6 +39,10 @@ export class EmailService {
         port: parseInt(process.env.SMTP_PORT || '587'),
         secure: process.env.SMTP_SECURE === 'true',
         auth: { user, pass },
+        // Mặc định nodemailer chờ 2 phút khi không kết nối được → Thủ kho treo màn hình; báo lỗi sớm
+        connectionTimeout: 15_000,
+        greetingTimeout: 10_000,
+        socketTimeout: 30_000,
       });
       this.logger.log(`Email service initialized with SMTP: ${host}`);
     } else {
