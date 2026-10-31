@@ -17,7 +17,7 @@ async function proxy(req: NextRequest, path: string) {
         where: { sessionToken },
         include: { user: true }
       });
-      if (session && session.user) {
+      if (session && session.user && session.expires > new Date()) {
         userRole = session.user.role;
       }
     }
@@ -30,7 +30,9 @@ async function proxy(req: NextRequest, path: string) {
       method: req.method,
       headers: { 
         'Content-Type': 'application/json',
-        'x-user-role': userRole
+        'x-user-role': userRole,
+        // Khóa bí mật chung với backend (env INTERNAL_API_KEY trên Vercel + Render) — backend chỉ tin x-user-role khi khóa đúng
+        ...(process.env.INTERNAL_API_KEY ? { 'x-internal-key': process.env.INTERNAL_API_KEY } : {}),
       },
       body,
     });

@@ -19,12 +19,17 @@ let state = {
   boundUsername: null,
   sessionMap: {}, // chế độ multi: { username: { id, title } }
   apiUrl: DEFAULT_API_URL,
+  apiToken: '', // EXTENSION_TOKEN của backend (nhập trong popup)
 };
 let stats = { captured: 0, synced: 0, skipped: 0 };
 let flushing = false;
+
+function apiHeaders() {
+  return { 'Content-Type': 'application/json', ...(state.apiToken ? { 'x-extension-token': state.apiToken } : {}) };
+}
 const resolving = new Map(); // username → Promise<session> (tránh tạo trùng phiên)
 
-const STATE_KEYS = ['isCapturing', 'captureMode', 'liveSessionId', 'boundTabId', 'boundUsername', 'sessionMap', 'apiUrl'];
+const STATE_KEYS = ['isCapturing', 'captureMode', 'liveSessionId', 'boundTabId', 'boundUsername', 'sessionMap', 'apiUrl', 'apiToken'];
 
 // Service worker MV3 có thể bị tắt bất kỳ lúc nào → giữ hàng đợi trong storage.session
 const ready = Promise.all([
@@ -67,7 +72,7 @@ async function sessionForMulti(username) {
     resolving.set(username, (async () => {
       const res = await fetch(`${state.apiUrl.replace(/\/+$/, '')}/live-engine/extension-session`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: apiHeaders(),
         body: JSON.stringify({ input: `https://www.tiktok.com/@${username}/live` }),
       });
       const data = await res.json().catch(() => ({}));
@@ -162,7 +167,7 @@ async function flushQueue() {
   try {
     const res = await fetch(`${state.apiUrl.replace(/\/+$/, '')}/live-engine/extension-comments`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: apiHeaders(),
       body: JSON.stringify({ liveSessionId: sessionId, comments: items.map((q) => q.comment) }),
     });
 
@@ -183,6 +188,8 @@ async function flushQueue() {
         chrome.storage.local.set({ sessionMap: state.sessionMap });
         saveQueue();
         setSyncState('Phiên CRM không còn tồn tại (đã bị xóa). Bấm RESET rồi Bắt đầu lại.');
+      } else if (res.status === 401) {
+        setSyncState('Sai hoặc thiếu Mã truy cập extension. Mở "Cài đặt server CRM", nhập mã rồi Dừng → Bắt đầu lại.');
       } else {
         setSyncState(`Server trả lỗi ${res.status}: ${text.slice(0, 120)}`);
       }

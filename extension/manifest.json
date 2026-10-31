@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "FPTU LIVE Capture",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Bắt comment TikTok LIVE và đồng bộ realtime về CRM Tuyển sinh FPTU (lead, minigame, dashboard)",
   "permissions": [
     "storage",

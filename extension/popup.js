@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const startBtn = document.getElementById('startBtn');
   const sessionIdInput = document.getElementById('sessionId');
   const apiUrlInput = document.getElementById('apiUrl');
+  const apiTokenInput = document.getElementById('apiToken');
   const message = document.getElementById('message');
   const notice = document.getElementById('notice');
   const sessionInfo = document.getElementById('sessionInfo');
@@ -47,11 +48,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  const VIEW_KEYS = ['sessionInput', 'sessionTitle', 'isCapturing', 'captureMode', 'boundUsername', 'sessionMap', 'stats', 'apiUrl', 'lastError', 'lockNotice'];
+  const VIEW_KEYS = ['sessionInput', 'sessionTitle', 'isCapturing', 'captureMode', 'boundUsername', 'sessionMap', 'stats', 'apiUrl', 'apiToken', 'lastError', 'lockNotice'];
   function refresh() {
     chrome.storage.local.get(VIEW_KEYS, (st) => {
       if (st.captureMode) modeInputs.forEach((i) => (i.checked = i.value === st.captureMode));
       apiUrlInput.value = st.apiUrl || DEFAULT_API_URL;
+      apiTokenInput.value = st.apiToken || '';
       setCapturingState(!!st.isCapturing, st.captureMode);
       renderSessions(st);
       showStats(st.stats);
@@ -74,18 +76,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Link TikTok / link trang CRM / ID → phiên CRM (backend tự tạo phiên nếu là link TikTok mới)
-  async function resolveSession(apiUrl, input) {
+  async function resolveSession(apiUrl, apiToken, input) {
     let res;
     try {
       res = await fetch(`${apiUrl}/live-engine/extension-session`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(apiToken ? { 'x-extension-token': apiToken } : {}) },
         body: JSON.stringify({ input }),
       });
     } catch (e) {
       throw new Error(`Không kết nối được ${apiUrl}. Server Render có thể đang khởi động, chờ ~1 phút rồi bấm lại.`);
     }
     const data = await res.json().catch(() => ({}));
+    if (res.status === 401) throw new Error('Sai hoặc thiếu Mã truy cập extension — hỏi admin CRM rồi nhập trong "Cài đặt server CRM".');
     if (!res.ok) throw new Error(data.message || `Server trả lỗi ${res.status}`);
     return data;
   }
@@ -109,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showMessage('');
     const input = sessionIdInput.value.trim();
     const apiUrl = (apiUrlInput.value.trim() || DEFAULT_API_URL).replace(/\/+$/, '');
+    const apiToken = apiTokenInput.value.trim();
     const mode = selectedMode();
 
     const { isCapturing: wasCapturing } = await chrome.storage.local.get(['isCapturing']);
@@ -141,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let session = null;
     try {
       // multi: phiên cho tab hiện tại (nếu là LIVE) tạo sẵn; các kênh khác tự tạo khi có comment
-      if (mode === 'locked' || input || tabUser) session = await resolveSession(apiUrl, input || tab.url);
+      if (mode === 'locked' || input || tabUser) session = await resolveSession(apiUrl, apiToken, input || tab.url);
     } catch (e) {
       startBtn.disabled = false;
       setCapturingState(false, mode);
@@ -162,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
       boundUsername: mode === 'locked' ? tabUser : null,
       sessionMap,
       apiUrl,
+      apiToken,
       lastError: null,
       lockNotice: null,
       isCapturing: true,

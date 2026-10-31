@@ -42,11 +42,19 @@ Chrome extension MV3 đọc comment TikTok LIVE trên Chrome thật → `POST {b
 
 | App | Biến |
 |---|---|
-| frontend | `DATABASE_URL`, `DIRECT_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `BACKEND_URL`, `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SOCKET_URL`, `NEXT_PUBLIC_MOCK_MODE` |
-| backend | `DATABASE_URL`, `DIRECT_URL`, `FRONTEND_URL`, `TRACKING_BASE_URL`, `SMTP_HOST/PORT/SECURE/USER/PASS/FROM_EMAIL/FROM_NAME` |
+| frontend | `INTERNAL_API_KEY`, `DATABASE_URL`, `DIRECT_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `BACKEND_URL`, `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SOCKET_URL`, `NEXT_PUBLIC_MOCK_MODE` |
+| backend | `INTERNAL_API_KEY`, `EXTENSION_TOKEN`, `DATABASE_URL`, `DIRECT_URL`, `FRONTEND_URL`, `TRACKING_BASE_URL`, `SMTP_HOST/PORT/SECURE/USER/PASS/FROM_EMAIL/FROM_NAME` |
 | root Vinsoul | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `JWT_SECRET`, `NODE_ENV` |
 
 Đặt trên dashboard Vercel/Render. **Không bao giờ commit `.env`.**
+
+**Xác thực backend** (`backend/src/auth/roles.guard.ts`, guard toàn cục):
+- `INTERNAL_API_KEY` phải **giống nhau** trên Vercel và Render. Proxy `/api/backend/*` gửi `x-internal-key` + `x-user-role` (role lấy từ phiên next-auth trong DB, phiên hết hạn = GUEST). Backend chỉ tin role khi khóa đúng; role `GUEST` bị chặn ở mọi route trừ `@Public()`.
+- `EXTENSION_TOKEN` (Render): extension gửi `x-extension-token` cho route `@ExtensionAccess()` (`extension-session`, `extension-comments`); nhập trong popup → "Cài đặt server CRM".
+- Chưa đặt 2 biến → chế độ cũ (tin header, log cảnh báo) để không sập production khi deploy.
+- Route mới: mặc định cần đăng nhập. Trang công khai gọi API → gắn `@Public()` (hiện có: `GET /`, `GET /order/tracking/:code`). Frontend luôn gọi qua `/api/backend`, không gọi thẳng `NEXT_PUBLIC_API_URL`.
+- `frontend/src/middleware.ts`: chưa có cookie phiên → về `/login`, trừ `/login`, `/claim`, `/tracking`, `/play`.
+- Socket.io (websocket) chưa xác thực.
 
 ## 3. Deploy & CI/CD
 

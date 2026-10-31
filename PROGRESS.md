@@ -3,6 +3,9 @@
 > Đọc cùng `AGENT.md` trước mỗi task. Làm xong task nào → cập nhật file này (mới nhất ở trên).
 
 ## Đang làm / Việc tiếp theo
+- [ ] **Bật xác thực backend**: đặt `INTERNAL_API_KEY` (giống nhau) trên Vercel + Render, `EXTENSION_TOKEN` trên Render, rồi nhập token vào popup extension. Chưa đặt = backend vẫn mở như cũ.
+- [ ] Chuyển repo GitHub sang Private + đổi mật khẩu Neon, Google OAuth secret, `NEXTAUTH_SECRET`, `JWT_SECRET` (AUDIT #3 — người dùng tự làm).
+- [ ] Vận đơn theo quy trình Hành chính (AUDIT #27, flow đã chốt).
 - [ ] **Xem `docs/AUDIT-2026-10-31.md`** — 31 việc đã xếp ưu tiên. P0 bảo mật: backend Render đang trả lead/staff/order (SĐT, email, địa chỉ) cho người không đăng nhập; repo GitHub public kèm secret cũ trong lịch sử; minigame không chấm điểm được (P1 #7).
 - [ ] Test extension trên 1 buổi TikTok LIVE thật (selector DOM mới chỉ test bằng DOM giả lập) — nếu "Đã bắt" không tăng thì sửa selector trong `extension/content.js`.
 - [ ] Deploy backend Render bản mới (bóc SĐT, API `/lead` trả comment) trước buổi live.
@@ -32,6 +35,7 @@
 - **Deploy**: Vercel auto deploy từ `main`, backend trên Render.
 
 ## Nhật ký
+- 2026-10-31 — P0 bảo mật (AUDIT #1, #2, #4, #6, #13): `RolesGuard` toàn cục yêu cầu `x-internal-key` (proxy Next.js gửi) và role đã đăng nhập cho mọi route trừ `@Public` (`/`, tra cứu đơn); route extension dùng `x-extension-token`; proxy bỏ qua phiên hết hạn; trang `live/[id]` gọi qua proxy thay vì thẳng Render; thêm `middleware.ts` chặn trang khi chưa đăng nhập; extension 1.3.0 có ô "Mã truy cập"; backend `listen(PORT)`. 7 test guard. Chỉ có hiệu lực sau khi đặt env. Chốt flow vận đơn qua Hành chính (#27). Chưa làm: #3 (repo private + đổi secret), #5 (RBAC vào DB), xác thực socket.
 - 2026-10-31 — Extension 2 chế độ: **Khóa 1 phiên** (chỉ tab + kênh đã gắn; chuyển kênh/trang → tự dừng; quay lại → bắt tiếp) và **Nhiều tab** (mọi tab LIVE, mỗi kênh 1 phiên CRM riêng — trước đây dồn chung 1 phiên làm sai số liệu). Popup chọn chế độ, hiện kênh/phiên đang ghi, số "Bỏ qua". 404 phiên đã xóa → bỏ hàng đợi phiên đó, báo RESET.
 - 2026-10-31 — Trang Kết nối LIVE bỏ kết nối TikTok phía server (bị rate limit Euler sign server), tạo phiên qua `/live-engine/extension-session`; số liệu thật từ `GET /live-session/overview`; danh sách phiên ở Thống kê hiện ngày/thời lượng/cmt/lead thật; extension bỏ huy hiệu "Hạng N". **Đã xóa toàn bộ 15 LiveSession cũ** theo yêu cầu (kể cả 5 ca lịch phân công + 6 lượt phân công), 616 comment, 14 lead từ live, 46 customer mồ côi — backup tại `C:/Users/ntla2/Downloads/CRM-backup/live_sessions_backup_2026-10-31.json` (ngoài repo, có SĐT khách, không commit). Còn lại 2 lead nhập tay.
 - 2026-10-31 — Lọc comment CRM + lưu quà tặng: extension nhận dòng "đã gửi <quà> xN" thành sự kiện quà; backend lưu `LiveComment` category GIFT (gộp combo, 3 test), loại GIFT khỏi số liệu comment; `/dashboard/analytics/:id` trả nhãn tiếng Việt, cờ `isCrm`, danh sách quà + bảng xếp hạng người tặng. Trang Thống kê: tab "Comment CRM (đã lọc)" (mặc định), "Người tặng quà"; sửa tab Minigame trước giờ luôn rỗng (lọc theo nhãn backend không gán) và bỏ nhãn đúng/sai giả.

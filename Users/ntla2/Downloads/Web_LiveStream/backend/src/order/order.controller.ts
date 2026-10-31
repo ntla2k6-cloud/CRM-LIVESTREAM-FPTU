@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { OrderService } from './order.service.js';
+import { Public } from '../auth/roles.decorator.js';
 
 @Controller('order')
 export class OrderController {
@@ -16,6 +17,7 @@ export class OrderController {
   }
 
   // Customer tracking — search by trackingCode, orderId, or phone
+  @Public()
   @Get('tracking/:trackingCode')
   findByTracking(@Param('trackingCode') trackingCode: string) {
     return this.orderService.findByTracking(trackingCode);

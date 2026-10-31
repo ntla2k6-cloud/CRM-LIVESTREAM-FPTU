@@ -50,7 +50,7 @@ export default function LiveControlPage() {
   ];
 
   useEffect(() => {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const baseUrl = '/api/backend';
     fetch(`${baseUrl}/live-session/${params}`)
       .then(res => res.json())
       .then(current => {
@@ -84,7 +84,7 @@ export default function LiveControlPage() {
     const autoConnect = urlParams.get('autoConnect');
     const uName = urlParams.get('tiktokUsername') || tiktokUsername;
     if (autoConnect === 'true' && uName && tiktokStatus === 'disconnected') {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const baseUrl = '/api/backend';
       setTiktokStatus('connecting');
       fetch(`${baseUrl}/live-engine/connect`, {
         method: 'POST',
@@ -575,7 +575,7 @@ export default function LiveControlPage() {
                   {tiktokStatus === 'connected' && (
                     <button onClick={async () => { 
                       setTiktokStatus('disconnected'); 
-                      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+                      const baseUrl = '/api/backend';
                       await fetch(`${baseUrl}/live-engine/disconnect`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },

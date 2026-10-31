@@ -1,6 +1,7 @@
 import { Controller, Post, Body, Get, Param, BadRequestException } from '@nestjs/common';
 import { LiveEngineService } from './live-engine.service.js';
 import { PipelineService } from '../comment-engine/pipeline.service.js';
+import { ExtensionAccess } from '../auth/roles.decorator.js';
 
 const EXTENSION_CONCURRENCY = 8;
 
@@ -24,11 +25,13 @@ export class LiveEngineController {
   }
 
 
+  @ExtensionAccess()
   @Post('extension-session')
   async resolveExtensionSession(@Body() body: { input: string; title?: string }) {
     return this.liveEngineService.resolveExtensionSession(body?.input, body?.title);
   }
 
+  @ExtensionAccess()
   @Post('extension-comments')
   async handleExtensionComments(
     @Body() body: { liveSessionId: string; comments: Array<{ platformCommentId: string, type?: 'comment' | 'gift', username: string, displayName?: string, avatar?: string, content: string, giftName?: string, giftCount?: number, timestamp: number }> }
