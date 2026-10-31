@@ -5,7 +5,7 @@
 ## Đang làm / Việc tiếp theo
 - [ ] **Minigame đã lên production** (2026-10-31, `e3d8f7cb`, đã thêm cột `Question.options`; API `/question` test OK). Còn: test trên live thật — tạo câu → Bắt đầu → comment `A/B/C/D` → bảng xếp hạng. Trang `/play` vẫn nối `localhost:3001` (chưa chạy trên production).
 - [ ] Chuyển repo GitHub sang Private + đổi mật khẩu Neon, Google OAuth secret, `NEXTAUTH_SECRET`, `JWT_SECRET` (AUDIT #3 — người dùng tự làm).
-- [ ] **Vận đơn qua Hành chính (code trên nhánh, chưa deploy)** — không cần đổi DB. Sau deploy: Thủ kho thử 1 vòng chuyển HC → nhập file mã vận đơn → kiểm tra `/tracking`.
+- [ ] **Vận đơn qua Hành chính đã lên production** (2026-10-31, `33bfa31d`; API bulk test OK, quyền BIEN_TAP bị 403). Còn: Thủ kho thử 1 vòng thật (Chuyển Hành chính → nhập file mã vận đơn → `/tracking`), xem giao diện trang Kho.
 - [ ] **Xem `docs/AUDIT-2026-10-31.md`** — 31 việc đã xếp ưu tiên. P0 bảo mật: backend Render đang trả lead/staff/order (SĐT, email, địa chỉ) cho người không đăng nhập; repo GitHub public kèm secret cũ trong lịch sử; minigame không chấm điểm được (P1 #7).
 - [ ] Test extension trên 1 buổi TikTok LIVE thật (selector DOM mới chỉ test bằng DOM giả lập) — nếu "Đã bắt" không tăng thì sửa selector trong `extension/content.js`.
 - [ ] Deploy backend Render bản mới (bóc SĐT, API `/lead` trả comment) trước buổi live.
