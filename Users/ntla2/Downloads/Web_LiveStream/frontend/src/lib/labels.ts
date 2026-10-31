@@ -118,12 +118,29 @@ ${autoPrint ? `<script>window.onload = function () { window.focus(); window.prin
 </body></html>`;
 }
 
-/** Mở cửa sổ in. Trả về thông báo lỗi (null = OK). */
+/** In qua iframe ẩn trong trang (không cần pop-up, không bị trình duyệt chặn). Trả về thông báo lỗi (null = OK). */
 export function printLabels(orders: any[], layout: LabelLayout): string | null {
   if (!orders.length) return 'Chưa chọn đơn nào để in';
-  const w = window.open('', '_blank');
-  if (!w) return 'Trình duyệt chặn cửa sổ in — cho phép pop-up rồi bấm lại';
-  w.document.write(buildLabelsHtml(orders, layout, window.location.origin));
-  w.document.close();
+  const frame = document.createElement('iframe');
+  frame.setAttribute('aria-hidden', 'true');
+  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+  document.body.appendChild(frame);
+  const doc = frame.contentDocument;
+  const win = frame.contentWindow;
+  if (!doc || !win) {
+    frame.remove();
+    return 'Không mở được bản in, thử lại';
+  }
+  doc.open();
+  doc.write(buildLabelsHtml(orders, layout, window.location.origin, false));
+  doc.close();
+  const cleanup = () => setTimeout(() => frame.remove(), 1000);
+  win.onafterprint = cleanup;
+  // Đợi font/ảnh trong iframe dựng xong rồi mới in
+  setTimeout(() => {
+    win.focus();
+    win.print();
+    setTimeout(cleanup, 60_000);
+  }, 300);
   return null;
 }

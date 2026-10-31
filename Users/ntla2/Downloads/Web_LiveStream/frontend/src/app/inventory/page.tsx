@@ -892,7 +892,7 @@ export default function InventoryPage() {
       </div>
 
       {notice && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] max-w-lg bg-slate-900 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-xl">{notice}</div>
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[70] w-[calc(100%-32px)] max-w-lg bg-slate-900 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-xl">{notice}</div>
       )}
 
       {/* In tem giao hàng: lọc + chọn đơn */}
@@ -1043,7 +1043,7 @@ export default function InventoryPage() {
             <div className="p-5 border-b border-slate-100 flex items-center justify-between">
               <div>
                 <h3 className="font-black text-slate-900 flex items-center gap-2"><ListChecks size={18} className="text-[#005691]" /> Nhập mã vận đơn từ Hành chính</h3>
-                <p className="text-xs text-slate-500 mt-1">Cần cột <b>Mã Đơn</b> và <b>Mã vận đơn</b> (thêm <b>Đơn vị vận chuyển</b>, <b>Link tra cứu</b> nếu có). Đơn chưa giao sẽ chuyển sang &quot;Đã chuyển tới đơn vị vận chuyển&quot; và gửi email cho khách.</p>
+                <p className="text-xs text-slate-500 mt-1">Cần cột <b>Mã Đơn</b> và <b>Mã vận đơn</b> (thêm <b>Đơn vị vận chuyển</b>, <b>Link tra cứu</b> nếu có). Đơn chưa giao sẽ chuyển sang &quot;Đơn vị vận chuyển đang xử lý&quot; (khách thấy mã của đơn vị vận chuyển từ bước này) và gửi email cho khách.</p>
               </div>
               <button onClick={() => setImportOpen(false)} className="text-slate-400 hover:text-slate-700"><X size={20} /></button>
             </div>
