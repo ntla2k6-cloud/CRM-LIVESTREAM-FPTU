@@ -3,7 +3,7 @@
 > Đọc cùng `AGENT.md` trước mỗi task. Làm xong task nào → cập nhật file này (mới nhất ở trên).
 
 ## Đang làm / Việc tiếp theo
-- [ ] **Minigame (code trên nhánh, chưa deploy)**: trước khi đưa lên main phải thêm cột DB `ALTER TABLE "Question" ADD COLUMN IF NOT EXISTS "options" JSONB` (Neon production) — thiếu cột thì backend mới lỗi mọi truy vấn Question. Sau đó test trên live thật: tạo câu → Bắt đầu → comment `A/B/C/D` → bảng xếp hạng.
+- [ ] **Minigame đã lên production** (2026-10-31, `e3d8f7cb`, đã thêm cột `Question.options`; API `/question` test OK). Còn: test trên live thật — tạo câu → Bắt đầu → comment `A/B/C/D` → bảng xếp hạng. Trang `/play` vẫn nối `localhost:3001` (chưa chạy trên production).
 - [ ] Chuyển repo GitHub sang Private + đổi mật khẩu Neon, Google OAuth secret, `NEXTAUTH_SECRET`, `JWT_SECRET` (AUDIT #3 — người dùng tự làm).
 - [ ] Vận đơn theo quy trình Hành chính (AUDIT #27, flow đã chốt).
 - [ ] **Xem `docs/AUDIT-2026-10-31.md`** — 31 việc đã xếp ưu tiên. P0 bảo mật: backend Render đang trả lead/staff/order (SĐT, email, địa chỉ) cho người không đăng nhập; repo GitHub public kèm secret cũ trong lịch sử; minigame không chấm điểm được (P1 #7).
