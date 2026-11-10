@@ -61,6 +61,7 @@ export async function PATCH(req: NextRequest) {
         'SAN_XUAT': 'Producer',
         'KY_THUAT': 'Kỹ thuật',
         'CSKH': 'CSKH',
+        'LIVE_MANAGER': 'Quản lý Phiên Live',
         'THU_KHO': 'Thủ kho',
         'ADMIN': 'Admin',
         'MANAGER': 'Manager'

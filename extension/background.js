@@ -19,7 +19,7 @@ let state = {
   boundUsername: null,
   sessionMap: {}, // chế độ multi: { username: { id, title } }
   apiUrl: DEFAULT_API_URL,
-  apiToken: '', // EXTENSION_TOKEN của backend (nhập trong popup)
+  apiToken: '', // Mã kết nối cá nhân lấy trong CRM (chỉ tài khoản Quản lý Phiên Live)
 };
 let stats = { captured: 0, synced: 0, skipped: 0 };
 let flushing = false;
@@ -189,7 +189,9 @@ async function flushQueue() {
         saveQueue();
         setSyncState('Phiên CRM không còn tồn tại (đã bị xóa). Bấm RESET rồi Bắt đầu lại.');
       } else if (res.status === 401) {
-        setSyncState('Sai hoặc thiếu Mã truy cập extension. Mở "Cài đặt server CRM", nhập mã rồi Dừng → Bắt đầu lại.');
+        setSyncState('Mã kết nối sai, thiếu hoặc hết hạn. Lấy mã mới trong CRM (Điều khiển LIVE → "Lấy mã kết nối"), dán vào "Cài đặt server CRM" rồi Dừng → Bắt đầu lại.');
+      } else if (res.status === 403) {
+        setSyncState('Tài khoản gắn với mã này không còn vai trò "Quản lý Phiên Live" nên không đẩy được comment. Nhờ Admin phân quyền.');
       } else {
         setSyncState(`Server trả lỗi ${res.status}: ${text.slice(0, 120)}`);
       }

@@ -21,6 +21,7 @@ const UI_ROLES = [
   { value: "BIEN_TAP",   label: "Biên Tập",                icon: Clapperboard,   color: "bg-yellow-50 text-yellow-700 border-yellow-200",   desc: "Soạn kịch bản, nội dung & câu hỏi Minigame" },
   { value: "KY_THUAT",   label: "Kỹ Thuật",               icon: Settings2,      color: "bg-teal-50 text-teal-700 border-teal-200",         desc: "Vận hành thiết bị, OBS, kết nối luồng Live" },
   { value: "SAN_XUAT",   label: "Tổ Chức Sản Xuất",       icon: MonitorPlay,    color: "bg-purple-50 text-purple-700 border-purple-200",   desc: "Lên kế hoạch, phân ca, điều phối ekip" },
+  { value: "LIVE_MANAGER", label: "Quản lý Phiên Live",     icon: Video,          color: "bg-red-50 text-red-700 border-red-200",            desc: "Chạy extension bắt comment TikTok, quản lý phiên LIVE" },
   { value: "THU_KHO",    label: "Thủ Kho",                icon: CheckCircle2,   color: "bg-emerald-50 text-emerald-700 border-emerald-200",desc: "Quản lý kho quà, xuất/nhập kho" },
   { value: "MANAGER",    label: "Quản lý (Manager)",       icon: UserCheck,      color: "bg-indigo-50 text-indigo-700 border-indigo-200",   desc: "Xem toàn bộ dữ liệu, báo cáo, xuất Excel" },
   { value: "ADMIN",      label: "Admin Hệ thống",          icon: ShieldCheck,    color: "bg-red-50 text-red-700 border-red-200",            desc: "Toàn quyền: phân quyền, xóa, cấu hình" },

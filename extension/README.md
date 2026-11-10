@@ -34,7 +34,7 @@ TikTok LIVE (Chrome) → content.js (đọc khung chat, lọc rác, chống trù
 
 Mặc định gửi về `https://crm-livestream-fptu.onrender.com`. Đổi trong **Cài đặt server CRM** (vd. `http://localhost:3001` khi chạy local).
 
-**Mã truy cập extension**: khi backend đặt `EXTENSION_TOKEN`, nhập đúng mã này trong **Cài đặt server CRM** (lưu trên máy, RESET không xóa). Sai/thiếu mã → popup báo lỗi 401.
+**Cài đặt & mã kết nối**: tải `fptu-extension.zip` trong CRM (Điều khiển LIVE → "Tải extension"), giải nén, `chrome://extensions` → Developer mode → Load unpacked. Chỉ tài khoản có vai trò **Quản lý Phiên Live** (`LIVE_MANAGER`) bấm được "Lấy mã kết nối" (hạn 90 ngày) — dán vào **Cài đặt server CRM** (lưu trên máy, RESET không xóa). Mã sai/hết hạn → 401; tài khoản bị đổi vai trò → 403 (backend tra vai trò mỗi lần gửi). Zip sinh tự động khi build frontend (`frontend/scripts/pack-extension.mjs`).
 
 ## CRM làm gì với comment
 | Comment | Kết quả |

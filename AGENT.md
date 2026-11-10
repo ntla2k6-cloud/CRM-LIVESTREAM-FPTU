@@ -45,20 +45,21 @@ Chrome extension MV3 đọc comment TikTok LIVE trên Chrome thật → `POST {b
 | App | Biến |
 |---|---|
 | frontend | `INTERNAL_API_KEY`, `DATABASE_URL`, `DIRECT_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `BACKEND_URL`, `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SOCKET_URL`, `NEXT_PUBLIC_MOCK_MODE`, `SMTP_HOST/PORT/SECURE/USER/PASS/FROM_EMAIL/FROM_NAME` (gửi mail thay backend) |
-| backend | `INTERNAL_API_KEY`, `EXTENSION_TOKEN`, `DATABASE_URL`, `DIRECT_URL`, `FRONTEND_URL`, `TRACKING_BASE_URL`, `MAIL_RELAY_URL` (`https://crm-livestream-fptu.vercel.app/api/internal/send-mail`) |
+| backend | `INTERNAL_API_KEY`, `EXTENSION_TOKEN`, `DATABASE_URL`, `DIRECT_URL`, `FRONTEND_URL`, `TRACKING_BASE_URL`, `MAIL_RELAY_URL` (`https://crm-livestream-fptu.vercel.app/api/internal/send-mail`), `MAIL_ENABLED` (`true` mới gửi mail — hiện tắt, đang bảo trì) |
 | root Vinsoul | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `JWT_SECRET`, `NODE_ENV` |
 
 Đặt trên dashboard Vercel/Render. **Không bao giờ commit `.env`.**
 
-**Email:** Render Free chặn cổng SMTP (25/465/587, đã thử Gmail → `ENETUNREACH`). Backend `EmailService` có `MAIL_RELAY_URL` thì POST mail sang `frontend/src/app/api/internal/send-mail` (khóa `x-internal-key`), route đó gửi bằng nodemailer với `SMTP_*` đặt trên **Vercel** (Gmail + mật khẩu ứng dụng). Không có `MAIL_RELAY_URL` → dùng `SMTP_*` của Render như cũ.
+**Email:** Render Free chặn cổng SMTP (25/465/587, đã thử Gmail → `ENETUNREACH`). Backend `EmailService` có `MAIL_RELAY_URL` thì POST mail sang `frontend/src/app/api/internal/send-mail` (khóa `x-internal-key`), route đó gửi bằng nodemailer với `SMTP_*` đặt trên **Vercel** (Gmail + mật khẩu ứng dụng). Không có `MAIL_RELAY_URL` → dùng `SMTP_*` của Render như cũ. **Hiện tắt (bảo trì)**: backend chỉ gửi khi `MAIL_ENABLED=true`; nút "Gửi mail chúc mừng" ở Kho hiện nhãn Bảo trì (`MAIL_MAINTENANCE` trong `inventory/page.tsx`) — bật lại phải đổi cả hai.
 
 **Xác thực backend** (`backend/src/auth/roles.guard.ts`, guard toàn cục):
 - `INTERNAL_API_KEY` phải **giống nhau** trên Vercel và Render. Proxy `/api/backend/*` gửi `x-internal-key` + `x-user-role` (role lấy từ phiên next-auth trong DB, phiên hết hạn = GUEST). Backend chỉ tin role khi khóa đúng; role `GUEST` bị chặn ở mọi route trừ `@Public()`.
-- `EXTENSION_TOKEN` (Render): extension gửi `x-extension-token` cho route `@ExtensionAccess()` (`extension-session`, `extension-comments`); nhập trong popup → "Cài đặt server CRM".
+- Extension gửi `x-extension-token` = **mã kết nối cá nhân** cho route `@ExtensionAccess()` (`extension-session`, `extension-comments`). Mã do `POST /api/extension/token` (Next) ký bằng `INTERNAL_API_KEY` cho user đang đăng nhập, **chỉ vai trò `LIVE_MANAGER` ("Quản lý Phiên Live")**; backend (`auth/extension-token.ts` + guard) kiểm chữ ký, hạn 90 ngày và vai trò hiện tại trong DB. `EXTENSION_TOKEN` dùng chung chỉ còn tác dụng khi chưa đặt `INTERNAL_API_KEY`. Trang Điều khiển LIVE (`components/ExtensionConnectCard.tsx`) có nút tải `/fptu-extension.zip` (sinh lúc build bởi `frontend/scripts/pack-extension.mjs`, không commit) + lấy mã.
 - Chưa đặt 2 biến → chế độ cũ (tin header, log cảnh báo) để không sập production khi deploy.
 - Route mới: mặc định cần đăng nhập. Trang công khai gọi API → gắn `@Public()` (hiện có: `GET /`, `GET /order/tracking/:code`). Frontend luôn gọi qua `/api/backend`, không gọi thẳng `NEXT_PUBLIC_API_URL`.
 - `frontend/src/middleware.ts`: chưa có cookie phiên → về `/login`, trừ `/login`, `/claim`, `/tracking`.
 - API route của Next (`frontend/src/app/api/*`) **không qua middleware** → mỗi route tự kiểm tra phiên bằng `getSessionUser(req)` trong `frontend/src/lib/session.ts` (`isStaff`, `isManager`). Ngoại lệ công khai: `/api/claim`, `/api/auth/*`; `/api/internal/*` dùng `x-internal-key`.
+- Vai trò (`User.role`): GUEST, VJ_HOST, CSKH, BIEN_TAP, KY_THUAT, SAN_XUAT, LIVE_MANAGER, THU_KHO, MANAGER, ADMIN. Thêm vai trò → sửa `staff/page.tsx` (UI_ROLES), `admin/users/page.tsx`, `schedule/page.tsx`, quyền mặc định trong `RoleGuard.tsx` + `Sidebar.tsx`, `staffRoleMap` trong `api/admin/users/route.ts`. Backend `@Roles` dùng đúng các giá trị này (ADMIN/MANAGER luôn qua).
 - Socket.io (websocket) chưa xác thực.
 
 ## 3. Deploy & CI/CD

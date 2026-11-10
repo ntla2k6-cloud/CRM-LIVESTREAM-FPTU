@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { ExtensionConnectCard } from '@/components/ExtensionConnectCard';
 import { Play, Loader2, Sparkles, Zap, ShieldCheck, Puzzle, Activity, Users, Clock, ArrowRight } from 'lucide-react';
 
 export default function LiveConnectPage() {
@@ -128,29 +129,7 @@ export default function LiveConnectPage() {
         {/* RIGHT COLUMN: DASHBOARD WIDGETS */}
         <div className="lg:col-span-2 flex flex-col gap-6">
 
-          {/* Extension Banner */}
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-xl border border-slate-700 overflow-hidden text-white p-6 relative">
-            <div className="absolute top-0 right-0 p-32 bg-blue-500 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
-            <div className="relative z-10">
-              <h2 className="text-lg font-black mb-3 flex items-center gap-2">
-                <Puzzle className="text-blue-400" size={20} />
-                Bắt 100% Comment
-              </h2>
-              <p className="text-slate-400 text-xs font-medium mb-4 leading-relaxed">
-                Dùng <b className="text-white">FPTU EXTENSION</b> để bỏ qua giới hạn chống Bot của Tiktok.
-              </p>
-              <div className="space-y-3">
-                <div className="bg-white/10 rounded-xl p-3 border border-white/5 flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold">1</div>
-                  <h3 className="font-bold text-xs">Mở TikTok LIVE trên Chrome, bấm Extension FPTU → Bắt đầu</h3>
-                </div>
-                <div className="bg-white/10 rounded-xl p-3 border border-white/5 flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold">2</div>
-                  <h3 className="font-bold text-xs">Nhận comment tức thì độ trễ 0s</h3>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ExtensionConnectCard />
 
           {/* Quick Stats */}
           <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-6 flex-1 flex flex-col">

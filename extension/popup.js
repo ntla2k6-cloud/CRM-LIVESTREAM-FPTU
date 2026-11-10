@@ -88,7 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
       throw new Error(`Không kết nối được ${apiUrl}. Server Render có thể đang khởi động, chờ ~1 phút rồi bấm lại.`);
     }
     const data = await res.json().catch(() => ({}));
-    if (res.status === 401) throw new Error('Sai hoặc thiếu Mã truy cập extension — hỏi admin CRM rồi nhập trong "Cài đặt server CRM".');
+    if (res.status === 401) throw new Error('Mã kết nối sai, thiếu hoặc hết hạn — vào CRM (Điều khiển LIVE) bấm "Lấy mã kết nối", dán vào "Cài đặt server CRM".');
+    if (res.status === 403) throw new Error('Chỉ tài khoản có vai trò "Quản lý Phiên Live" được đẩy comment. Nhờ Admin phân quyền.');
     if (!res.ok) throw new Error(data.message || `Server trả lỗi ${res.status}`);
     return data;
   }

@@ -36,7 +36,10 @@ export class EmailService {
     const relayUrl = process.env.MAIL_RELAY_URL;
     const internalKey = process.env.INTERNAL_API_KEY;
 
-    if (relayUrl && internalKey) {
+    if (process.env.MAIL_ENABLED !== 'true') {
+      // Tạm tắt gửi mail (bảo trì) cho tới khi đặt MAIL_ENABLED=true trên Render
+      this.logger.warn('Email đang tắt (bảo trì) — đặt MAIL_ENABLED=true để bật');
+    } else if (relayUrl && internalKey) {
       // Ưu tiên gửi qua Vercel (SMTP_* đặt trên Vercel) vì Render Free chặn cổng SMTP
       this.transporter = relayTransport(relayUrl, internalKey);
       this.logger.log(`Email service initialized with relay: ${relayUrl}`);
@@ -63,7 +66,7 @@ export class EmailService {
 
   /** Mail "Chúc mừng trúng quà" kèm mã đơn của dự án + link tracking. Lỗi gửi → throw để Thủ kho biết. */
   async sendCongrats(shipment: any): Promise<void> {
-    if (!this.transporter) throw new Error('Chưa cấu hình email (MAIL_RELAY_URL trên Render + SMTP_* trên Vercel)');
+    if (!this.transporter) throw new Error('Tính năng gửi mail đang bảo trì');
     if (!shipment.recipientEmail) throw new Error(`Đơn ${shipment.id} chưa có email`);
     const trackingUrl = trackingUrlFor(shipment);
     const fromEmail = process.env.SMTP_FROM_EMAIL || 'uonggichua@fpt.edu.vn';

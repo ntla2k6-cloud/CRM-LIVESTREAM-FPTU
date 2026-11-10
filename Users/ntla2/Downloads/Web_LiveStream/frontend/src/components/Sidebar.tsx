@@ -72,6 +72,7 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
               if (user.role === 'BIEN_TAP') p = ['live.view', 'live.script', 'schedule.register'];
               if (user.role === 'KY_THUAT') p = ['live.view', 'live.control', 'schedule.register'];
               if (user.role === 'SAN_XUAT') p = ['schedule.view', 'schedule.register', 'schedule.approve', 'schedule.manage', 'live.view', 'live.manage'];
+              if (user.role === 'LIVE_MANAGER') p = ['live.view', 'live.manage', 'live.control', 'live.script', 'schedule.register'];
               if (user.role === 'THU_KHO') p = ['inventory.view', 'inventory.manage', 'inventory.export', 'schedule.register'];
               if (typeof window !== 'undefined') {
                 try {

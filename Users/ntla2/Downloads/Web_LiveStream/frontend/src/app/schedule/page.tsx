@@ -16,6 +16,7 @@ const STAFF_ROLES = [
   { id: 'BIEN_TAP', name: 'Biên Tập', color: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
   { id: 'KY_THUAT', name: 'Kỹ Thuật', color: 'bg-teal-50 text-teal-700 border-teal-200' },
   { id: 'SAN_XUAT', name: 'Tổ Chức Sản Xuất', color: 'bg-purple-50 text-purple-700 border-purple-200' },
+  { id: 'LIVE_MANAGER', name: 'Quản lý Phiên Live', color: 'bg-red-50 text-red-700 border-red-200' },
   { id: 'THU_KHO', name: 'Thủ Kho', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
   { id: 'MANAGER', name: 'Quản lý (Manager)', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
   { id: 'ADMIN', name: 'Admin Hệ thống', color: 'bg-red-50 text-red-700 border-red-200' }

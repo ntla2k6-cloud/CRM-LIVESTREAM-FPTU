@@ -34,3 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Sinh tự động khi build (scripts/pack-extension.mjs)
+/public/fptu-extension.zip

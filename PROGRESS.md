@@ -3,6 +3,8 @@
 > Đọc cùng `AGENT.md` trước mỗi task. Làm xong task nào → cập nhật file này (mới nhất ở trên).
 
 ## Đang làm / Việc tiếp theo
+- [ ] **Extension theo tài khoản** (2026-11-10): Admin phân vai trò **Quản lý Phiên Live** cho tài khoản chạy extension → tài khoản đó vào Điều khiển LIVE, tải extension 1.4.0, bấm "Lấy mã kết nối", dán vào popup. Mã dùng chung `EXTENSION_TOKEN` cũ không còn tác dụng (có thể xóa khỏi Render).
+- [ ] **Gửi mail đang bảo trì** (tắt có chủ đích). Bật lại: đặt `SMTP_*` trên Vercel + `MAIL_RELAY_URL` và `MAIL_ENABLED=true` trên Render, đổi `MAIL_MAINTENANCE = false` trong `inventory/page.tsx`, gửi thử.
 - [ ] **Kho: in tem + mail chúc mừng đã lên production** (2026-10-31, đã thêm cột `Shipment.tiktokAccount/congratsSentAt`). Test E2E trên production bằng đơn test (đã xóa): tạo đơn + TikTok ID ✅, lọc/chọn in tem ✅, chuyển Hành chính chỉ đơn đang lọc ✅, nhập mã (dán Excel) → IN_TRANSIT + lịch sử ✅, `/tracking` bằng mã dự án và mã ĐVVC ✅, mail chúc mừng báo "chưa kết nối email" ✅. Còn: đặt SMTP_* trên Render rồi gửi thử 1 mail; in tem trên máy thật.
 - [ ] **Minigame đã lên production** (2026-10-31, `e3d8f7cb`, đã thêm cột `Question.options`; API `/question` test OK). Còn: test trên live thật — tạo câu → Bắt đầu → comment `A/B/C/D` → bảng xếp hạng.
 - [ ] Chuyển repo GitHub sang Private + đổi mật khẩu Neon, Google OAuth secret, `NEXTAUTH_SECRET`, `JWT_SECRET` (AUDIT #3 — người dùng tự làm).
@@ -23,6 +25,7 @@
 - Frontend build bỏ qua lỗi ESLint/TS (`next.config.mjs`).
 - Phiên LIVE không tự kết thúc khi extension dừng → danh sách phiên luôn "Đang LIVE" (3 phiên hiện tại).
 - Frontend còn lỗi type ở `schedule/page.tsx`, `Sidebar.tsx`, `live/[id]/report` (chỉ sai khai báo kiểu, chạy vẫn đúng).
+- RBAC chỉ phía client: `RoleGuard.tsx` có lỗi cấu trúc nên **không chặn trang theo quyền** (chỉ chặn GUEST); sidebar ẩn link theo quyền mặc định; cấu hình quyền ở trang Nhân sự lưu `localStorage` máy admin, không áp cho người khác (AUDIT #5). Bảo vệ thật nằm ở backend (`@Roles`).
 - Email: cần đặt `SMTP_*` (Gmail `ntla2k6@gmail.com` + mật khẩu ứng dụng) trên **Vercel** và `MAIL_RELAY_URL` trên Render rồi gửi thử (Render Free chặn SMTP; Brevo không xác minh được SĐT).
 - App Vinsoul root ghi file JSON → không lưu bền trên Vercel.
 
@@ -38,6 +41,7 @@
 - **Deploy**: Vercel auto deploy từ `main`, backend trên Render.
 
 ## Nhật ký
+- 2026-11-10 — Extension chỉ cho **Quản lý Phiên Live**: vai trò mới `LIVE_MANAGER`; `POST /api/extension/token` ký mã cá nhân (HMAC `INTERNAL_API_KEY`, 90 ngày) — backend `extension-token.ts` + `RolesGuard` (async) kiểm chữ ký, hạn và vai trò hiện tại trong DB (CSKH/ADMIN có mã → 403; token dùng chung cũ → 401). Trang Điều khiển LIVE: thẻ tải `fptu-extension.zip` (đóng gói lúc build, `scripts/pack-extension.mjs`) + hướng dẫn cài + Lấy mã kết nối. Extension 1.4.0 báo rõ 401/403. **Gửi mail tạm tắt** (`MAIL_ENABLED`, nút Kho hiện "Bảo trì"). Sửa lịch ca: `@Roles('ADMIN','PRODUCER')` → `SAN_XUAT` (vai trò Tổ chức sản xuất trước bị 403). 56 test + test chéo mã frontend↔backend.
 - 2026-10-31 — Gửi mail qua Vercel: `POST /api/internal/send-mail` (khóa `INTERNAL_API_KEY`, nodemailer + `SMTP_*` trên Vercel); backend `EmailService` dùng `mail-relay.ts` khi có `MAIL_RELAY_URL` (2 test). **Vá lỗ hổng**: `/api/admin/users` cho người chưa đăng nhập xem email nhân sự (đã xác nhận trên production) và PATCH đổi role bất kỳ → tự lên ADMIN; `/api/profile` sửa hồ sơ người khác theo email trong body. Thêm `lib/session.ts`: GET users cần nhân sự đã duyệt, PATCH chỉ ADMIN/MANAGER (cấp/sửa ADMIN, MANAGER chỉ ADMIN), profile chỉ sửa của chính mình.
 - 2026-10-31 — Test mail chúc mừng thật (đơn test, đã xóa): Gmail SMTP từ Render Free → `ENETUNREACH` cổng 587 sau 120s. Rút timeout SMTP (kết nối 15s, chào 10s, socket 30s) để Thủ kho không treo 2 phút khi lỗi.
 - 2026-10-31 — Gỡ trang `/play` (người xem trả lời minigame qua web — buộc rời TikTok LIVE, trái mục tiêu giữ chân người xem; chưa từng chạy được) và handler socket `submitAnswer` (không xác thực, ai cũng bắn được comment giả). Ghi nguyên tắc "mọi tương tác trên TikTok" vào `AGENT.md` §4.

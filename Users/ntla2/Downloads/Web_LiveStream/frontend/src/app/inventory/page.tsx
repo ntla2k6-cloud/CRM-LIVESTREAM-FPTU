@@ -116,6 +116,8 @@ const GiftBadge = ({ status }: { status: string }) => {
 };
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
+const MAIL_MAINTENANCE = true;
+
 export default function InventoryPage() {
   const [activeTab, setActiveTab] = useState<'STOCK' | 'FULFILLMENT'>('STOCK');
   const [search, setSearch] = useState('');
@@ -431,9 +433,11 @@ export default function InventoryPage() {
                 className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-[#00A859] hover:bg-[#008f4c] rounded-xl text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5">
                 <Plus size={15} /> Tạo đơn hàng
               </button>
-              <button onClick={() => { setCongratsOpen(true); setCongratsStatus({}); }}
-                className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-[#F58220] hover:bg-[#e07010] rounded-xl text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5">
-                <Mail size={15} /> Gửi mail chúc mừng
+              {/* Gửi mail tạm tắt (Render Free chặn SMTP) — bật lại: đổi MAIL_MAINTENANCE + đặt MAIL_ENABLED=true trên Render */}
+              <button onClick={() => MAIL_MAINTENANCE ? showNotice('Tính năng gửi mail đang bảo trì') : (setCongratsOpen(true), setCongratsStatus({}))}
+                title={MAIL_MAINTENANCE ? 'Đang bảo trì' : undefined}
+                className={`flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm rounded-xl text-sm font-bold shadow-md transition-all ${MAIL_MAINTENANCE ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : 'bg-[#F58220] hover:bg-[#e07010] text-white hover:-translate-y-0.5'}`}>
+                <Mail size={15} /> Gửi mail chúc mừng{MAIL_MAINTENANCE && <span className="text-[10px] font-black uppercase bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">Bảo trì</span>}
               </button>
               <button onClick={() => openPrint()}
                 className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm bg-[#005691] hover:bg-[#004270] rounded-xl text-sm font-bold text-white shadow-md transition-all hover:-translate-y-0.5">

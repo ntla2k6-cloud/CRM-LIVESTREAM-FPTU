@@ -6,7 +6,7 @@ import { Roles } from '../auth/roles.decorator.js';
 export class ShiftController {
   constructor(private readonly shiftService: ShiftService) {}
 
-  @Roles('ADMIN', 'PRODUCER')
+  @Roles('SAN_XUAT')
   @Post()
   create(@Body() createShiftDto: any) {
     return this.shiftService.create(createShiftDto);
@@ -22,25 +22,25 @@ export class ShiftController {
     return this.shiftService.findOne(id);
   }
 
-  @Roles('ADMIN', 'PRODUCER')
+  @Roles('SAN_XUAT')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateShiftDto: any) {
     return this.shiftService.update(id, updateShiftDto);
   }
 
-  @Roles('ADMIN', 'PRODUCER')
+  @Roles('SAN_XUAT')
   @Delete('assignment/:assignmentId')
   removeStaff(@Param('assignmentId') assignmentId: string) {
     return this.shiftService.removeAssignment(assignmentId);
   }
 
-  @Roles('ADMIN', 'PRODUCER')
+  @Roles('SAN_XUAT')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.shiftService.remove(id);
   }
 
-  @Roles('ADMIN', 'PRODUCER')
+  @Roles('SAN_XUAT')
   @Post(':id/assign')
   assignStaff(@Param('id') id: string, @Body() body: any) {
     return this.shiftService.assignStaff(id, body);

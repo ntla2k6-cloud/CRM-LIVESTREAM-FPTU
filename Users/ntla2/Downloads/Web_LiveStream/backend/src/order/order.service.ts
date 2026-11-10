@@ -233,7 +233,7 @@ export class OrderService {
   async sendCongrats(items: Array<{ id: string; email?: string }>, resend = false) {
     if (!Array.isArray(items) || items.length === 0) throw new BadRequestException('Chưa chọn đơn nào');
     if (!this.emailService.isConfigured) {
-      throw new BadRequestException('Chưa kết nối email: đặt SMTP_HOST, SMTP_USER, SMTP_PASS (và SMTP_FROM_EMAIL) trên Render');
+      throw new BadRequestException('Tính năng gửi mail đang bảo trì');
     }
     const results: Array<{ id: string; ok: boolean; error?: string }> = [];
     for (const item of items) {

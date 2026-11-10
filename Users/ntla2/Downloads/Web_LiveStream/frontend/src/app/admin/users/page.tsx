@@ -45,6 +45,11 @@ const DEFAULT_ROLES = [
     permissions: ['live.view', 'live.script', 'schedule.view', 'schedule.manage', 'staff.view']
   },
   {
+    id: 'LIVE_MANAGER', label: 'Quản lý Phiên Live', color: 'bg-red-500',
+    desc: 'Chạy extension bắt comment TikTok, quản lý phiên LIVE',
+    permissions: ['live.view', 'live.manage', 'live.control']
+  },
+  {
     id: 'THU_KHO', label: 'Thủ Kho', color: 'bg-emerald-500',
     desc: 'Chỉ xem màn hình Kho quà tặng, cập nhật trạng thái giao quà',
     permissions: ['inventory.view', 'inventory.update']

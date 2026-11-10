@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { ShieldAlert, Loader2, LogOut } from "lucide-react";
@@ -58,6 +58,7 @@ export function RoleGuard({ children }: { children: React.ReactNode }) {
         if (currentRole === 'BIEN_TAP') p = ['live.view', 'live.script', 'schedule.register'];
         if (currentRole === 'KY_THUAT') p = ['live.view', 'live.control', 'schedule.register'];
         if (currentRole === 'SAN_XUAT') p = ['schedule.view', 'schedule.register', 'schedule.approve', 'schedule.manage', 'live.view', 'live.manage'];
+        if (currentRole === 'LIVE_MANAGER') p = ['live.view', 'live.manage', 'live.control', 'live.script', 'schedule.register'];
         if (currentRole === 'THU_KHO') p = ['inventory.view', 'inventory.manage', 'inventory.export', 'schedule.register'];
         if (typeof window !== 'undefined') {
           try {

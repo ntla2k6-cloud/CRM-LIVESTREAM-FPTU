@@ -1,6 +1,8 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, ForbiddenException, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { timingSafeEqual } from 'node:crypto';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { EXTENSION_ROLE, verifyExtensionToken } from './extension-token.js';
 
 export function safeEqual(a: unknown, b: string | undefined): boolean {
   if (typeof a !== 'string' || !b) return false;
@@ -13,7 +15,8 @@ export function safeEqual(a: unknown, b: string | undefined): boolean {
  * Ai được gọi backend:
  * - Proxy Next.js (`/api/backend/*`): gửi `x-internal-key` = INTERNAL_API_KEY và `x-user-role` lấy từ phiên đăng nhập.
  *   Chỉ khi khóa đúng mới tin `x-user-role` — gọi thẳng lên Render thì không giả role được.
- * - Extension Chrome: route có @ExtensionAccess, gửi `x-extension-token` = EXTENSION_TOKEN.
+ * - Extension Chrome: route có @ExtensionAccess, gửi `x-extension-token` = mã kết nối cá nhân (CRM ký, xem extension-token.ts).
+ *   Chỉ tài khoản đang có vai trò LIVE_MANAGER (Quản lý Phiên Live) được đẩy comment.
  * - Route @Public: ai cũng gọi được.
  * Chưa đặt INTERNAL_API_KEY / EXTENSION_TOKEN → chạy chế độ cũ (tin header) và log cảnh báo, để deploy không làm sập production.
  */
@@ -22,9 +25,9 @@ export class RolesGuard implements CanActivate {
   private readonly logger = new Logger(RolesGuard.name);
   private warned = false;
 
-  constructor(private reflector: Reflector) {}
+  constructor(private reflector: Reflector, private prisma?: PrismaService) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     if (context.getType() !== 'http') return true;
     const targets = [context.getHandler(), context.getClass()];
     if (this.reflector.getAllAndOverride<boolean>('isPublic', targets)) return true;
@@ -36,7 +39,20 @@ export class RolesGuard implements CanActivate {
     this.warnIfOpen(internalKey, extensionToken);
 
     if (this.reflector.getAllAndOverride<boolean>('extensionAccess', targets)) {
-      if (!extensionToken || safeEqual(headers['x-extension-token'], extensionToken)) return true;
+      const token = headers['x-extension-token'];
+      if (!internalKey) {
+        // Chưa bật xác thực: giữ chế độ cũ (EXTENSION_TOKEN dùng chung hoặc mở)
+        if (!extensionToken || safeEqual(token, extensionToken)) return true;
+      } else if (token) {
+        const userId = verifyExtensionToken(token, internalKey);
+        if (!userId) throw new UnauthorizedException('Mã kết nối extension sai hoặc đã hết hạn — lấy mã mới trong CRM (Kết nối LIVE)');
+        const user = await this.prisma?.user.findUnique({ where: { id: userId }, select: { role: true } });
+        if (user?.role !== EXTENSION_ROLE) {
+          throw new ForbiddenException('Chỉ tài khoản có vai trò "Quản lý Phiên Live" được đẩy comment từ extension');
+        }
+        return true;
+      }
+      // Không có mã extension → coi như gọi từ CRM qua proxy (kiểm tra bên dưới)
     }
 
     if (internalKey && !safeEqual(headers['x-internal-key'], internalKey)) {
@@ -60,6 +76,6 @@ export class RolesGuard implements CanActivate {
     if (this.warned) return;
     this.warned = true;
     if (!internalKey) this.logger.warn('INTERNAL_API_KEY chưa đặt — backend đang tin header x-user-role (ai cũng giả được)');
-    if (!extensionToken) this.logger.warn('EXTENSION_TOKEN chưa đặt — API extension không cần token');
+    if (!internalKey && !extensionToken) this.logger.warn('EXTENSION_TOKEN chưa đặt — API extension không cần token');
   }
 }

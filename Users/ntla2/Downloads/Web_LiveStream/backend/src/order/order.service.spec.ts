@@ -71,10 +71,10 @@ describe('OrderService.sendCongrats', () => {
     expect(res.results.map((r) => r.error ?? 'ok')).toEqual(['ok', 'Chưa có email', 'Đã gửi mail chúc mừng trước đó', 'Email không hợp lệ']);
   });
 
-  it('chưa cấu hình SMTP → báo rõ', async () => {
+  it('email đang tắt → báo bảo trì', async () => {
     const { service, email } = makeService([{ id: 'DON-1' }]);
     (email as any).isConfigured = false;
-    await expect(service.sendCongrats([{ id: 'DON-1', email: 'a@x.vn' }])).rejects.toThrow('SMTP');
+    await expect(service.sendCongrats([{ id: 'DON-1', email: 'a@x.vn' }])).rejects.toThrow('bảo trì');
   });
 });
 
