@@ -1,5 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react';
+import io from 'socket.io-client';
 import {
   Activity, Calendar, Clock, Users, Play, Trophy, MessageSquare, Filter, Search, ChevronRight, Video, Target, CheckCircle2, Download, Gift, Phone
 } from "lucide-react";
@@ -58,6 +59,18 @@ export default function AnalyticsPage() {
     });
   }, []);
 
+  // Realtime: comment/lead/quà mới của phiên đang xem → tải lại số liệu (gom 1.5s để không gọi dồn dập)
+  const [refreshTick, setRefreshTick] = useState(0);
+  useEffect(() => {
+    if (!activeSession) return;
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001');
+    socket.emit('joinSession', activeSession);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const bump = () => { clearTimeout(timer); timer = setTimeout(() => setRefreshTick(t => t + 1), 1500); };
+    ['comment:new', 'lead:new', 'lead:updated', 'gift:new'].forEach(ev => socket.on(ev, bump));
+    return () => { clearTimeout(timer); socket.disconnect(); };
+  }, [activeSession]);
+
   // Update data when active session changes
   useEffect(() => {
     if (!activeSession) return;
@@ -88,7 +101,7 @@ export default function AnalyticsPage() {
         setTopGifters(res?.data?.rawData?.topGifters || []);
       });
     });
-  }, [activeSession, sessions]);
+  }, [activeSession, sessions, refreshTick]);
 
   return (
     <div className="flex h-full flex-col bg-slate-50 font-sans">

@@ -12,10 +12,14 @@ export default function LiveConnectPage() {
 
   const [overview, setOverview] = useState<{ totalComments: number; phoneLeads: number; recentSessions: any[] } | null>(null);
 
+  // Tự làm mới 15s/lần để thấy số comment/lead của phiên đang LIVE (do tài khoản Quản lý Phiên Live đẩy về)
   useEffect(() => {
-    import('@/lib/api').then(({ api }) => api.get('/live-session/overview'))
+    const load = () => import('@/lib/api').then(({ api }) => api.get('/live-session/overview'))
       .then((res: any) => setOverview(res.data))
-      .catch(() => setOverview({ totalComments: 0, phoneLeads: 0, recentSessions: [] }));
+      .catch(() => setOverview(prev => prev ?? { totalComments: 0, phoneLeads: 0, recentSessions: [] }));
+    load();
+    const timer = setInterval(load, 15000);
+    return () => clearInterval(timer);
   }, []);
 
   // Tạo/tìm phiên trên CRM, KHÔNG để server tự kết nối TikTok (bị chặn/giới hạn lượt).
