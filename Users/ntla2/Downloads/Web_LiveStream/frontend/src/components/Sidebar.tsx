@@ -1,10 +1,10 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { 
-  LayoutDashboard, Users, Settings, Briefcase, Video, Activity, Calendar, Package, ShieldCheck
+  LayoutDashboard, Users, Settings, Briefcase, Video, Activity, Calendar, Package, ShieldCheck, LogOut
 } from 'lucide-react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 
 import { usePathname } from 'next/navigation';
 
@@ -119,6 +119,11 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
               {sidebarOpen && <span className="font-bold text-[14px]">Cài đặt chung</span>}
             </Link>
           )}
+          <button onClick={() => signOut({ callbackUrl: '/login' })}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group whitespace-nowrap text-blue-200/70 hover:bg-red-500/10 hover:text-red-300">
+            <LogOut size={20} className="text-blue-300/50 group-hover:text-red-300" strokeWidth={2} />
+            {sidebarOpen && <span className="font-bold text-[14px]">Đăng xuất</span>}
+          </button>
         </nav>
       </div>
 

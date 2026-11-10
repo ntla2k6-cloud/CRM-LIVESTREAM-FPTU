@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 
 import { api } from '@/lib/api';
+import { signOut } from 'next-auth/react';
 
 export default function FptLightDashboard() {
   const [mounted, setMounted] = useState(false);
@@ -126,7 +127,8 @@ export default function FptLightDashboard() {
                   <a href="/profile" className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-[#005691] font-medium transition-colors">Hồ sơ cá nhân</a>
                   <a href="/settings" className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-[#005691] font-medium transition-colors">Cài đặt hệ thống</a>
                   <div className="border-t border-slate-100 my-1"></div>
-                  <a href="/login" className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-bold transition-colors">Đăng xuất</a>
+                  {/* Phải gọi signOut để xóa phiên; link /login thì RoleGuard thấy còn phiên lại đưa về trang chủ */}
+                  <button onClick={() => signOut({ callbackUrl: '/login' })} className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-bold transition-colors">Đăng xuất</button>
                 </div>
               </>
             )}
