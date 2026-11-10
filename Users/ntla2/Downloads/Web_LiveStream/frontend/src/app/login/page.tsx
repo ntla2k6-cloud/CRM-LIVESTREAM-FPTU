@@ -1,18 +1,44 @@
 "use client"
-import React from 'react';
-import { ShieldCheck } from "lucide-react";
+import React, { useState } from 'react';
+import { ShieldCheck, User, Lock, Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Đăng nhập bằng tài khoản do Admin cấp (không cần Gmail) — /api/login tạo phiên giống Google
+  const loginWithPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || `Lỗi ${res.status}`);
+      const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl');
+      window.location.href = callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//') ? callbackUrl : '/';
+    } catch (err: any) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="h-full overflow-y-auto bg-slate-50 flex flex-col justify-center items-center relative overflow-hidden font-sans">
-      
+
       {/* Background decoration */}
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#F58220] rounded-full blur-[120px] opacity-20"></div>
       <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#005691] rounded-full blur-[120px] opacity-20"></div>
 
       <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-slate-100 p-8 relative z-10">
-        
+
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-lg">
@@ -20,10 +46,10 @@ export default function LoginPage() {
             </div>
           </div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">Hệ thống Quản trị LIVE</h1>
-          <p className="text-sm font-bold text-slate-500 mt-2">Vui lòng đăng nhập bằng tài khoản Google để tiếp tục</p>
+          <p className="text-sm font-bold text-slate-500 mt-2">Đăng nhập bằng Google hoặc tài khoản được cấp</p>
         </div>
 
-        <button 
+        <button
           onClick={() => signIn('google', { callbackUrl: '/' })}
           className="w-full bg-white border-2 border-slate-100 hover:bg-slate-50 text-slate-700 font-bold py-4 rounded-xl flex items-center justify-center gap-3 transition-colors shadow-sm hover:shadow-md"
         >
@@ -36,8 +62,38 @@ export default function LoginPage() {
           Đăng nhập bằng Email FPT
         </button>
 
+        <div className="flex items-center gap-3 my-6">
+          <div className="flex-1 h-px bg-slate-200" />
+          <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">hoặc tài khoản</span>
+          <div className="flex-1 h-px bg-slate-200" />
+        </div>
+
+        <form onSubmit={loginWithPassword} className="space-y-3">
+          <label className="block">
+            <span className="sr-only">Tài khoản</span>
+            <div className="relative">
+              <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Tài khoản" autoComplete="username" required
+                className="w-full pl-10 pr-4 py-3 border-2 border-slate-100 rounded-xl text-sm font-semibold outline-none focus:border-[#005691]" />
+            </div>
+          </label>
+          <label className="block">
+            <span className="sr-only">Mật khẩu</span>
+            <div className="relative">
+              <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Mật khẩu" autoComplete="current-password" required
+                className="w-full pl-10 pr-4 py-3 border-2 border-slate-100 rounded-xl text-sm font-semibold outline-none focus:border-[#005691]" />
+            </div>
+          </label>
+          {error && <p className="text-sm font-semibold text-red-600" role="alert">{error}</p>}
+          <button type="submit" disabled={loading}
+            className="w-full bg-[#005691] hover:bg-[#004270] disabled:opacity-60 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors">
+            {loading && <Loader2 size={16} className="animate-spin" />} Đăng nhập
+          </button>
+        </form>
+
       </div>
-      
+
       <div className="mt-8 flex items-center gap-2 text-xs font-bold text-slate-400">
         <ShieldCheck size={14} className="text-[#00A859]" /> Được bảo mật và quản lý bởi Admin
       </div>

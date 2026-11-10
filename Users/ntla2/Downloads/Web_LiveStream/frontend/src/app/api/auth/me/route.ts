@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -20,7 +20,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ authenticated: false }, { status: 401 });
     }
 
-    const staff = await prisma.staff.findFirst({ where: { email: session.user.email } });
+    // Tài khoản đăng nhập bằng mật khẩu có thể không có email → không ghép nhầm hồ sơ email null
+    const staff = session.user.email ? await prisma.staff.findFirst({ where: { email: session.user.email } }) : null;
 
     return NextResponse.json({
       authenticated: true,
