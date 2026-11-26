@@ -71,7 +71,8 @@ export class LiveSessionService {
   findOne(id: string) {
     return this.prisma.liveSession.findUnique({
       where: { id },
-      include: { comments: true, leads: true }
+      // questions: trang Điều khiển LIVE dựng lại minigame khi tải lại trang (thiếu → câu hỏi biến mất, câu ACTIVE treo)
+      include: { comments: true, leads: true, questions: { orderBy: { code: 'asc' } } }
     });
   }
 
