@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Play, Square, MessageSquare, Users, Trash2, Timer, Video, ListTodo, Pin, CheckCircle2, Phone, BellRing, Trophy, Clock, Zap, Target, TrendingUp, AlertTriangle, Gift, Heart
 , ArrowLeft } from 'lucide-react';
@@ -9,18 +9,34 @@ import { fetchApi } from '@/lib/api';
 
 let socket: any;
 
+// Chủ đề tuyển sinh để đếm trong tab AI Analytics (không dấu/có dấu đều bắt)
+const KEYWORD_TOPICS: Array<[string, RegExp]> = [
+  ['Học phí', /h[oọ]c ph[ií]|hoc phi|bao nhi[eê]u ti[eề]n|\btiền\b/],
+  ['Học bổng', /h[oọ]c b[oổ]ng|hoc bong/],
+  ['Ngành học', /ng[aà]nh|nganh|chuy[eê]n ng[aà]nh/],
+  ['Xét tuyển / điểm chuẩn', /x[eé]t tuy[eể]n|xet tuyen|đi[eể]m chu[aẩ]n|diem chuan|\bđiểm\b|h[oồ] s[oơ]/],
+  ['Ký túc xá', /k[ýy] t[uú]c|ktx|ch[oỗ] [oở]/],
+  ['Cơ sở / địa chỉ', /c[oơ] s[oở]|đ[iị]a ch[iỉ]|ở đâu|o dau|campus/],
+  ['Ra trường / việc làm', /ra tr[uư][oờ]ng|vi[eệ]c l[aà]m|l[uư][oơ]ng|th[uự]c t[aậ]p/],
+  ['Xin tư vấn / SĐT', /t[uư] v[aấ]n|tu van|inbox|ib\b|(?:0|\+84)\d{9}/],
+];
+
 export default function LiveControlPage() {
   const router = useRouter();
   const [activeTabLeft, setActiveTabLeft] = useState<'SCRIPT' | 'TRIVIA' | 'KEYWORDS'>('SCRIPT');
   const [activeTabRight, setActiveTabRight] = useState<'COMMENTS' | 'LEADS' | 'WINNERS'>('COMMENTS');
 
   // ============ STATES: KỊCH BẢN & DỮ LIỆU ============
-  const [scriptContent, setScriptContent] = useState(
-    "1. Chào hỏi & Minigame đầu giờ (15p)\n- Kêu gọi thả tim, share livestream\n\n2. Q&A Giải đáp thắc mắc\n- Tập trung trả lời câu hỏi được ghim\n\n3. Trắc nghiệm Minigame\n- Chơi 3 câu nhận Balo FPTU"
-  );
+  const DEFAULT_SCRIPT = "1. Chào hỏi & Minigame đầu giờ (15p)\n- Kêu gọi thả tim, share livestream\n\n2. Q&A Giải đáp thắc mắc\n- Tập trung trả lời câu hỏi được ghim\n\n3. Trắc nghiệm Minigame\n- Chơi 3 câu nhận Balo FPTU";
+  const [scriptContent, setScriptContent] = useState('');
+  // Kịch bản lưu DB theo phiên (cả ekip cùng thấy), tự lưu 1.5s sau khi ngừng gõ
+  const [scriptState, setScriptState] = useState<'loading' | 'idle' | 'saving' | 'saved' | 'error'>('loading');
+  const scriptDirty = useRef(false);
   const [leads, setLeads] = useState<any[]>([]);
   const [newLeadAlert, setNewLeadAlert] = useState(false);
-  const [keywordStats, setKeywordStats] = useState<Record<string, number>>({});
+  // Comment cuối cùng về CRM → đèn trạng thái extension (xanh nếu < 2 phút)
+  const [lastCommentAt, setLastCommentAt] = useState<number | null>(null);
+  const [nowTick, setNowTick] = useState(Date.now());
 
   // ============ STATES: TRIVIA / MINIGAME ============
   const [activeQuestion, setActiveQuestion] = useState<string | null>(null);
@@ -188,13 +204,17 @@ export default function LiveControlPage() {
         intent: l.intent || 'WARM',
         text: l.intent,
         time: new Date(l.createdAt).toLocaleTimeString(),
-        status: l.status || 'NEW'
+        // Lead mới (NEW) = chưa ai gọi; trạng thái khác = đã có người nhận xử lý
+        status: !l.status || l.status === 'NEW' ? 'Chưa gọi' : 'Đã tư vấn'
       })));
+      const last = old[old.length - 1];
+      if (last) setLastCommentAt(new Date(last.serverTimestamp).getTime());
     }).catch(() => {});
 
     // Server-side Engine Events
     socket.on('comment:new', (dbComment: any) => {
       const newComment = toUiComment(dbComment);
+      setLastCommentAt(Date.now());
       setComments(prev => [newComment, ...prev].slice(0, 500));
       setTotalComments(prev => prev + 1);
       uniqueUsersRef.current.add(dbComment.username);
@@ -211,7 +231,7 @@ export default function LiveControlPage() {
         intent: newLead.intent || 'WARM',
         text: newLead.intent, // Trích xuất từ backend
         time: new Date().toLocaleTimeString(),
-        status: 'NEW'
+        status: 'Chưa gọi'
       }, ...prev]);
     });
 
@@ -254,6 +274,42 @@ export default function LiveControlPage() {
     }, 1000);
     return () => clearInterval(timerInterval);
   }, [activeQuestion, params]);
+
+  // Kịch bản: tải từ DB (chưa có → mẫu), tự lưu 1.5s sau lần gõ cuối
+  useEffect(() => {
+    fetchApi(`/live-session/${params}/script`)
+      .then((s: any) => { setScriptContent(s?.content ?? DEFAULT_SCRIPT); setScriptState('idle'); })
+      .catch(() => { setScriptContent(DEFAULT_SCRIPT); setScriptState('error'); });
+  }, [params]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!scriptDirty.current) return;
+    setScriptState('saving');
+    const t = setTimeout(() => {
+      fetchApi(`/live-session/${params}/script`, { method: 'PATCH', body: JSON.stringify({ content: scriptContent }) })
+        .then(() => { scriptDirty.current = false; setScriptState('saved'); })
+        .catch(() => setScriptState('error'));
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [scriptContent, params]);
+
+  // Đèn extension cập nhật mỗi 15s
+  useEffect(() => {
+    const t = setInterval(() => setNowTick(Date.now()), 15000);
+    return () => clearInterval(t);
+  }, []);
+  const extensionAgo = lastCommentAt ? Math.floor((nowTick - lastCommentAt) / 1000) : null;
+  const extensionActive = extensionAgo !== null && extensionAgo < 120;
+
+  // AI Analytics: đếm chủ đề tuyển sinh người xem hỏi trong comment thật của phiên
+  const keywordStats = useMemo(() => {
+    const out: Record<string, number> = {};
+    for (const c of comments) {
+      const text = String(c.text || '').toLowerCase();
+      for (const [label, re] of KEYWORD_TOPICS) if (re.test(text)) out[label] = (out[label] || 0) + 1;
+    }
+    return out;
+  }, [comments]);
 
 
 
@@ -360,14 +416,28 @@ export default function LiveControlPage() {
     }
   };
 
-  const handleSendDMs = () => {
+  // Nhận xử lý lead ↔ trả về "Chưa gọi": lưu trạng thái lead trong CRM (NEW ↔ CONTACTED), CSKH thấy ngay
+  const toggleLead = async (lead: any) => {
+    const toContacted = lead.status === 'Chưa gọi';
+    setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, status: toContacted ? 'Đã tư vấn' : 'Chưa gọi' } : l));
+    try {
+      await fetchApi(`/lead/${lead.id}`, { method: 'PATCH', body: JSON.stringify({ status: toContacted ? 'CONTACTED' : 'NEW' }) });
+    } catch (e: any) {
+      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, status: lead.status } : l));
+      showToast(`Không lưu được lead: ${e.message}`);
+    }
+  };
+
+  // TikTok không cho tự gửi DM → copy danh sách người trúng để nhắn tay
+  const handleSendDMs = async () => {
     if (leaderboard.length === 0) return;
-    setSendingDMs(true);
-    setTimeout(() => {
-      setSendingDMs(false);
-      setToastMessage(`🎉 Đã gửi kịch bản Auto-DM thành công cho Top 3 Winners và Top 10 Backup Winners!`);
-      setTimeout(() => setToastMessage(null), 4000);
-    }, 1500);
+    const lines = leaderboard.map((w, i) => `${i < 3 ? '🏆' : '•'} ${w.rank}. ${w.name} — đáp án ${w.answer} — ${w.speed}${i < 3 ? ' (chính thức)' : ' (dự bị)'}`);
+    try {
+      await navigator.clipboard.writeText(`Người trúng minigame — ${sessionData?.title || ''}\n${lines.join('\n')}`);
+      showToast('Đã copy danh sách người trúng — dán vào tin nhắn TikTok để liên hệ');
+    } catch {
+      showToast('Không copy được, hãy bôi đen danh sách để copy');
+    }
   };
 
   const topKeywords = Object.entries(keywordStats).sort((a, b) => b[1] - a[1]).slice(0, 5);
@@ -426,8 +496,8 @@ export default function LiveControlPage() {
             </div>
           </div>
           <div className="flex items-center gap-4 text-[12px] text-slate-500 font-medium">
-            <span className="flex items-center gap-1.5"><Users size={14} className="text-blue-500" /> {(sessionData?.viewerCount || 0).toLocaleString()} người xem</span>
-            <span className="flex items-center gap-1.5"><Heart size={14} className="text-red-500" /> {(sessionData?.likeCount || 0).toLocaleString()} tim</span>
+            <span className="flex items-center gap-1.5"><MessageSquare size={14} className="text-blue-500" /> {totalComments.toLocaleString()} comment</span>
+            <span className="flex items-center gap-1.5"><Users size={14} className="text-green-500" /> {uniqueUsersCount.toLocaleString()} người tham gia</span>
           </div>
         </div>
 
@@ -451,10 +521,14 @@ export default function LiveControlPage() {
             <div className="h-full flex flex-col">
               <div className="flex items-center justify-between mb-3">
                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">Trình soạn thảo Kịch bản</label>
+                <span className={`text-[11px] font-bold ${scriptState === 'error' ? 'text-red-500' : 'text-slate-400'}`}>
+                  {{ loading: 'Đang tải…', idle: 'Cả ekip cùng thấy', saving: 'Đang lưu…', saved: '✓ Đã lưu', error: 'Lỗi lưu — kiểm tra mạng' }[scriptState]}
+                </span>
               </div>
               <textarea
                 value={scriptContent}
-                onChange={(e) => setScriptContent(e.target.value)}
+                disabled={scriptState === 'loading'}
+                onChange={(e) => { scriptDirty.current = true; setScriptContent(e.target.value); }}
                 className="flex-1 w-full p-5 bg-yellow-50/50 border border-yellow-200 rounded-2xl text-slate-800 text-[15px] font-medium leading-relaxed focus:outline-none focus:ring-2 focus:ring-yellow-400/50 resize-none custom-scrollbar shadow-inner"
               ></textarea>
             </div>
@@ -657,9 +731,12 @@ export default function LiveControlPage() {
                   <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500 rounded-full blur-[40px] opacity-30 -translate-y-1/2 translate-x-1/2"></div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1 relative z-10">EXTENSION SYNC</p>
                   <div className="flex items-center gap-2 mt-1 relative z-10">
-                    <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.8)]"></div>
-                    <span className="text-[15px] font-black text-white tracking-wide">Đang hoạt động</span>
+                    <div className={`w-3 h-3 rounded-full ${extensionActive ? 'bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.8)]' : 'bg-slate-500'}`}></div>
+                    <span className="text-[15px] font-black text-white tracking-wide">{extensionActive ? 'Đang nhận comment' : 'Chưa có comment mới'}</span>
                   </div>
+                  <p className="text-[10px] text-slate-400 mt-1 relative z-10">
+                    {extensionAgo === null ? 'Chưa nhận comment nào' : extensionAgo < 60 ? 'Comment cuối vừa xong' : `Comment cuối ${Math.floor(extensionAgo / 60)} phút trước`}
+                  </p>
                 </div>
               </div>
 
@@ -742,7 +819,7 @@ export default function LiveControlPage() {
                           <p className="text-[11px] font-bold text-slate-500">Tài khoản: <span className="text-blue-600">{lead.name}</span> • Comment: "{lead.text}"</p>
                         </div>
                       </div>
-                      <button onClick={() => setLeads(prev => prev.map(l => l.id === lead.id ? {...l, status: l.status === 'Chưa gọi' ? 'Đã tư vấn' : 'Chưa gọi'} : l))} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold shrink-0 ${lead.status === 'Chưa gọi' ? 'bg-[#F58220] hover:bg-[#e07010] text-white' : 'bg-slate-200 text-slate-600'}`}>
+                      <button onClick={() => toggleLead(lead)} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold shrink-0 ${lead.status === 'Chưa gọi' ? 'bg-[#F58220] hover:bg-[#e07010] text-white' : 'bg-slate-200 text-slate-600'}`}>
                         <CheckCircle2 size={16} />{lead.status === 'Chưa gọi' ? 'Chốt đơn / Nhận xử lý' : 'Đã xử lý xong'}
                       </button>
                     </div>
@@ -817,11 +894,7 @@ export default function LiveControlPage() {
                         disabled={sendingDMs}
                         className="mt-4 w-full py-4 rounded-2xl font-bold bg-[#005691] hover:bg-[#004a7c] text-white shadow-lg shadow-blue-900/20 transition-all flex items-center justify-center gap-2"
                       >
-                        {sendingDMs ? (
-                          <><Zap size={18} className="animate-pulse" /> Đang gửi kịch bản Auto-DM...</>
-                        ) : (
-                          <><MessageSquare size={18} /> Gửi Tin Nhắn DM Trúng Thưởng (Cả Chính Thức & Dự Bị)</>
-                        )}
+                        <MessageSquare size={18} /> Copy danh sách người trúng (để nhắn tin TikTok)
                       </button>
                     )}
                   </>

@@ -68,6 +68,22 @@ export class LiveSessionService {
     };
   }
 
+  // Kịch bản của phiên (bảng Script, 1 phiên 1 kịch bản) — cả ekip cùng thấy
+  async getScript(id: string) {
+    const s = await this.prisma.script.findUnique({ where: { liveSessionId: id } });
+    return { content: s?.content ?? null, updatedAt: s?.updatedAt ?? null };
+  }
+
+  async saveScript(id: string, content: unknown) {
+    const text = String(content ?? '').slice(0, 20000);
+    const s = await this.prisma.script.upsert({
+      where: { liveSessionId: id },
+      update: { content: text },
+      create: { liveSessionId: id, content: text },
+    });
+    return { content: s.content, updatedAt: s.updatedAt };
+  }
+
   findOne(id: string) {
     return this.prisma.liveSession.findUnique({
       where: { id },

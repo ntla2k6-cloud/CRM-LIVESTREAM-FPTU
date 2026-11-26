@@ -21,6 +21,16 @@ export class LiveSessionController {
     return this.liveSessionService.overview();
   }
 
+  @Get(':id/script')
+  getScript(@Param('id') id: string) {
+    return this.liveSessionService.getScript(id);
+  }
+
+  @Patch(':id/script')
+  saveScript(@Param('id') id: string, @Body() body: { content?: string }) {
+    return this.liveSessionService.saveScript(id, body?.content);
+  }
+
   @Get(':id/history')
   getHistory(@Param('id') id: string) {
     return this.liveSessionService.getHistory(id);
