@@ -41,6 +41,7 @@
 - **Deploy**: Vercel auto deploy từ `main`, backend trên Render.
 
 ## Nhật ký
+- 2026-11-26 — Kho thiết bị: **Thủ kho** (`THU_KHO`) toàn quyền như Admin (thêm/sửa/xóa, danh mục, bàn giao/thu hồi).
 - 2026-11-26 — **Module Kho thiết bị** (`/equipment`, menu "Kho Thiết bị"): thêm/sửa/xóa mềm + khôi phục, danh mục loại do Admin quản lý, người quản lý ≠ người đang giữ, bàn giao (người nhận, hạn trả, tình trạng, ghi chú) / thu hồi (tình trạng thực tế, người tiếp nhận), đổi tình trạng, lịch sử từng thiết bị (ai làm, đổi gì), 8 thẻ thống kê (kể cả **quá hạn trả** + băng cảnh báo), lọc theo tên/mã/loại/tình trạng/người quản lý/người giữ/ngày nhập, xuất Excel (CSV) 5 kiểu: đang lọc, kiểm kê (cột SL thực tế/chênh lệch), theo người giữ, theo loại, hư hỏng/sửa chữa. Proxy gửi thêm `x-user-id`/`x-user-name`. 5 test (61 tổng).
 - 2026-11-26 — Live thật 26/11: dữ liệu CÓ lưu (phiên @chupchoetlengg 36 comment) nhưng trang Tổng quan/Thống kê của admin hiện 0 — nghi do Render Free ngủ, proxy Vercel cắt ~10s nên lượt đầu lỗi. Sửa: proxy `maxDuration = 60` + giữ query string (trước bỏ mất `?…`); workflow `keep-alive.yml` ping Render 10 phút/lần. **Extension 1.4.1**: comment chỉ là số ("17", "3") bị bỏ vì lọc huy hiệu cấp fan 1–2 chữ số → giờ luôn giữ đoạn cuối (nội dung), chỉ bỏ số đứng trước. Người dùng phải tải lại extension.
 - 2026-11-10 — Sửa đăng xuất: nút "Đăng xuất" ở trang Tổng quan chỉ là link `/login` (không xóa phiên → RoleGuard đưa về trang chủ) → gọi `signOut`; thêm nút Đăng xuất ở sidebar.

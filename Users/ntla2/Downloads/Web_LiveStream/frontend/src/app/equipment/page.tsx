@@ -65,8 +65,9 @@ export default function EquipmentPage() {
   const [notice, setNotice] = useState<{ msg: string; ok: boolean } | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
 
-  const isAdmin = role === 'ADMIN';
-  const canOperate = role === 'ADMIN' || role === 'MANAGER';
+  // Admin + Thủ kho toàn quyền kho thiết bị (khớp EQUIPMENT_ADMINS ở backend)
+  const isAdmin = role === 'ADMIN' || role === 'THU_KHO';
+  const canOperate = isAdmin || role === 'MANAGER';
 
   const showNotice = (msg: string, ok = true) => { setNotice({ msg, ok }); setTimeout(() => setNotice(null), 4000); };
 

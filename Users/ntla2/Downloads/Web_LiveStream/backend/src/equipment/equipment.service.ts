@@ -6,11 +6,12 @@ const EDITABLE = ['name', 'brand', 'model', 'serialNumber', 'quantity', 'categor
 
 export type Actor = { id?: string; name?: string; role: string };
 
-/** Ai làm được gì: ADMIN toàn quyền; MANAGER cập nhật tình trạng + bàn giao/thu hồi; nhân sự khác chỉ xem. */
+/** Ai làm được gì: ADMIN + Thủ kho toàn quyền; MANAGER cập nhật tình trạng + bàn giao/thu hồi; nhân sự khác chỉ xem. */
+export const EQUIPMENT_ADMINS = ['ADMIN', 'THU_KHO'];
 export function assertCan(actor: Actor, action: 'manage' | 'operate') {
-  if (actor.role === 'ADMIN') return;
+  if (EQUIPMENT_ADMINS.includes(actor.role)) return;
   if (action === 'operate' && actor.role === 'MANAGER') return;
-  throw new ForbiddenException(action === 'manage' ? 'Chỉ Admin được thêm/sửa/xóa thiết bị và danh mục' : 'Chỉ Admin/Quản lý được thao tác thiết bị');
+  throw new ForbiddenException(action === 'manage' ? 'Chỉ Admin/Thủ kho được thêm/sửa/xóa thiết bị và danh mục' : 'Chỉ Admin/Thủ kho/Quản lý được thao tác thiết bị');
 }
 
 export const formatCode = (n: number) => `TB-${String(n).padStart(4, '0')}`;

@@ -4,6 +4,7 @@ import { EquipmentService, isOverdue, formatCode, cleanInput, diff } from './equ
 const ADMIN = { id: 'u-admin', name: 'Admin', role: 'ADMIN' };
 const MANAGER = { id: 'u-mgr', name: 'Quản lý', role: 'MANAGER' };
 const STAFF = { id: 'u-staff', name: 'NV', role: 'CSKH' };
+const THU_KHO = { id: 'u-kho', name: 'Thủ kho', role: 'THU_KHO' };
 
 function makeService(initial: any[] = []) {
   const rows = new Map(initial.map((e) => [e.id, { deletedAt: null, ...e }]));
@@ -40,6 +41,9 @@ describe('EquipmentService', () => {
     await expect(service.handover('e1', { toUserId: 'u1' }, STAFF)).rejects.toThrow(ForbiddenException);
     await expect(service.remove('e1', MANAGER)).rejects.toThrow(ForbiddenException);
     await expect(service.handover('e1', { toUserId: 'u1' }, MANAGER)).resolves.toMatchObject({ holderId: 'u1' });
+    // Thủ kho toàn quyền như Admin
+    await expect(service.create({ name: 'Loa' }, THU_KHO)).resolves.toMatchObject({ name: 'Loa' });
+    await expect(service.remove('e1', THU_KHO)).resolves.toEqual({ ok: true });
   });
 
   it('bàn giao → thu hồi: đổi người giữ, hạn trả, tình trạng; lịch sử ghi từ/đến', async () => {
