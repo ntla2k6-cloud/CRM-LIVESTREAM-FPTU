@@ -1,7 +1,8 @@
-﻿import NextAuth from "next-auth";
+import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from '@/lib/prisma';
+import { logAudit } from '@/lib/audit';
 
 const handler = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -20,6 +21,16 @@ const handler = NextAuth({
     signIn: '/login',
   },
   events: {
+    // Nhật ký: đăng nhập Google + mọi lần đăng xuất (cả tài khoản mật khẩu, vì cùng phiên next-auth)
+    async signIn({ user, isNewUser }) {
+      const u = await prisma.user.findUnique({ where: { id: user.id }, select: { role: true } }).catch(() => null);
+      await logAudit(null, { id: user.id, name: user.name || user.email, role: u?.role }, { action: 'LOGIN', path: '/login', status: 200, detail: { method: 'google', email: user.email, isNewUser: !!isNewUser } });
+    },
+    async signOut(message: any) {
+      const userId = message?.session?.userId;
+      const u = userId ? await prisma.user.findUnique({ where: { id: userId }, select: { name: true, username: true, email: true, role: true } }).catch(() => null) : null;
+      await logAudit(null, { id: userId, name: u?.name || u?.username || u?.email, role: u?.role }, { action: 'LOGOUT', path: '/logout', status: 200 });
+    },
     async createUser({ user }) {
       try {
         const isAdmin = user.email === 'ntla2k6@gmail.com';

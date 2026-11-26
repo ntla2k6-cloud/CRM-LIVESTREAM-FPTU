@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
 import { getSessionUser } from '@/lib/session';
+import { logAudit } from '@/lib/audit';
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -34,6 +35,7 @@ export async function PATCH(req: NextRequest) {
       });
     }
 
+    await logAudit(req, { id: me.id, name: me.name, role: me.role }, { action: 'PATCH', path: '/profile', status: 200, detail: { name, phone } });
     return NextResponse.json(updated);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });

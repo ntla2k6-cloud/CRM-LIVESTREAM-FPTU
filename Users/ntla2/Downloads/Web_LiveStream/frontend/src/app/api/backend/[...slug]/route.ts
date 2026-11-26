@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { logAudit, parseBody } from '@/lib/audit';
 
 // Render gói Free ngủ khi không dùng, lần gọi đầu mất ~50s để dậy → cho hàm proxy chạy tới 60s
 // (mặc định Vercel cắt ~10s, trang nhận lỗi và hiện số 0).
@@ -48,9 +49,18 @@ async function proxy(req: NextRequest, path: string) {
     });
     
     const data = backendRes.status === 204 ? null : await backendRes.json().catch(() => null);
+    // Nhật ký: mọi thao tác thay đổi dữ liệu (không ghi GET để khỏi ngập log)
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      await logAudit(req, userId ? { id: userId, name: userName, role: userRole } : null, {
+        action: req.method, path, status: backendRes.status, detail: parseBody(body),
+      });
+    }
     return NextResponse.json(data, { status: backendRes.status });
   } catch (e: any) {
     console.error('[proxy] error:', url, e.message);
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      await logAudit(req, userId ? { id: userId, name: userName, role: userRole } : null, { action: req.method, path, status: 503, detail: parseBody(body) });
+    }
     return NextResponse.json({ error: 'Backend unreachable', detail: e.message }, { status: 503 });
   }
 }

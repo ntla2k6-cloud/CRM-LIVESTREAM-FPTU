@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { 
-  LayoutDashboard, Users, Settings, Briefcase, Video, Activity, Calendar, Package, ShieldCheck, LogOut, Wrench
+  LayoutDashboard, Users, Settings, Briefcase, Video, Activity, Calendar, Package, ShieldCheck, LogOut, Wrench, ScrollText
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
@@ -118,6 +118,12 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
             <Link href="/settings" className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group whitespace-nowrap text-blue-200/70 hover:bg-white/5 hover:text-white">
               <Settings size={20} className="text-blue-300/50 group-hover:text-blue-200" strokeWidth={2} />
               {sidebarOpen && <span className="font-bold text-[14px]">Cài đặt chung</span>}
+            </Link>
+          )}
+          {user?.role === 'ADMIN' && (
+            <Link href="/audit" className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group whitespace-nowrap ${pathname === '/audit' ? 'bg-white/10 text-white' : 'text-blue-200/70 hover:bg-white/5 hover:text-white'}`}>
+              <ScrollText size={20} className="text-blue-300/50 group-hover:text-blue-200" strokeWidth={2} />
+              {sidebarOpen && <span className="font-bold text-[14px]">Nhật ký hệ thống</span>}
             </Link>
           )}
           <button onClick={() => signOut({ callbackUrl: '/login' })}

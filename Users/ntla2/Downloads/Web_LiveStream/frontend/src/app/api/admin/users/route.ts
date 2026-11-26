@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSessionUser, isStaff, isManager } from '@/lib/session';
+import { logAudit } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -94,6 +95,10 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
+    await logAudit(req, { id: me!.id, name: me!.name, role: me!.role }, {
+      action: 'PATCH', path: '/admin/users', status: 200,
+      detail: { target: updated.name || updated.email, userId, role: { from: target.role, to: updated.role }, phone, department },
+    });
     return NextResponse.json(updated);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });

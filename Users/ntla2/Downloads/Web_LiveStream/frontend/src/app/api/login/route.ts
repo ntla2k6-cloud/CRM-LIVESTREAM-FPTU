@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { randomBytes } from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { verifyPassword } from '@/lib/password';
+import { logAudit } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +29,7 @@ export async function POST(req: NextRequest) {
   const user = await prisma.user.findUnique({ where: { username } });
   const ok = await verifyPassword(password, user?.passwordHash);
   if (!user || !ok) {
+    await logAudit(req, user ? { id: user.id, name: user.name, role: user.role } : null, { action: 'LOGIN_FAILED', path: '/login', status: 401, detail: { username, method: 'password' } });
     fails.set(key, { count: (f && f.until > Date.now() ? f.count : 0) + 1, until: Date.now() + LOCK_MS });
     return NextResponse.json({ error: 'Sai tài khoản hoặc mật khẩu' }, { status: 401 });
   }
@@ -40,6 +42,7 @@ export async function POST(req: NextRequest) {
 
   // Cùng tên cookie next-auth dùng (https → tiền tố __Secure-)
   const secure = (process.env.NEXTAUTH_URL || req.nextUrl.origin).startsWith('https://');
+  await logAudit(req, { id: user.id, name: user.name || user.username, role: user.role }, { action: 'LOGIN', path: '/login', status: 200, detail: { method: 'password', username } });
   const res = NextResponse.json({ ok: true });
   res.cookies.set(secure ? '__Secure-next-auth.session-token' : 'next-auth.session-token', sessionToken, {
     httpOnly: true, secure, sameSite: 'lax', path: '/', expires,

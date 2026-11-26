@@ -467,3 +467,21 @@ model EquipmentHistory {
 
   @@index([equipmentId, createdAt])
 }
+
+// Nhật ký hệ thống (chỉ ADMIN xem): đăng nhập/đăng xuất + mọi thao tác thay đổi dữ liệu. Chỉ thêm, không sửa.
+model AuditLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  userId    String?
+  userName  String?
+  role      String?
+  action    String // LOGIN, LOGIN_FAILED, LOGOUT, POST, PATCH, PUT, DELETE
+  path      String? // /equipment/abc/handover
+  status    Int? // mã HTTP trả về
+  ip        String?
+  userAgent String?
+  detail    Json? // tóm tắt body đã lọc bỏ mật khẩu/mã/ảnh
+
+  @@index([createdAt])
+  @@index([userId, createdAt])
+}
