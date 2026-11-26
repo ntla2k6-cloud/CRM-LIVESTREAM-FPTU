@@ -1,0 +1,16 @@
+name: Keep backend awake
+
+# Render gói Free ngủ sau ~15 phút không có request → lần mở CRM đầu tiên phải chờ ~50s
+# (trang có thể hiện số 0). Ping 10 phút/lần để backend luôn thức. GitHub có thể trễ vài phút.
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ping Render backend
+        run: curl -fsS -m 120 -o /dev/null -w "%{http_code} %{time_total}s\n" https://crm-livestream-fptu.onrender.com/ || true

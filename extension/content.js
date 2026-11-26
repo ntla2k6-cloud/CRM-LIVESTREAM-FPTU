@@ -21,6 +21,14 @@ if (!window.__fptuLiveCapture) {
   // Huy hiệu: cấp fan ("6"), hạng tặng quà ("Hạng 3", "Top 1", "No.2")
   const BADGE_TEXT = /^(?:\d{1,2}|(?:hạng|top|no\.?)\s?\d{1,2})$/i;
 
+  // Nội dung comment luôn nằm cuối dòng chat → đoạn cuối giữ nguyên dù chỉ là số ("17", "3"…);
+  // chỉ bỏ ô huy hiệu (1–2 chữ số đứng riêng) nằm TRƯỚC nội dung. Trước đây bỏ mọi đoạn 1–2 chữ số
+  // nên comment trả lời bằng số bị mất.
+  function joinParts(parts) {
+    const kept = parts.filter((p, i) => !(p.badge && i < parts.length - 1)).map((p) => p.text);
+    return kept.join(' ').replace(/\s+/g, ' ').trim();
+  }
+
   function extractText(node, usernameEl) {
     const parts = [];
     const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
@@ -28,10 +36,9 @@ if (!window.__fptuLiveCapture) {
       const text = t.nodeValue.trim();
       if (!text || usernameEl.contains(t)) continue;
       const parent = t.parentElement;
-      if (BADGE_TEXT.test(text) && parent && parent.textContent.trim() === text) continue;
-      parts.push(text);
+      parts.push({ text, badge: BADGE_TEXT.test(text) && !!parent && parent.textContent.trim() === text });
     }
-    return parts.join(' ').replace(/\s+/g, ' ').trim();
+    return joinParts(parts);
   }
 
   // Dòng tặng quà: "đã gửi Hoa hồng x5" / "sent Rose x5" → lưu riêng (người tặng, quà, số lượng)

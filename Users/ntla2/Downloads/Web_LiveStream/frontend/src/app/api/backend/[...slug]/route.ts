@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// Render gói Free ngủ khi không dùng, lần gọi đầu mất ~50s để dậy → cho hàm proxy chạy tới 60s
+// (mặc định Vercel cắt ~10s, trang nhận lỗi và hiện số 0).
+export const maxDuration = 60;
+
 const BACKEND = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'https://crm-livestream-fptu.onrender.com';
 
 // Generic proxy: forward request to NestJS backend
@@ -46,21 +50,25 @@ async function proxy(req: NextRequest, path: string) {
 }
 
 export async function GET(req: NextRequest, { params }: { params: { slug: string[] } }) {
-  const path = '/' + params.slug.join('/');
+  // Giữ cả query string (?sessionId=…)
+  const path = '/' + params.slug.join('/') + req.nextUrl.search;
   return proxy(req, path);
 }
 
 export async function POST(req: NextRequest, { params }: { params: { slug: string[] } }) {
-  const path = '/' + params.slug.join('/');
+  // Giữ cả query string (?sessionId=…)
+  const path = '/' + params.slug.join('/') + req.nextUrl.search;
   return proxy(req, path);
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { slug: string[] } }) {
-  const path = '/' + params.slug.join('/');
+  // Giữ cả query string (?sessionId=…)
+  const path = '/' + params.slug.join('/') + req.nextUrl.search;
   return proxy(req, path);
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { slug: string[] } }) {
-  const path = '/' + params.slug.join('/');
+  // Giữ cả query string (?sessionId=…)
+  const path = '/' + params.slug.join('/') + req.nextUrl.search;
   return proxy(req, path);
 }

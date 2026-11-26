@@ -68,6 +68,7 @@ Chrome extension MV3 đọc comment TikTok LIVE trên Chrome thật → `POST {b
 - **Vercel** tự deploy khi push lên `main` (frontend Next.js; root `vercel.json` cho app Vinsoul). **Render** deploy backend.
 - GitHub Actions (`.github/workflows/`):
   - `ci.yml` — mỗi push/PR: build frontend, test (vitest) + build backend, kiểm tra cú pháp root + extension. Fail → GitHub gửi mail cho người push; trên `main` thì mở issue `🚨 CI failed`.
+  - `keep-alive.yml` — cron 10 phút/lần ping backend Render (gói Free ngủ sau ~15 phút → lượt đầu chờ ~50s). Proxy `/api/backend` đặt `maxDuration = 60` để chờ Render dậy.
   - `deploy-monitor.yml` — nghe trạng thái deploy Vercel (`deployment_status`). Deploy lỗi hoặc URL deploy không trả 2xx/3xx → mở issue `🚨 Deploy failed` (GitHub gửi thông báo). Deploy sau thành công → tự đóng issue.
 - Chỉ chạy được sau khi các workflow nằm trên `main`.
 - CI dùng **Node 24 / npm 11** (giống máy dev). Lockfile tạo bằng npm 11 không qua được `npm ci` của npm 10 (Node 22) — đừng hạ Node trong CI.
