@@ -1,3 +1,4 @@
+import { closeStaleSessions } from '../live-session/stale.js';
 import { Injectable, ConflictException, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
 import { HOT_LEAD_SCORE } from '../comment-engine/comment-classifier.js';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -64,6 +65,8 @@ export class LiveEngineService {
     }
 
     const username = decodeURIComponent(tiktokUser);
+    // Phiên cũ không còn comment > 30 phút coi như đã kết thúc → buổi live mới tạo phiên mới
+    await closeStaleSessions(this.prisma);
     const since = new Date(Date.now() - 12 * 60 * 60 * 1000);
     const existing = await this.prisma.liveSession.findFirst({
       where: {
@@ -99,9 +102,13 @@ export class LiveEngineService {
   }
 
   async assertLiveSessionExists(liveSessionId: string) {
-    const session = await this.prisma.liveSession.findUnique({ where: { id: liveSessionId }, select: { id: true } });
+    const session = await this.prisma.liveSession.findUnique({ where: { id: liveSessionId }, select: { id: true, status: true } });
     if (!session) {
       throw new NotFoundException(`Không tìm thấy phiên LIVE "${liveSessionId}" trên CRM. Hãy copy đúng link/ID phiên trong trang Live của CRM.`);
+    }
+    // Comment lại đổ về phiên đã tự đóng (live nghỉ giữa chừng) → mở lại
+    if (session.status === 'COMPLETED') {
+      await this.prisma.liveSession.update({ where: { id: liveSessionId }, data: { status: 'LIVE_NOW', endTime: null } });
     }
   }
 

@@ -4,6 +4,7 @@ import { LiveEngineService } from './live-engine.service.js';
 function makeService(prismaOverrides: any = {}) {
   const prisma: any = {
     liveSession: {
+      findMany: vi.fn().mockResolvedValue([]),
       findUnique: vi.fn().mockResolvedValue(null),
       findFirst: vi.fn().mockResolvedValue(null),
       create: vi.fn().mockImplementation(({ data }) => Promise.resolve({ id: 'new-id', ...data })),

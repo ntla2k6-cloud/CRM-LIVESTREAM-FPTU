@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { closeStaleSessions } from './stale.js';
 import { CreateLiveSessionDto } from './dto/create-live-session.dto.js';
 import { UpdateLiveSessionDto } from './dto/update-live-session.dto.js';
 
@@ -23,7 +24,8 @@ export class LiveSessionService {
     });
   }
 
-  findAll() {
+  async findAll() {
+    await closeStaleSessions(this.prisma);
     return this.prisma.liveSession.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
@@ -36,6 +38,7 @@ export class LiveSessionService {
 
   /** Số liệu thật cho trang Kết nối LIVE: tổng comment, lead có SĐT, các phiên live gần đây. */
   async overview() {
+    await closeStaleSessions(this.prisma);
     const [totalComments, phoneLeads, recent] = await Promise.all([
       this.prisma.liveComment.count({ where: { category: { not: 'GIFT' } } }),
       this.prisma.lead.count({ where: { customer: { phone: { not: null } } } }),

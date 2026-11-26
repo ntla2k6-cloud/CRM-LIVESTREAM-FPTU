@@ -23,7 +23,6 @@
 - `.gitignore` root và `Web_LiveStream/.gitignore` mã hóa UTF-16 → git không đọc → ~17.6k file `node_modules` đã bị commit.
 - `users.json` chứa email thật + password hash.
 - Frontend build bỏ qua lỗi ESLint/TS (`next.config.mjs`).
-- Phiên LIVE không tự kết thúc khi extension dừng → danh sách phiên luôn "Đang LIVE".
 - Frontend còn lỗi type ở `schedule/page.tsx`, `Sidebar.tsx`, `live/[id]/report` (chỉ sai khai báo kiểu, chạy vẫn đúng).
 - RBAC chỉ phía client: `RoleGuard.tsx` có lỗi cấu trúc nên **không chặn trang theo quyền** (chỉ chặn GUEST); sidebar ẩn link theo quyền mặc định; cấu hình quyền ở trang Nhân sự lưu `localStorage` máy admin, không áp cho người khác (AUDIT #5). Bảo vệ thật nằm ở backend (`@Roles`).
 - Email: cần đặt `SMTP_*` (Gmail `ntla2k6@gmail.com` + mật khẩu ứng dụng) trên **Vercel** và `MAIL_RELAY_URL` trên Render rồi gửi thử (Render Free chặn SMTP; Brevo không xác minh được SĐT).
@@ -41,6 +40,7 @@
 - **Deploy**: Vercel auto deploy từ `main`, backend trên Render.
 
 ## Nhật ký
+- 2026-11-26 — Phiên LIVE tự kết thúc: không có comment mới > 30 phút → `COMPLETED`, `endTime` = comment cuối (`live-session/stale.ts`, chạy khi tải danh sách phiên/tổng quan và khi extension tìm phiên); comment đổ về phiên đã đóng → mở lại `LIVE_NOW`. 3 test.
 - 2026-11-26 — Kho thiết bị: **Thủ kho** (`THU_KHO`) toàn quyền như Admin (thêm/sửa/xóa, danh mục, bàn giao/thu hồi).
 - 2026-11-26 — **Module Kho thiết bị** (`/equipment`, menu "Kho Thiết bị"): thêm/sửa/xóa mềm + khôi phục, danh mục loại do Admin quản lý, người quản lý ≠ người đang giữ, bàn giao (người nhận, hạn trả, tình trạng, ghi chú) / thu hồi (tình trạng thực tế, người tiếp nhận), đổi tình trạng, lịch sử từng thiết bị (ai làm, đổi gì), 8 thẻ thống kê (kể cả **quá hạn trả** + băng cảnh báo), lọc theo tên/mã/loại/tình trạng/người quản lý/người giữ/ngày nhập, xuất Excel (CSV) 5 kiểu: đang lọc, kiểm kê (cột SL thực tế/chênh lệch), theo người giữ, theo loại, hư hỏng/sửa chữa. Proxy gửi thêm `x-user-id`/`x-user-name`. 5 test (61 tổng).
 - 2026-11-26 — Live thật 26/11: dữ liệu CÓ lưu (phiên @chupchoetlengg 36 comment) nhưng trang Tổng quan/Thống kê của admin hiện 0 — nghi do Render Free ngủ, proxy Vercel cắt ~10s nên lượt đầu lỗi. Sửa: proxy `maxDuration = 60` + giữ query string (trước bỏ mất `?…`); workflow `keep-alive.yml` ping Render 10 phút/lần. **Extension 1.4.1**: comment chỉ là số ("17", "3") bị bỏ vì lọc huy hiệu cấp fan 1–2 chữ số → giờ luôn giữ đoạn cuối (nội dung), chỉ bỏ số đứng trước. Người dùng phải tải lại extension.
