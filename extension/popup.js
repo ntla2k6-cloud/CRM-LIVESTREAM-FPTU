@@ -67,6 +67,20 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   refresh();
 
+  // Popup đóng ngay khi bấm ra ngoài → lưu từng ô ngay lúc gõ/dán, không đợi bấm Bắt đầu
+  // (trước đây dán mã kết nối xong bấm ra ngoài là mất)
+  sessionIdInput.addEventListener('input', () => chrome.storage.local.set({ sessionInput: sessionIdInput.value.trim() }));
+  apiTokenInput.addEventListener('input', () => chrome.storage.local.set({ apiToken: apiTokenInput.value.trim() }));
+  apiUrlInput.addEventListener('input', () => {
+    const v = apiUrlInput.value.trim().replace(/\/+$/, '');
+    chrome.storage.local.set({ apiUrl: v || DEFAULT_API_URL });
+  });
+  modeInputs.forEach((i) => i.addEventListener('change', () => {
+    chrome.storage.local.get(['isCapturing'], (st) => {
+      if (!st.isCapturing) chrome.storage.local.set({ captureMode: selectedMode() });
+    });
+  }));
+
   chrome.runtime.onMessage.addListener((request) => {
     if (request.action === 'updateStats') showStats(request);
   });
