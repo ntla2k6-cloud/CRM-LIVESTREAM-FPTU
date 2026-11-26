@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { 
   Phone, MessageSquare, MoreHorizontal, CalendarClock, Search, Filter, 
-  ChevronRight, Users, Flame, UserCheck, PhoneCall, CheckCircle2, X, Save, Edit3, Tag, Package, Download, List, LayoutGrid, Plus, Trash2
+  ChevronRight, Users, Flame, UserCheck, PhoneCall, CheckCircle2, X, Save, Edit3, Tag, Package, Download, List, LayoutGrid, Plus, Trash2, GraduationCap
 } from "lucide-react";
 import { api } from '@/lib/api';
 
@@ -50,6 +50,8 @@ export default function CSKHBoardPage() {
     { id: 1, title: "ĐANG TƯ VẤN", icon: PhoneCall, color: "#F58220", bg: "bg-orange-50/50", border: "border-orange-200" },
     { id: 2, title: "ĐANG CÂN NHẮC", icon: CalendarClock, color: "#EAB308", bg: "bg-yellow-50/50", border: "border-yellow-200" },
     { id: 3, title: "CHỐT ĐĂNG KÝ", icon: CheckCircle2, color: "#00A859", bg: "bg-green-50/50", border: "border-green-200" },
+    // Kết quả cuối: em đã nhập học (đo hiệu quả thật của livestream)
+    { id: 4, title: "ĐÃ NHẬP HỌC", icon: GraduationCap, color: "#7C3AED", bg: "bg-violet-50/50", border: "border-violet-200" },
   ];
 
   const initialLeads = [
@@ -123,7 +125,7 @@ export default function CSKHBoardPage() {
               project: String(l.campaign?.name || (l.liveSessionId ? 'Livestream' : 'Chưa phân loại')),
               score: Number(l.leadScore) || 0,
               isHot: (Number(l.leadScore) || 0) >= 80,
-              col: l.status === 'NEW' ? 0 : l.status === 'CONTACTED' ? 1 : l.status === 'CONSULTING' ? 2 : 3,
+              col: l.status === 'NEW' ? 0 : l.status === 'CONTACTED' ? 1 : l.status === 'CONSULTING' ? 2 : l.status === 'ENROLLED' ? 4 : 3,
               avatar: String(l.customer?.fullName || 'K H').trim().split(' ').map((w: string) => w[0] || '').join('').substring(0, 2).toUpperCase(),
               highSchool: String(l.customer?.highSchool || ''),
               grade: String(l.customer?.classGrade || ''),
@@ -674,18 +676,18 @@ export default function CSKHBoardPage() {
                       onClick={() => setActiveDropdown(activeDropdown === 'status' ? null : 'status')}
                       className="w-full flex items-center justify-between text-sm font-bold text-slate-800 bg-white border border-slate-200 rounded-lg px-3 py-2 cursor-pointer hover:border-[#005691] transition-colors"
                     >
-                      {["LEAD MỚI", "ĐANG TƯ VẤN", "ĐANG CÂN NHẮC", "CHỐT ĐĂNG KÝ"][selectedLead.col] || "LEAD MỚI"}
+                      {["LEAD MỚI", "ĐANG TƯ VẤN", "ĐANG CÂN NHẮC", "CHỐT ĐĂNG KÝ", "ĐÃ NHẬP HỌC"][selectedLead.col] || "LEAD MỚI"}
                       <ChevronRight size={14} className={`text-slate-400 transition-transform ${activeDropdown === 'status' ? '-rotate-90' : 'rotate-90'}`} />
                     </div>
                     {activeDropdown === 'status' && (
                       <>
                         <div className="fixed inset-0 z-40" onClick={() => setActiveDropdown(null)} />
                         <div className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg z-50 overflow-hidden py-1">
-                          {["LEAD MỚI", "ĐANG TƯ VẤN", "ĐANG CÂN NHẮC", "CHỐT ĐĂNG KÝ"].map((status, idx) => (
+                          {["LEAD MỚI", "ĐANG TƯ VẤN", "ĐANG CÂN NHẮC", "CHỐT ĐĂNG KÝ", "ĐÃ NHẬP HỌC"].map((status, idx) => (
                             <div 
                               key={status}
                               onClick={() => {
-                                const statusMap = ['NEW', 'CONTACTED', 'CONSULTING', 'REGISTERED'];
+                                const statusMap = ['NEW', 'CONTACTED', 'CONSULTING', 'REGISTERED', 'ENROLLED'];
                                 setSelectedLead({ ...selectedLead, col: idx, status: statusMap[idx] }); 
                                 setActiveDropdown(null); 
                               }}
