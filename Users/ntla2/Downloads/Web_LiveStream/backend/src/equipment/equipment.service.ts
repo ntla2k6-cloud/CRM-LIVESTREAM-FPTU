@@ -2,7 +2,24 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import { PrismaService } from '../prisma/prisma.service.js';
 
 export const EQUIPMENT_STATUSES = ['NEW', 'GOOD', 'IN_USE', 'DAMAGED', 'REPAIRING', 'LIQUIDATED'] as const;
-const EDITABLE = ['name', 'brand', 'model', 'serialNumber', 'quantity', 'categoryId', 'status', 'managerId', 'holderId', 'dueDate', 'note'] as const;
+const EDITABLE = [
+  'name', 'brand', 'model', 'serialNumber', 'quantity', 'categoryId', 'status',
+  'managerId', 'managerName', 'holderId', 'holderName', 'dueDate', 'note',
+  'lenderName', 'lenderContact', 'lenderDueDate', 'invoiceImage',
+] as const;
+const DATE_FIELDS = ['dueDate', 'lenderDueDate'] as const;
+// Ảnh hóa đơn: frontend nén JPEG trước khi gửi; chặn file quá lớn để DB không phình
+const MAX_INVOICE_CHARS = 2_000_000;
+const INVOICE_RE = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
+
+/** Danh sách không kéo ảnh hóa đơn (nặng) — chỉ báo có/không */
+const LIST_SELECT = {
+  id: true, code: true, name: true, brand: true, model: true, serialNumber: true, quantity: true,
+  categoryId: true, status: true, managerId: true, managerName: true, holderId: true, holderName: true,
+  dueDate: true, note: true, lenderName: true, lenderContact: true, lenderDueDate: true, returnedToLenderAt: true,
+  deletedAt: true, createdAt: true, updatedAt: true,
+  category: { select: { id: true, name: true } },
+} as const;
 
 export type Actor = { id?: string; name?: string; role: string };
 
@@ -16,9 +33,20 @@ export function assertCan(actor: Actor, action: 'manage' | 'operate') {
 
 export const formatCode = (n: number) => `TB-${String(n).padStart(4, '0')}`;
 
-/** Đang được giữ và đã qua ngày dự kiến trả */
-export const isOverdue = (e: { holderId?: string | null; dueDate?: Date | string | null }, now = new Date()) =>
-  !!e.holderId && !!e.dueDate && new Date(e.dueDate).getTime() < now.getTime();
+/** Đang được giữ (tài khoản hoặc người ngoài) và đã qua ngày dự kiến trả */
+export const isOverdue = (e: { holderId?: string | null; holderName?: string | null; dueDate?: Date | string | null }, now = new Date()) =>
+  !!(e.holderId || e.holderName) && !!e.dueDate && new Date(e.dueDate).getTime() < now.getTime();
+
+/** Đồ mượn của phòng/người khác, chưa trả lại và đã qua hạn trả */
+export const isLenderOverdue = (e: { lenderName?: string | null; lenderDueDate?: Date | string | null; returnedToLenderAt?: Date | string | null }, now = new Date()) =>
+  !!e.lenderName && !e.returnedToLenderAt && !!e.lenderDueDate && new Date(e.lenderDueDate).getTime() < now.getTime();
+
+const withFlags = <T extends Record<string, any>>(e: T, now = new Date()) => ({
+  ...e,
+  overdue: isOverdue(e, now),
+  lenderOverdue: isLenderOverdue(e, now),
+  borrowed: !!e.lenderName && !e.returnedToLenderAt,
+});
 
 /** Chuẩn hóa dữ liệu nhập: bỏ trường lạ, kiểm tra tình trạng / số lượng / ngày */
 export function cleanInput(body: any, partial: boolean) {
@@ -36,11 +64,19 @@ export function cleanInput(body: any, partial: boolean) {
     data.quantity = q;
   }
   if ('status' in data && !EQUIPMENT_STATUSES.includes(data.status)) throw new BadRequestException('Tình trạng không hợp lệ');
-  if ('dueDate' in data && data.dueDate) {
-    const d = new Date(data.dueDate);
-    if (isNaN(d.getTime())) throw new BadRequestException('Ngày dự kiến trả không hợp lệ');
-    data.dueDate = d;
+  for (const k of DATE_FIELDS) {
+    if (!(k in data) || !data[k]) continue;
+    const d = new Date(data[k]);
+    if (isNaN(d.getTime())) throw new BadRequestException('Ngày trả không hợp lệ');
+    data[k] = d;
   }
+  if (data.invoiceImage) {
+    if (data.invoiceImage.length > MAX_INVOICE_CHARS) throw new BadRequestException('Ảnh hóa đơn quá lớn (tối đa ~1.5MB sau khi nén)');
+    if (!INVOICE_RE.test(data.invoiceImage)) throw new BadRequestException('Ảnh hóa đơn không hợp lệ (JPG/PNG/WEBP)');
+  }
+  // Chọn tài khoản thì bỏ tên tự nhập và ngược lại
+  if (data.managerId) data.managerName = null;
+  if (data.holderId) data.holderName = null;
   return data;
 }
 
@@ -81,17 +117,26 @@ export class EquipmentService {
   async findAll(includeDeleted = false) {
     const list = await this.prisma.equipment.findMany({
       where: includeDeleted ? {} : { deletedAt: null },
-      include: { category: { select: { id: true, name: true } } },
+      select: LIST_SELECT,
       orderBy: { createdAt: 'desc' },
     });
+    // Có ảnh hóa đơn hay không (không kéo nội dung ảnh)
+    const withInvoice = new Set(
+      (await this.prisma.equipment.findMany({ where: { invoiceImage: { not: null } }, select: { id: true } })).map((r) => r.id),
+    );
     const now = new Date();
-    return list.map((e) => ({ ...e, overdue: isOverdue(e, now) }));
+    return list.map((e) => ({ ...withFlags(e, now), hasInvoice: withInvoice.has(e.id) }));
   }
 
   async findOne(id: string) {
-    const e = await this.get(id, true);
+    const { invoiceImage, ...e } = await this.get(id, true);
     const histories = await this.prisma.equipmentHistory.findMany({ where: { equipmentId: id }, orderBy: { createdAt: 'desc' } });
-    return { ...e, overdue: isOverdue(e), histories };
+    return { ...withFlags(e), hasInvoice: !!invoiceImage, histories };
+  }
+
+  async invoice(id: string) {
+    const e = await this.get(id, true);
+    return { invoiceImage: e.invoiceImage };
   }
 
   async create(body: any, actor: Actor) {
@@ -101,8 +146,11 @@ export class EquipmentService {
       const n = (await this.prisma.equipment.count()) + 1 + attempt;
       try {
         const created = await this.prisma.equipment.create({ data: { ...(data as any), code: formatCode(n) } });
-        await this.log(created.id, actor, 'CREATE', { status: created.status, toUserId: created.holderId, note: created.note });
-        return created;
+        await this.log(created.id, actor, 'CREATE', {
+          status: created.status, toUserId: created.holderId, toName: created.holderName, note: created.note,
+        });
+        const { invoiceImage, ...rest } = created;
+        return rest;
       } catch (e: any) {
         if (e?.code !== 'P2002') throw e; // trùng mã (2 người tạo cùng lúc) → thử số kế tiếp
       }
@@ -116,7 +164,9 @@ export class EquipmentService {
     const data = cleanInput(body, true);
     const changes = diff(before, data);
     if (!Object.keys(changes).length) return before;
-    const updated = await this.prisma.equipment.update({ where: { id }, data: data as any });
+    // Không chép nội dung ảnh vào lịch sử, chỉ ghi có thay/xóa ảnh
+    if (changes.invoiceImage) changes.invoiceImage = [before.invoiceImage ? 'có ảnh' : null, data.invoiceImage ? 'ảnh mới' : null];
+    const { invoiceImage, ...updated } = await this.prisma.equipment.update({ where: { id }, data: data as any });
     await this.log(id, actor, 'UPDATE', { changes, status: updated.status, note: body?.historyNote || null });
     return updated;
   }
@@ -131,21 +181,24 @@ export class EquipmentService {
     return updated;
   }
 
-  /** Bàn giao cho người nhận (có thể kèm ngày dự kiến trả) */
+  /** Bàn giao cho người nhận: tài khoản (toUserId) hoặc người ngoài tự nhập tên (toName); có thể kèm hạn trả */
   async handover(id: string, body: any, actor: Actor) {
     assertCan(actor, 'operate');
     const before = await this.get(id);
-    const toUserId = String(body?.toUserId || '').trim();
-    if (!toUserId) throw new BadRequestException('Chọn người nhận');
-    if (toUserId === before.holderId) throw new BadRequestException('Người này đang giữ thiết bị rồi');
+    const toUserId = String(body?.toUserId || '').trim() || null;
+    const toName = toUserId ? null : String(body?.toName || '').trim() || null;
+    if (!toUserId && !toName) throw new BadRequestException('Chọn hoặc nhập tên người nhận');
+    if ((toUserId && toUserId === before.holderId) || (toName && toName.toLowerCase() === (before.holderName || '').toLowerCase())) {
+      throw new BadRequestException('Người này đang giữ thiết bị rồi');
+    }
     const extra = cleanInput({ status: body?.status || undefined, dueDate: body?.dueDate || undefined }, true);
     const status = extra.status || (before.status === 'NEW' || before.status === 'GOOD' ? 'IN_USE' : before.status);
-    const updated = await this.prisma.equipment.update({
+    const { invoiceImage, ...updated } = await this.prisma.equipment.update({
       where: { id },
-      data: { holderId: toUserId, status, dueDate: extra.dueDate ?? null },
+      data: { holderId: toUserId, holderName: toName, status, dueDate: extra.dueDate ?? null },
     });
     await this.log(id, actor, 'HANDOVER', {
-      fromUserId: before.holderId, toUserId, status,
+      fromUserId: before.holderId, fromName: before.holderName, toUserId, toName, status,
       changes: extra.dueDate ? { dueDate: [null, extra.dueDate.toISOString()] } : undefined,
       note: body?.note || null,
     });
@@ -156,11 +209,29 @@ export class EquipmentService {
   async returnBack(id: string, body: any, actor: Actor) {
     assertCan(actor, 'operate');
     const before = await this.get(id);
-    if (!before.holderId) throw new BadRequestException('Thiết bị không có ai đang giữ');
+    if (!before.holderId && !before.holderName) throw new BadRequestException('Thiết bị không có ai đang giữ');
     const { status } = cleanInput({ status: body?.status || 'GOOD' }, true);
-    const updated = await this.prisma.equipment.update({ where: { id }, data: { holderId: null, dueDate: null, status } });
+    const { invoiceImage, ...updated } = await this.prisma.equipment.update({
+      where: { id }, data: { holderId: null, holderName: null, dueDate: null, status },
+    });
     await this.log(id, actor, 'RETURN', {
-      fromUserId: before.holderId, toUserId: body?.receiverId || actor.id || null, status, note: body?.note || null,
+      fromUserId: before.holderId, fromName: before.holderName,
+      toUserId: body?.receiverId || actor.id || null, status, note: body?.note || null,
+    });
+    return updated;
+  }
+
+  /** Đồ mượn: đã trả lại cho phòng/người cho mượn */
+  async returnToLender(id: string, body: any, actor: Actor) {
+    assertCan(actor, 'operate');
+    const before = await this.get(id);
+    if (!before.lenderName) throw new BadRequestException('Thiết bị này không phải đồ mượn');
+    if (before.returnedToLenderAt) throw new BadRequestException('Đồ mượn này đã trả rồi');
+    const { invoiceImage, ...updated } = await this.prisma.equipment.update({
+      where: { id }, data: { returnedToLenderAt: new Date(), holderId: null, holderName: null, dueDate: null },
+    });
+    await this.log(id, actor, 'RETURN_LENDER', {
+      fromUserId: before.holderId, fromName: before.holderName, toName: before.lenderName, status: updated.status, note: body?.note || null,
     });
     return updated;
   }

@@ -72,6 +72,16 @@ export class EquipmentController {
     return this.service.returnBack(id, body, actorOf(h));
   }
 
+  @Get(':id/invoice')
+  invoice(@Param('id') id: string) {
+    return this.service.invoice(id);
+  }
+
+  @Post(':id/return-lender')
+  returnToLender(@Param('id') id: string, @Body() body: any, @Headers() h: any) {
+    return this.service.returnToLender(id, body, actorOf(h));
+  }
+
   @Post(':id/restore')
   restore(@Param('id') id: string, @Headers() h: any) {
     return this.service.restore(id, actorOf(h));

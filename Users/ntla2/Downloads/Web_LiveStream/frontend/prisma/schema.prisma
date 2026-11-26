@@ -429,7 +429,15 @@ model Equipment {
   category     EquipmentCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   status       String             @default("NEW") // NEW, GOOD, IN_USE, DAMAGED, REPAIRING, LIQUIDATED
   managerId    String?
+  managerName  String? // "Người khác": tên tự nhập, không có tài khoản web
   holderId     String?
+  holderName   String? // "Người khác" đang giữ
+  // Đồ mượn của Phòng: mượn của ai, hạn trả, đã trả lại chưa
+  lenderName         String?
+  lenderContact      String?
+  lenderDueDate      DateTime?
+  returnedToLenderAt DateTime?
+  invoiceImage       String? // ảnh hóa đơn (data URL JPEG đã nén, ≤ ~1.5MB) — không trả trong danh sách
   dueDate      DateTime? // ngày dự kiến trả khi đang được giữ → cảnh báo quá hạn
   note         String?
   deletedAt    DateTime? // xóa mềm, giữ lịch sử
@@ -449,7 +457,9 @@ model EquipmentHistory {
   actorId     String?
   actorName   String?
   fromUserId  String?
+  fromName    String? // người ngoài (không có tài khoản)
   toUserId    String?
+  toName      String?
   status      String? // tình trạng tại thời điểm thao tác
   changes     Json? // {field: [cũ, mới]}
   note        String?

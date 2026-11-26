@@ -2,12 +2,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Wrench, Plus, Search, Download, Tags, Eye, Pencil, Trash2, ArrowRightLeft, Undo2, Activity,
-  Loader2, X, AlertTriangle, Boxes, Package, UserCheck, UserX, Hammer, CircleAlert, Clock, RotateCcw,
+  Loader2, X, AlertTriangle, Boxes, Package, UserCheck, UserX, Hammer, CircleAlert, Clock, RotateCcw, Receipt, Handshake,
 } from 'lucide-react';
 import { fetchApi } from '@/lib/api';
 import {
   EQUIPMENT_STATUSES, HISTORY_LABELS, FIELD_LABELS, EMPTY_FILTER, EXPORT_KINDS,
-  filterEquipment, equipmentStats, buildEquipmentCsv, personName,
+  filterEquipment, equipmentStats, buildEquipmentCsv, personName, managerLabel, holderLabel, isHeld, isBorrowCategory, OTHER,
   type EquipmentFilter, type ExportKind, type Person,
 } from '@/lib/equipment';
 
@@ -15,6 +15,7 @@ type Modal =
   | { kind: 'form'; item?: any }
   | { kind: 'handover'; item: any }
   | { kind: 'return'; item: any }
+  | { kind: 'returnLender'; item: any }
   | { kind: 'status'; item: any }
   | { kind: 'detail'; id: string }
   | { kind: 'categories' }
@@ -94,6 +95,11 @@ export default function EquipmentPage() {
   const catMap = useMemo(() => new Map(categories.map((c) => [c.id, c.name])), [categories]);
   const who = (id?: string | null) => (id ? personName(peopleMap.get(id)) : null);
   const filtered = useMemo(() => filterEquipment(items, filter), [items, filter]);
+  // Tên người ngoài (không tài khoản) đã dùng → thêm vào bộ lọc
+  const outsiders = useMemo(() => ({
+    managers: Array.from(new Set(items.map((e) => e.managerName).filter(Boolean))).sort() as string[],
+    holders: Array.from(new Set(items.map((e) => e.holderName).filter(Boolean))).sort() as string[],
+  }), [items]);
   const stats = useMemo(() => equipmentStats(items), [items]);
   const setF = (patch: Partial<EquipmentFilter>) => setFilter((f) => ({ ...f, ...patch }));
 
@@ -130,6 +136,7 @@ export default function EquipmentPage() {
     { label: 'Hư hỏng', value: stats.damaged, icon: CircleAlert, color: 'text-red-600 bg-red-50', onClick: () => setF({ status: 'DAMAGED' }) },
     { label: 'Đang sửa chữa', value: stats.repairing, icon: Hammer, color: 'text-amber-600 bg-amber-50', onClick: () => setF({ status: 'REPAIRING' }) },
     { label: 'Chưa bàn giao', value: stats.unassigned, icon: UserX, color: 'text-slate-600 bg-slate-100', onClick: () => setF({ unassignedOnly: true, overdueOnly: false }) },
+    { label: 'Đồ mượn chưa trả', value: stats.borrowed, icon: Handshake, color: 'text-amber-600 bg-amber-50', onClick: () => setF({ borrowedOnly: true, overdueOnly: false, unassignedOnly: false }) },
     { label: 'Quá hạn trả', value: stats.overdue, icon: Clock, color: stats.overdue ? 'text-white bg-red-500' : 'text-slate-500 bg-slate-100', onClick: () => setF({ overdueOnly: true, unassignedOnly: false }) },
   ];
 
@@ -182,7 +189,7 @@ export default function EquipmentPage() {
 
       <div className="px-4 md:px-8 py-5 space-y-5">
         {/* Thống kê */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-3">
           {STAT_CARDS.map((c) => (
             <button key={c.label} onClick={c.onClick} disabled={!c.onClick}
               className="text-left bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm hover:border-[#005691] disabled:hover:border-slate-200 transition-colors">
@@ -197,7 +204,7 @@ export default function EquipmentPage() {
           <button onClick={() => setF({ overdueOnly: true, unassignedOnly: false })}
             className="w-full flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-2xl text-left text-sm text-red-700 font-semibold">
             <AlertTriangle size={18} className="shrink-0" />
-            Có {stats.overdue} thiết bị đã quá hạn trả. Bấm để xem danh sách.
+            Có {stats.overdue} thiết bị đã quá hạn trả (người giữ trả về kho hoặc kho trả đồ mượn cho phòng). Bấm để xem danh sách.
           </button>
         )}
 
@@ -220,11 +227,13 @@ export default function EquipmentPage() {
             <select value={filter.managerId} onChange={(e) => setF({ managerId: e.target.value })} className={inputCls} aria-label="Người quản lý">
               <option value="">Mọi người quản lý</option>
               {people.map((p) => <option key={p.id} value={p.id}>{personName(p)}</option>)}
+              {outsiders.managers.map((n) => <option key={n} value={`name:${n}`}>{n} (ngoài)</option>)}
             </select>
             <select value={filter.holderId} onChange={(e) => setF({ holderId: e.target.value, unassignedOnly: false })} className={inputCls} aria-label="Người đang giữ">
               <option value="">Mọi người giữ</option>
               <option value="NONE">Chưa ai giữ</option>
               {people.map((p) => <option key={p.id} value={p.id}>{personName(p)}</option>)}
+              {outsiders.holders.map((n) => <option key={n} value={`name:${n}`}>{n} (ngoài)</option>)}
             </select>
             <input type="date" value={filter.from} onChange={(e) => setF({ from: e.target.value })} className={inputCls} aria-label="Nhập kho từ ngày" title="Nhập kho từ ngày" />
             <input type="date" value={filter.to} onChange={(e) => setF({ to: e.target.value })} className={inputCls} aria-label="Nhập kho đến ngày" title="Nhập kho đến ngày" />
@@ -233,6 +242,7 @@ export default function EquipmentPage() {
             <span className="font-bold text-slate-500">{filtered.length} / {items.length} thiết bị</span>
             {filter.overdueOnly && <span className="px-2 py-0.5 bg-red-100 text-red-700 rounded-lg font-bold">Chỉ quá hạn</span>}
             {filter.unassignedOnly && <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-lg font-bold">Chưa bàn giao</span>}
+            {filter.borrowedOnly && <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-lg font-bold">Đồ mượn chưa trả</span>}
             {activeFilters && <button onClick={() => setFilter(EMPTY_FILTER)} className="font-bold text-[#005691] hover:underline">Xóa bộ lọc</button>}
           </div>
         </div>
@@ -268,14 +278,20 @@ export default function EquipmentPage() {
                       <td className="px-3 py-2.5">
                         <button onClick={() => setModal({ kind: 'detail', id: e.id })} className="font-bold text-slate-800 hover:text-[#005691] text-left">{e.name}</button>
                         {(e.brand || e.model) && <div className="text-xs text-slate-500">{[e.brand, e.model].filter(Boolean).join(' · ')}</div>}
+                        {e.lenderName && (
+                          <div className={`text-[11px] font-bold ${e.lenderOverdue ? 'text-red-600' : e.borrowed ? 'text-amber-700' : 'text-emerald-700'}`}>
+                            {e.borrowed ? `Mượn của ${e.lenderName}${e.lenderDueDate ? ` · hạn ${fmtDay(e.lenderDueDate)}` : ''}${e.lenderOverdue ? ' (quá hạn)' : ''}` : `Đã trả ${e.lenderName}`}
+                          </div>
+                        )}
+                        {e.hasInvoice && <span className="inline-flex items-center gap-1 text-[10px] text-slate-400"><Receipt size={10} /> có hóa đơn</span>}
                       </td>
                       <td className="px-3 py-2.5 text-slate-600">{e.category?.name || <span className="text-slate-400">Chưa phân loại</span>}</td>
                       <td className="px-3 py-2.5 text-right font-bold">{e.quantity}</td>
-                      <td className="px-3 py-2.5 text-slate-600">{who(e.managerId) || <span className="text-slate-400">—</span>}</td>
+                      <td className="px-3 py-2.5 text-slate-600">{managerLabel(e, peopleMap) || <span className="text-slate-400">—</span>}</td>
                       <td className="px-3 py-2.5">
-                        {e.holderId ? (
+                        {isHeld(e) ? (
                           <div>
-                            <div className="font-semibold text-slate-700">{who(e.holderId)}</div>
+                            <div className="font-semibold text-slate-700">{holderLabel(e, peopleMap)}{!e.holderId && <span className="ml-1 text-[10px] text-slate-400">(ngoài)</span>}</div>
                             {e.dueDate && (
                               <div className={`text-[11px] font-bold ${e.overdue ? 'text-red-600' : 'text-slate-400'}`}>
                                 {e.overdue ? '⚠ Quá hạn ' : 'Hạn trả '}{fmtDay(e.dueDate)}
@@ -291,7 +307,8 @@ export default function EquipmentPage() {
                           <IconBtn title="Xem chi tiết" onClick={() => setModal({ kind: 'detail', id: e.id })}><Eye size={15} /></IconBtn>
                           {isAdmin && <IconBtn title="Chỉnh sửa" onClick={() => setModal({ kind: 'form', item: e })}><Pencil size={15} /></IconBtn>}
                           {canOperate && <IconBtn title="Bàn giao" onClick={() => setModal({ kind: 'handover', item: e })}><ArrowRightLeft size={15} /></IconBtn>}
-                          {canOperate && e.holderId && <IconBtn title="Thu hồi" onClick={() => setModal({ kind: 'return', item: e })}><Undo2 size={15} /></IconBtn>}
+                          {canOperate && e.borrowed && <IconBtn title="Trả đồ mượn cho phòng" onClick={() => setModal({ kind: 'returnLender', item: e })}><Handshake size={15} /></IconBtn>}
+                          {canOperate && isHeld(e) && <IconBtn title="Thu hồi" onClick={() => setModal({ kind: 'return', item: e })}><Undo2 size={15} /></IconBtn>}
                           {canOperate && <IconBtn title="Cập nhật tình trạng" onClick={() => setModal({ kind: 'status', item: e })}><Activity size={15} /></IconBtn>}
                           {isAdmin && (
                             <IconBtn title="Xóa" danger onClick={() => setModal({
@@ -319,12 +336,16 @@ export default function EquipmentPage() {
           )} />
       )}
       {modal?.kind === 'handover' && (
-        <HandoverForm item={modal.item} people={people} who={who} onClose={() => setModal(null)}
+        <HandoverForm item={modal.item} people={people} holderText={(x) => holderLabel(x, peopleMap)} onClose={() => setModal(null)}
           onSave={(body) => act(() => fetchApi(`/equipment/${modal.item.id}/handover`, { method: 'POST', body: JSON.stringify(body) }), `Đã bàn giao ${modal.item.code}`)} />
       )}
       {modal?.kind === 'return' && (
-        <ReturnForm item={modal.item} people={people} who={who} onClose={() => setModal(null)}
+        <ReturnForm item={modal.item} people={people} holderText={(x) => holderLabel(x, peopleMap)} onClose={() => setModal(null)}
           onSave={(body) => act(() => fetchApi(`/equipment/${modal.item.id}/return`, { method: 'POST', body: JSON.stringify(body) }), `Đã thu hồi ${modal.item.code}`)} />
+      )}
+      {modal?.kind === 'returnLender' && (
+        <ReturnLenderForm item={modal.item} onClose={() => setModal(null)}
+          onSave={(body) => act(() => fetchApi(`/equipment/${modal.item.id}/return-lender`, { method: 'POST', body: JSON.stringify(body) }), `Đã trả ${modal.item.code} cho ${modal.item.lenderName}`)} />
       )}
       {modal?.kind === 'status' && (
         <StatusForm item={modal.item} onClose={() => setModal(null)}
@@ -372,6 +393,29 @@ function useSubmit(onSave: (body: any) => Promise<void>) {
   return { busy, submit };
 }
 
+// Chọn người: tài khoản CRM, hoặc "Người khác" → tự nhập tên (người không đăng nhập web)
+type PersonValue = { id: string; name: string };
+function PersonPicker({ value, onChange, people, empty, required, exclude }: {
+  value: PersonValue; onChange: (v: PersonValue) => void; people: Person[]; empty: string; required?: boolean; exclude?: string | null;
+}) {
+  const isOther = value.id === OTHER;
+  return (
+    <div className="space-y-2">
+      <select value={value.id} onChange={(e) => onChange({ id: e.target.value, name: e.target.value === OTHER ? value.name : '' })} className={inputCls} required={required}>
+        <option value="">{empty}</option>
+        {people.filter((p) => p.id !== exclude).map((p) => <option key={p.id} value={p.id}>{personName(p)}</option>)}
+        <option value={OTHER}>Người khác (nhập tên)…</option>
+      </select>
+      {isOther && (
+        <input autoFocus required={required || isOther} value={value.name} onChange={(e) => onChange({ id: OTHER, name: e.target.value })}
+          className={inputCls} placeholder="Tên người (không cần tài khoản web)" />
+      )}
+    </div>
+  );
+}
+const toPersonValue = (id?: string | null, name?: string | null): PersonValue => (id ? { id, name: '' } : name ? { id: OTHER, name } : { id: '', name: '' });
+const fromPersonValue = (v: PersonValue) => (v.id === OTHER ? { id: null, name: v.name.trim() || null } : { id: v.id || null, name: null });
+
 function PersonSelect({ value, onChange, people, empty, required }: { value: string; onChange: (v: string) => void; people: Person[]; empty: string; required?: boolean }) {
   return (
     <select value={value} onChange={(e) => onChange(e.target.value)} className={inputCls} required={required}>
@@ -389,17 +433,87 @@ function StatusSelect({ value, onChange }: { value: string; onChange: (v: string
   );
 }
 
+// Nén ảnh hóa đơn trong trình duyệt (cạnh dài ≤ 1600px, JPEG) trước khi gửi để DB không phình
+async function compressImage(file: File): Promise<string> {
+  if (!file.type.startsWith('image/')) throw new Error('Chỉ nhận file ảnh (JPG, PNG…)');
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Không đọc được ảnh')); i.src = url; });
+    const scale = Math.min(1, 1600 / Math.max(img.width, img.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(img.width * scale);
+    canvas.height = Math.round(img.height * scale);
+    canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+    for (const q of [0.8, 0.65, 0.5]) {
+      const data = canvas.toDataURL('image/jpeg', q);
+      if (data.length < 1_900_000) return data;
+    }
+    throw new Error('Ảnh quá lớn, hãy chụp lại gần hơn');
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+function InvoiceInput({ value, hasExisting, onChange }: { value: string | null | undefined; hasExisting: boolean; onChange: (v: string | null | undefined) => void }) {
+  const [err, setErr] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-slate-300 rounded-xl text-sm font-bold text-slate-600 cursor-pointer hover:border-[#005691]">
+          {busy ? <Loader2 size={15} className="animate-spin" /> : <Receipt size={15} />} {value || hasExisting ? 'Đổi ảnh hóa đơn' : 'Tải ảnh hóa đơn'}
+          <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+            const file = e.target.files?.[0];
+            e.target.value = '';
+            if (!file) return;
+            setErr(null); setBusy(true);
+            try { onChange(await compressImage(file)); } catch (x: any) { setErr(x.message); } finally { setBusy(false); }
+          }} />
+        </label>
+        {(value || (hasExisting && value !== null)) && (
+          <button type="button" onClick={() => onChange(null)} className="text-xs font-bold text-red-500 hover:underline">Xóa ảnh</button>
+        )}
+        {hasExisting && value === undefined && <span className="text-xs text-slate-500">Đang có ảnh hóa đơn</span>}
+        {hasExisting && value === null && <span className="text-xs text-red-500">Ảnh sẽ bị xóa khi lưu</span>}
+      </div>
+      {value && <img src={value} alt="Ảnh hóa đơn" className="max-h-40 rounded-lg border border-slate-200" />}
+      {err && <p className="text-xs font-semibold text-red-600">{err}</p>}
+    </div>
+  );
+}
+
 function EquipmentForm({ item, categories, people, onClose, onSave }: { item?: any; categories: any[]; people: Person[]; onClose: () => void; onSave: (b: any) => Promise<void> }) {
   const [f, setF] = useState({
     name: item?.name || '', brand: item?.brand || '', model: item?.model || '', serialNumber: item?.serialNumber || '',
     quantity: String(item?.quantity ?? 1), categoryId: item?.categoryId || categories[0]?.id || '', status: item?.status || 'NEW',
-    managerId: item?.managerId || '', holderId: item?.holderId || '', dueDate: toDateInput(item?.dueDate), note: item?.note || '',
+    dueDate: toDateInput(item?.dueDate), note: item?.note || '',
+    lenderName: item?.lenderName || '', lenderContact: item?.lenderContact || '', lenderDueDate: toDateInput(item?.lenderDueDate),
   });
+  const [manager, setManager] = useState<PersonValue>(toPersonValue(item?.managerId, item?.managerName));
+  const [holder, setHolder] = useState<PersonValue>(toPersonValue(item?.holderId, item?.holderName));
+  // undefined = giữ nguyên ảnh cũ, null = xóa, chuỗi = ảnh mới
+  const [invoice, setInvoice] = useState<string | null | undefined>(undefined);
   const { busy, submit } = useSubmit(onSave);
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
+  const borrowCat = isBorrowCategory(categories.find((c) => c.id === f.categoryId)?.name);
+  const showLender = borrowCat || !!f.lenderName;
+  const holderSet = !!(holder.id && (holder.id !== OTHER || holder.name.trim()));
+
   return (
     <ModalShell title={item ? <>Sửa thiết bị <span className="font-mono text-[#005691]">{item.code}</span></> : 'Thêm thiết bị'} onClose={onClose}>
-      <form onSubmit={(e) => { e.preventDefault(); submit({ ...f, quantity: Number(f.quantity), categoryId: f.categoryId || null, managerId: f.managerId || null, holderId: f.holderId || null, dueDate: f.dueDate || null }); }} className="space-y-3">
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        const m = fromPersonValue(manager);
+        const h = fromPersonValue(holder);
+        submit({
+          ...f, quantity: Number(f.quantity), categoryId: f.categoryId || null,
+          managerId: m.id, managerName: m.name, holderId: h.id, holderName: h.name,
+          dueDate: holderSet ? f.dueDate || null : null,
+          lenderName: showLender ? f.lenderName || null : null, lenderContact: showLender ? f.lenderContact || null : null,
+          lenderDueDate: showLender ? f.lenderDueDate || null : null,
+          ...(invoice !== undefined ? { invoiceImage: invoice } : {}),
+        });
+      }} className="space-y-3">
         <Field label="Tên thiết bị *"><input required value={f.name} onChange={set('name')} className={inputCls} placeholder="VD: Máy ảnh Sony A7 IV" /></Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Thương hiệu"><input value={f.brand} onChange={set('brand')} className={inputCls} /></Field>
@@ -413,26 +527,41 @@ function EquipmentForm({ item, categories, people, onClose, onSave }: { item?: a
             </select>
           </Field>
           <Field label="Tình trạng"><StatusSelect value={f.status} onChange={(v) => setF({ ...f, status: v })} /></Field>
-          <Field label="Người quản lý"><PersonSelect value={f.managerId} onChange={(v) => setF({ ...f, managerId: v })} people={people} empty="— Chưa chọn —" /></Field>
-          <Field label="Người đang giữ"><PersonSelect value={f.holderId} onChange={(v) => setF({ ...f, holderId: v })} people={people} empty="Trong kho" /></Field>
+          <Field label="Người quản lý"><PersonPicker value={manager} onChange={setManager} people={people} empty="— Chưa chọn —" /></Field>
+          <Field label="Người đang giữ"><PersonPicker value={holder} onChange={setHolder} people={people} empty="Trong kho" /></Field>
         </div>
-        {f.holderId && <Field label="Ngày dự kiến trả"><input type="date" value={f.dueDate} onChange={set('dueDate')} className={inputCls} /></Field>}
+        {holderSet && <Field label="Ngày dự kiến trả"><input type="date" value={f.dueDate} onChange={set('dueDate')} className={inputCls} /></Field>}
+
+        {showLender && (
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-3">
+            <p className="text-xs font-black text-amber-800 flex items-center gap-1.5"><Handshake size={14} /> Đồ mượn — ghi rõ mượn của ai để sau này trả</p>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Mượn của (phòng / người) *"><input required={borrowCat} value={f.lenderName} onChange={set('lenderName')} className={inputCls} placeholder="VD: Phòng CTSV – anh Minh" /></Field>
+              <Field label="Liên hệ"><input value={f.lenderContact} onChange={set('lenderContact')} className={inputCls} placeholder="SĐT / email" /></Field>
+              <Field label="Hạn trả cho phòng"><input type="date" value={f.lenderDueDate} onChange={set('lenderDueDate')} className={inputCls} /></Field>
+            </div>
+            {item?.returnedToLenderAt && <p className="text-xs text-emerald-700 font-bold">Đã trả lại ngày {fmtDay(item.returnedToLenderAt)}</p>}
+          </div>
+        )}
+
+        <Field label="Ảnh hóa đơn (không bắt buộc)"><InvoiceInput value={invoice} hasExisting={!!item?.hasInvoice} onChange={setInvoice} /></Field>
         <Field label="Ghi chú"><textarea value={f.note} onChange={set('note')} rows={2} className={inputCls} /></Field>
-        <p className="text-[11px] text-slate-400">Người quản lý chịu trách nhiệm thiết bị; người đang giữ là người được bàn giao trực tiếp. Muốn ghi lịch sử bàn giao đầy đủ, dùng nút Bàn giao.</p>
+        <p className="text-[11px] text-slate-400">Người quản lý chịu trách nhiệm thiết bị; người đang giữ là người được bàn giao trực tiếp. Chọn "Người khác" để nhập tên người không có tài khoản web.</p>
         <SubmitRow busy={busy} label={item ? 'Lưu thay đổi' : 'Thêm thiết bị'} onClose={onClose} />
       </form>
     </ModalShell>
   );
 }
 
-function HandoverForm({ item, people, who, onClose, onSave }: { item: any; people: Person[]; who: (id?: string | null) => string | null; onClose: () => void; onSave: (b: any) => Promise<void> }) {
-  const [f, setF] = useState({ toUserId: '', dueDate: '', status: item.status, note: '' });
+function HandoverForm({ item, people, holderText, onClose, onSave }: { item: any; people: Person[]; holderText: (e: any) => string; onClose: () => void; onSave: (b: any) => Promise<void> }) {
+  const [to, setTo] = useState<PersonValue>({ id: '', name: '' });
+  const [f, setF] = useState({ dueDate: '', status: item.status, note: '' });
   const { busy, submit } = useSubmit(onSave);
   return (
     <ModalShell title={<><ArrowRightLeft size={18} className="text-[#005691]" /> Bàn giao {item.code}</>} onClose={onClose}>
-      <form onSubmit={(e) => { e.preventDefault(); submit({ ...f, dueDate: f.dueDate || null }); }} className="space-y-3">
-        <div className="p-3 bg-slate-50 rounded-xl text-sm"><b>{item.name}</b> · đang giữ: <b>{who(item.holderId) || 'Trong kho'}</b></div>
-        <Field label="Người nhận *"><PersonSelect required value={f.toUserId} onChange={(v) => setF({ ...f, toUserId: v })} people={people.filter((p) => p.id !== item.holderId)} empty="— Chọn người nhận —" /></Field>
+      <form onSubmit={(e) => { e.preventDefault(); const p = fromPersonValue(to); submit({ ...f, toUserId: p.id, toName: p.name, dueDate: f.dueDate || null }); }} className="space-y-3">
+        <div className="p-3 bg-slate-50 rounded-xl text-sm"><b>{item.name}</b> · đang giữ: <b>{holderText(item) || 'Trong kho'}</b></div>
+        <Field label="Người nhận *"><PersonPicker required value={to} onChange={setTo} people={people} exclude={item.holderId} empty="— Chọn người nhận —" /></Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Ngày dự kiến trả"><input type="date" value={f.dueDate} onChange={(e) => setF({ ...f, dueDate: e.target.value })} className={inputCls} /></Field>
           <Field label="Tình trạng khi bàn giao"><StatusSelect value={f.status} onChange={(v) => setF({ ...f, status: v })} /></Field>
@@ -445,19 +574,37 @@ function HandoverForm({ item, people, who, onClose, onSave }: { item: any; peopl
   );
 }
 
-function ReturnForm({ item, people, who, onClose, onSave }: { item: any; people: Person[]; who: (id?: string | null) => string | null; onClose: () => void; onSave: (b: any) => Promise<void> }) {
+function ReturnForm({ item, people, holderText, onClose, onSave }: { item: any; people: Person[]; holderText: (e: any) => string; onClose: () => void; onSave: (b: any) => Promise<void> }) {
   const [f, setF] = useState({ status: 'GOOD', receiverId: '', note: '' });
   const { busy, submit } = useSubmit(onSave);
   return (
     <ModalShell title={<><Undo2 size={18} className="text-[#005691]" /> Thu hồi {item.code}</>} onClose={onClose}>
       <form onSubmit={(e) => { e.preventDefault(); submit({ ...f, receiverId: f.receiverId || null }); }} className="space-y-3">
-        <div className="p-3 bg-slate-50 rounded-xl text-sm"><b>{item.name}</b> · người trả: <b>{who(item.holderId)}</b>{item.overdue && <span className="ml-2 text-red-600 font-bold">(quá hạn)</span>}</div>
+        <div className="p-3 bg-slate-50 rounded-xl text-sm"><b>{item.name}</b> · người trả: <b>{holderText(item)}</b>{item.overdue && <span className="ml-2 text-red-600 font-bold">(quá hạn)</span>}</div>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Tình trạng thực tế"><StatusSelect value={f.status} onChange={(v) => setF({ ...f, status: v })} /></Field>
           <Field label="Người tiếp nhận"><PersonSelect value={f.receiverId} onChange={(v) => setF({ ...f, receiverId: v })} people={people} empty="Tôi (người đang thao tác)" /></Field>
         </div>
         <Field label="Ghi chú"><textarea value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} rows={2} className={inputCls} placeholder="VD: trầy vỏ, thiếu dây sạc" /></Field>
         <SubmitRow busy={busy} label="Thu hồi về kho" onClose={onClose} />
+      </form>
+    </ModalShell>
+  );
+}
+
+function ReturnLenderForm({ item, onClose, onSave }: { item: any; onClose: () => void; onSave: (b: any) => Promise<void> }) {
+  const [note, setNote] = useState('');
+  const { busy, submit } = useSubmit(onSave);
+  return (
+    <ModalShell title={<><Handshake size={18} className="text-amber-600" /> Trả đồ mượn {item.code}</>} onClose={onClose}>
+      <form onSubmit={(e) => { e.preventDefault(); submit({ note }); }} className="space-y-3">
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm">
+          Trả <b>{item.name}</b> cho <b>{item.lenderName}</b>{item.lenderContact && <> ({item.lenderContact})</>}
+          {item.lenderDueDate && <> · hạn {fmtDay(item.lenderDueDate)}{item.lenderOverdue && <b className="text-red-600"> (quá hạn)</b>}</>}
+        </div>
+        <Field label="Ghi chú"><textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} className={inputCls} placeholder="VD: trả đủ, có biên bản" /></Field>
+        <p className="text-[11px] text-slate-400">Sau khi trả, thiết bị vẫn còn trong danh sách (để tra lịch sử) với nhãn "Đã trả".</p>
+        <SubmitRow busy={busy} label="Xác nhận đã trả" onClose={onClose} />
       </form>
     </ModalShell>
   );
@@ -480,6 +627,8 @@ function StatusForm({ item, onClose, onSave }: { item: any; onClose: () => void;
 function DetailView({ id, who, catMap, isAdmin, onClose, onRestore }: { id: string; who: (id?: string | null) => string | null; catMap: Map<string, string>; isAdmin: boolean; onClose: () => void; onRestore: (id: string) => Promise<void> }) {
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [invoice, setInvoice] = useState<string | null>(null);
+  const [invoiceLoading, setInvoiceLoading] = useState(false);
   useEffect(() => { fetchApi(`/equipment/${id}`).then(setData).catch((e) => setError(e.message)); }, [id]);
 
   const show = (field: string, v: any) => {
@@ -487,9 +636,10 @@ function DetailView({ id, who, catMap, isAdmin, onClose, onRestore }: { id: stri
     if (field === 'status') return EQUIPMENT_STATUSES[v]?.label || v;
     if (field === 'managerId' || field === 'holderId') return who(v) || v;
     if (field === 'categoryId') return catMap.get(v) || 'Danh mục đã xóa';
-    if (field === 'dueDate') return fmtDay(v);
+    if (field === 'dueDate' || field === 'lenderDueDate') return fmtDay(v);
     return String(v);
   };
+  const person = (uid?: string | null, name?: string | null, fallback = '—') => (uid ? who(uid) : name) || fallback;
 
   return (
     <ModalShell wide title={data ? <><span className="font-mono text-[#005691]">{data.code}</span> {data.name}</> : 'Chi tiết thiết bị'} onClose={onClose}>
@@ -507,7 +657,7 @@ function DetailView({ id, who, catMap, isAdmin, onClose, onRestore }: { id: stri
             {[
               ['Loại', data.category?.name || 'Chưa phân loại'], ['Số lượng', data.quantity], ['Tình trạng', <StatusBadge key="s" status={data.status} />],
               ['Thương hiệu', data.brand || '—'], ['Model', data.model || '—'], ['Serial', data.serialNumber || '—'],
-              ['Người quản lý', who(data.managerId) || '—'], ['Người đang giữ', who(data.holderId) || 'Trong kho'],
+              ['Người quản lý', person(data.managerId, data.managerName)], ['Người đang giữ', person(data.holderId, data.holderName, 'Trong kho')],
               ['Hạn trả', data.dueDate ? <span key="d" className={data.overdue ? 'text-red-600 font-bold' : ''}>{fmtDay(data.dueDate)}{data.overdue ? ' (quá hạn)' : ''}</span> : '—'],
               ['Ngày tạo', fmt(data.createdAt)], ['Cập nhật', fmt(data.updatedAt)], ['Ghi chú', data.note || '—'],
             ].map(([k, v]) => (
@@ -517,6 +667,35 @@ function DetailView({ id, who, catMap, isAdmin, onClose, onRestore }: { id: stri
               </div>
             ))}
           </dl>
+
+          {data.lenderName && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm space-y-1">
+              <p className="font-black text-amber-800 flex items-center gap-1.5"><Handshake size={14} /> Đồ mượn</p>
+              <p>Mượn của <b>{data.lenderName}</b>{data.lenderContact && <> · {data.lenderContact}</>}</p>
+              <p>
+                Hạn trả phòng: <b className={data.lenderOverdue ? 'text-red-600' : ''}>{data.lenderDueDate ? fmtDay(data.lenderDueDate) : '—'}{data.lenderOverdue ? ' (quá hạn)' : ''}</b>
+                {' · '}{data.returnedToLenderAt ? <b className="text-emerald-700">Đã trả {fmtDay(data.returnedToLenderAt)}</b> : <b className="text-amber-700">Chưa trả</b>}
+              </p>
+            </div>
+          )}
+
+          {data.hasInvoice && (
+            <div>
+              <h4 className="font-black text-slate-800 mb-2 text-sm flex items-center gap-1.5"><Receipt size={15} /> Ảnh hóa đơn</h4>
+              {invoice ? (
+                <a href={invoice} download={`hoa-don-${data.code}.jpg`} title="Bấm để tải ảnh">
+                  <img src={invoice} alt={`Hóa đơn ${data.code}`} className="max-h-80 rounded-xl border border-slate-200" />
+                </a>
+              ) : (
+                <button disabled={invoiceLoading} onClick={async () => {
+                  setInvoiceLoading(true);
+                  try { setInvoice((await fetchApi(`/equipment/${id}/invoice`))?.invoiceImage || null); } catch (e: any) { setError(e.message); } finally { setInvoiceLoading(false); }
+                }} className="flex items-center gap-2 px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:border-[#005691]">
+                  {invoiceLoading ? <Loader2 size={14} className="animate-spin" /> : <Eye size={14} />} Xem ảnh hóa đơn
+                </button>
+              )}
+            </div>
+          )}
 
           <div>
             <h4 className="font-black text-slate-800 mb-3 text-sm">Lịch sử hoạt động ({data.histories.length})</h4>
@@ -529,13 +708,9 @@ function DetailView({ id, who, catMap, isAdmin, onClose, onRestore }: { id: stri
                     {h.status && <StatusBadge status={h.status} />}
                     <span className="text-xs text-slate-400">{fmt(h.createdAt)} · {h.actorName || 'Hệ thống'}</span>
                   </div>
-                  {(h.action === 'HANDOVER' || h.action === 'RETURN') && (
-                    <p className="text-xs text-slate-600 mt-1">
-                      {h.action === 'HANDOVER'
-                        ? <>Từ <b>{who(h.fromUserId) || 'Kho'}</b> → <b>{who(h.toUserId)}</b></>
-                        : <>Người trả <b>{who(h.fromUserId)}</b> → người nhận <b>{who(h.toUserId) || 'Kho'}</b></>}
-                    </p>
-                  )}
+                  {h.action === 'HANDOVER' && <p className="text-xs text-slate-600 mt-1">Từ <b>{person(h.fromUserId, h.fromName, 'Kho')}</b> → <b>{person(h.toUserId, h.toName)}</b></p>}
+                  {h.action === 'RETURN' && <p className="text-xs text-slate-600 mt-1">Người trả <b>{person(h.fromUserId, h.fromName)}</b> → người nhận <b>{person(h.toUserId, h.toName, 'Kho')}</b></p>}
+                  {h.action === 'RETURN_LENDER' && <p className="text-xs text-slate-600 mt-1">Trả lại cho <b>{h.toName}</b>{(h.fromUserId || h.fromName) && <> (đang ở chỗ {person(h.fromUserId, h.fromName)})</>}</p>}
                   {h.changes && Object.keys(h.changes).length > 0 && (
                     <ul className="text-xs text-slate-600 mt-1 space-y-0.5">
                       {Object.entries(h.changes as Record<string, [any, any]>).map(([k, [a, b]]) => (

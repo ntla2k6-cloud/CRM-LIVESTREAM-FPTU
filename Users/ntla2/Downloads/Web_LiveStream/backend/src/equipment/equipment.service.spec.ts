@@ -1,5 +1,5 @@
 import { ForbiddenException, BadRequestException } from '@nestjs/common';
-import { EquipmentService, isOverdue, formatCode, cleanInput, diff } from './equipment.service.js';
+import { EquipmentService, isOverdue, isLenderOverdue, formatCode, cleanInput, diff } from './equipment.service.js';
 
 const ADMIN = { id: 'u-admin', name: 'Admin', role: 'ADMIN' };
 const MANAGER = { id: 'u-mgr', name: 'Quản lý', role: 'MANAGER' };
@@ -69,6 +69,36 @@ describe('EquipmentService', () => {
     await service.restore('e1', ADMIN);
     expect(rows.get('e1')!.deletedAt).toBeNull();
     expect(histories.map((h) => h.action)).toEqual(['UPDATE', 'DELETE', 'RESTORE']);
+  });
+
+  it('người ngoài (không tài khoản): bàn giao theo tên, chặn trùng, thu hồi ghi tên người trả', async () => {
+    const { service, rows, histories } = makeService([{ id: 'e1', code: 'TB-0001', name: 'Mic', status: 'GOOD' }]);
+    await service.handover('e1', { toName: ' Chú bảo vệ ' }, ADMIN);
+    expect(rows.get('e1')).toMatchObject({ holderId: null, holderName: 'Chú bảo vệ', status: 'IN_USE' });
+    await expect(service.handover('e1', { toName: 'chú bảo vệ' }, ADMIN)).rejects.toThrow('đang giữ');
+    await service.returnBack('e1', { status: 'GOOD' }, ADMIN);
+    expect(rows.get('e1')).toMatchObject({ holderName: null });
+    expect(histories[1]).toMatchObject({ action: 'RETURN', fromName: 'Chú bảo vệ' });
+    await expect(service.handover('e1', {}, ADMIN)).rejects.toThrow('người nhận');
+  });
+
+  it('đồ mượn của phòng: quá hạn trả phòng, trả lại 1 lần', async () => {
+    const now = new Date('2026-11-26T12:00:00Z');
+    expect(isLenderOverdue({ lenderName: 'Phòng CTSV', lenderDueDate: '2026-11-20' }, now)).toBe(true);
+    expect(isLenderOverdue({ lenderName: 'Phòng CTSV', lenderDueDate: '2026-11-20', returnedToLenderAt: '2026-11-21' }, now)).toBe(false);
+    const { service, rows, histories } = makeService([{ id: 'e1', code: 'TB-0001', name: 'Loa', status: 'GOOD', lenderName: 'Phòng CTSV', holderName: 'An' }]);
+    await service.returnToLender('e1', {}, MANAGER);
+    expect(rows.get('e1')!.returnedToLenderAt).toBeInstanceOf(Date);
+    expect(rows.get('e1')).toMatchObject({ holderName: null });
+    expect(histories[0]).toMatchObject({ action: 'RETURN_LENDER', toName: 'Phòng CTSV', fromName: 'An' });
+    await expect(service.returnToLender('e1', {}, MANAGER)).rejects.toThrow('đã trả');
+  });
+
+  it('ảnh hóa đơn: chỉ nhận data URL ảnh, chặn ảnh quá lớn; chọn tài khoản thì bỏ tên tự nhập', () => {
+    expect(cleanInput({ name: 'x', invoiceImage: 'data:image/jpeg;base64,QUJD' }, false).invoiceImage).toContain('base64');
+    expect(() => cleanInput({ name: 'x', invoiceImage: 'javascript:alert(1)' }, false)).toThrow('không hợp lệ');
+    expect(() => cleanInput({ name: 'x', invoiceImage: 'data:image/jpeg;base64,' + 'A'.repeat(2_000_001) }, false)).toThrow('quá lớn');
+    expect(cleanInput({ name: 'x', holderId: 'u1', holderName: 'Ai đó' }, false)).toMatchObject({ holderId: 'u1', holderName: null });
   });
 
   it('helpers: quá hạn, mã, kiểm tra dữ liệu', () => {
