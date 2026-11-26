@@ -1,20 +1,44 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { 
-  LayoutDashboard, Users, Settings, Briefcase, Video, Activity, Calendar, Package, ShieldCheck, LogOut, Wrench, ScrollText
+  LayoutDashboard, Users, Settings, Briefcase, Video, Activity, Calendar, Package, ShieldCheck, LogOut, Wrench, ScrollText, Menu, X, User
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 
 import { usePathname } from 'next/navigation';
+import { useRbac, permsFor, hasAny } from '@/lib/rbac';
 
 
 
+
+
+// Mục menu chính (dùng chung menu máy tính + menu điện thoại)
+const NAV_ITEMS: Array<{ name: string; icon: any; href: string; perm: string | string[]; badge?: string }> = [
+            { name: 'Tổng quan', icon: LayoutDashboard, href: '/', perm: '*' },
+            { name: 'Thống kê', icon: Activity, href: '/analytics', perm: ['admin.analytics', 'live.view'] },
+            { name: 'CRM / CSKH', icon: Users, href: '/cskh', perm: ['crm.view', 'crm.edit', 'crm.export', 'cskh.view', 'cskh.process', 'cskh.manage_orders'] },
+            { name: 'Kho Quà tặng', icon: Package, href: '/inventory', perm: ['inventory.view', 'inventory.manage', 'inventory.export'] },
+            { name: 'Kho Thiết bị', icon: Wrench, href: '/equipment', perm: '*' },
+            { name: 'Nhân Sự Ekip', icon: Briefcase, href: '/staff', perm: ['admin.users', 'admin.approve', 'admin.rbac'] },
+            { name: 'Lịch phân công', icon: Calendar, href: '/schedule', perm: ['schedule.view', 'schedule.register', 'schedule.approve', 'schedule.manage', 'payroll.view', 'payroll.manage', 'payroll.export'] },
+            { name: 'Điều khiển LIVE', icon: Video, badge: 'LIVE', href: '/live', perm: ['live.view', 'live.manage', 'live.control', 'live.script'] },
+            { name: 'Tra cứu vận đơn', icon: Package, href: '/tracking', perm: '*' },
+          ];
 
 export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const user = session?.user as any;
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  // Quyền theo vai trò: cấu hình Admin lưu DB (/api/rbac), thiếu thì quyền mặc định — xem lib/rbac.ts
+  const { config: rbac } = useRbac(status === 'authenticated');
+  const perms = permsFor(user?.role, rbac);
+  const canSee = (item: { perm: string | string[] }) => status === 'loading' || hasAny(perms, item.perm);
+
+  // Đổi trang thì đóng menu điện thoại
+  useEffect(() => setMenuOpen(false), [pathname]);
 
   if (pathname === '/login' || pathname.startsWith('/tracking')) return null;
 
@@ -49,50 +73,7 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
       <div className="px-3 pt-6 pb-2 flex-1 overflow-y-auto overflow-x-hidden relative z-10 custom-scrollbar">
         {sidebarOpen && <p className="text-[10px] font-black text-blue-400/70 uppercase tracking-widest mb-3 px-3 animate-in fade-in">Quản lý chính</p>}
         <nav className="flex flex-col gap-1.5">
-          {[
-            { name: 'Tổng quan', icon: LayoutDashboard, href: '/', perm: '*' },
-            { name: 'Thống kê', icon: Activity, href: '/analytics', perm: 'admin.analytics' },
-            { name: 'CRM / CSKH', icon: Users, href: '/cskh', perm: ['crm.view', 'crm.edit', 'crm.export', 'cskh.view', 'cskh.process', 'cskh.manage_orders'] },
-            { name: 'Kho Quà tặng', icon: Package, href: '/inventory', perm: ['inventory.view', 'inventory.manage', 'inventory.export'] },
-            { name: 'Kho Thiết bị', icon: Wrench, href: '/equipment', perm: '*' },
-            { name: 'Nhân Sự Ekip', icon: Briefcase, href: '/staff', perm: ['admin.users', 'admin.approve', 'admin.rbac'] },
-            { name: 'Lịch phân công', icon: Calendar, href: '/schedule', perm: ['schedule.view', 'schedule.register', 'schedule.approve', 'schedule.manage', 'payroll.view', 'payroll.manage', 'payroll.export'] },
-            { name: 'Điều khiển LIVE', icon: Video, badge: 'LIVE', href: '/live', perm: ['live.view', 'live.manage', 'live.control', 'live.script'] },
-            { name: 'Tra cứu vận đơn', icon: Package, href: '/tracking', perm: '*' },
-          ].filter(item => {
-            if (item.perm === '*') return true;
-            if (user?.role === 'ADMIN' || user?.role === 'MANAGER') return true;
-            if (status === 'loading') return true; // Show all while loading
-            if (!user) return false; // Hide if not logged in
-            
-            let p = [];
-            if (user.role === 'ADMIN' || user.role === 'MANAGER') p = ['*'];
-            else {
-              if (user.role === 'VJ_HOST') p = ['schedule.register', 'live.view'];
-              if (user.role === 'CSKH') p = ['crm.view', 'crm.edit', 'cskh.view', 'cskh.process', 'schedule.register'];
-              if (user.role === 'BIEN_TAP') p = ['live.view', 'live.script', 'schedule.register'];
-              if (user.role === 'KY_THUAT') p = ['live.view', 'live.control', 'schedule.register'];
-              if (user.role === 'SAN_XUAT') p = ['schedule.view', 'schedule.register', 'schedule.approve', 'schedule.manage', 'live.view', 'live.manage'];
-              if (user.role === 'LIVE_MANAGER') p = ['live.view', 'live.manage', 'live.control', 'live.script', 'schedule.register'];
-              if (user.role === 'THU_KHO') p = ['inventory.view', 'inventory.manage', 'inventory.export', 'schedule.register'];
-              if (typeof window !== 'undefined') {
-                try {
-                  const rbacStr = localStorage.getItem('rbac_roles');
-                  if (rbacStr) {
-                    const roles = JSON.parse(rbacStr);
-                    const myRole = roles.find((rx: any) => rx.value === user.role);
-                    if (myRole && myRole.permissions) p = myRole.permissions;
-                  }
-                } catch(e) {}
-              }
-            }
-
-            if (p.includes('*')) return true;
-            if (Array.isArray(item.perm)) {
-               return item.perm.some(x => p.includes(x));
-            }
-            return p.includes(item.perm);
-          }).map((item, idx) => {
+          {NAV_ITEMS.filter(canSee).map((item, idx) => {
             const active = pathname === item.href;
             return (
               <Link key={idx} href={item.href} className={`flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-300 group whitespace-nowrap
@@ -154,26 +135,60 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
       )}
     </aside>
 
-      {/* MOBILE BOTTOM NAVIGATION */}
+      {/* MOBILE BOTTOM NAVIGATION: 4 mục hay dùng + "Menu" mở đủ mục theo quyền */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#002f51] border-t border-[#00213b] z-[100] flex items-center justify-around px-1 shadow-[0_-5px_15px_rgba(0,0,0,0.1)]">
         {[
-          { name: 'Tổng quan', icon: LayoutDashboard, href: '/' },
-          { name: 'CRM', icon: Users, href: '/cskh' },
-          { name: 'LIVE', icon: Video, href: '/live' },
-          { name: 'Kho quà', icon: Package, href: '/inventory' },
-          { name: 'Cài đặt', icon: Settings, href: '/settings' },
-        ].map((item, idx) => {
-          const active = pathname === item.href;
+          { name: 'Tổng quan', icon: LayoutDashboard, href: '/', perm: '*' as string | string[] },
+          ...NAV_ITEMS.filter((i) => ['/cskh', '/live', '/inventory', '/equipment'].includes(i.href)),
+        ].filter(canSee).slice(0, 4).map((item, idx) => {
+          const active = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href + '/'));
           return (
             <Link key={idx} href={item.href} className="flex flex-col items-center justify-center w-full h-full gap-1">
               <div className={`p-1.5 rounded-full transition-colors ${active ? 'bg-[#F58220]' : 'bg-transparent'}`}>
                 <item.icon size={20} className={active ? "text-white" : "text-blue-300/50"} strokeWidth={active ? 2.5 : 2} />
               </div>
-              <span className={`text-[9px] font-bold ${active ? 'text-[#F58220]' : 'text-blue-300/50'}`}>{item.name}</span>
+              <span className={`text-[9px] font-bold ${active ? 'text-[#F58220]' : 'text-blue-300/50'}`}>{item.name.replace('CRM / CSKH', 'CRM').replace('Điều khiển LIVE', 'LIVE').replace('Kho Quà tặng', 'Kho quà').replace('Kho Thiết bị', 'Thiết bị')}</span>
             </Link>
           )
         })}
+        <button onClick={() => setMenuOpen(true)} className="flex flex-col items-center justify-center w-full h-full gap-1" aria-label="Mở menu">
+          <div className="p-1.5 rounded-full"><Menu size={20} className="text-blue-300/50" /></div>
+          <span className="text-[9px] font-bold text-blue-300/50">Menu</span>
+        </button>
       </div>
+
+      {menuOpen && (
+        <div className="md:hidden fixed inset-0 z-[110] bg-slate-900/60" onClick={() => setMenuOpen(false)}>
+          <div className="absolute bottom-0 left-0 right-0 bg-[#002f51] rounded-t-3xl p-4 pb-8 max-h-[80dvh] overflow-y-auto" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Menu">
+            <div className="flex items-center justify-between mb-3 px-1">
+              <div className="min-w-0">
+                <p className="font-black text-white truncate">{userName}</p>
+                <p className="text-[11px] font-bold text-blue-300/70">{userRole}</p>
+              </div>
+              <button onClick={() => setMenuOpen(false)} className="p-2 text-blue-200" aria-label="Đóng menu"><X size={20} /></button>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                ...NAV_ITEMS.filter(canSee),
+                { name: 'Hồ sơ', icon: User, href: '/profile', perm: '*' },
+                ...((user?.role === 'ADMIN' || user?.role === 'MANAGER') ? [{ name: 'Cài đặt', icon: Settings, href: '/settings', perm: '*' }] : []),
+                ...(user?.role === 'ADMIN' ? [{ name: 'Nhật ký', icon: ScrollText, href: '/audit', perm: '*' }] : []),
+              ].map((item) => {
+                const active = pathname === item.href;
+                return (
+                  <Link key={item.href} href={item.href} className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl text-center ${active ? 'bg-[#F58220] text-white' : 'bg-white/5 text-blue-100'}`}>
+                    <item.icon size={22} />
+                    <span className="text-[11px] font-bold leading-tight">{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+            <button onClick={() => signOut({ callbackUrl: '/login' })} className="mt-3 w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-red-500/15 text-red-300 font-bold text-sm">
+              <LogOut size={18} /> Đăng xuất
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -485,3 +485,10 @@ model AuditLog {
   @@index([createdAt])
   @@index([userId, createdAt])
 }
+
+// Cấu hình hệ thống dạng key → JSON (vd rbac_roles: quyền theo vai trò, Admin sửa ở trang Nhân sự)
+model AppSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}

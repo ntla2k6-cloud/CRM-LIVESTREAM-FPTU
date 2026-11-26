@@ -5,6 +5,7 @@ import {
   CheckCircle2, Phone, Mail, Edit3, Save, X, RefreshCw, UserCheck,
   MonitorPlay, Settings2, Clapperboard, Lock, Plus, Clock, ChevronDown, Link2
 } from "lucide-react";
+import { loadRbac, permsFor } from '@/lib/rbac';
 import Link from 'next/link';
 
 // ============================================================
@@ -110,17 +111,13 @@ export default function UnifiedStaffPage() {
   const [saving, setSaving] = useState(false);
   
   // --- RBAC STATE ---
-  const [roles, setRoles] = useState(UI_ROLES.map(r => ({ ...r, permissions: r.value === 'ADMIN' ? ['*'] : [] })));
-  
+  // Quyền theo vai trò: lưu DB (/api/rbac) — áp cho mọi người; chưa cấu hình thì hiện quyền mặc định
+  const [roles, setRoles] = useState(UI_ROLES.map(r => ({ ...r, permissions: permsFor(r.value, null) })));
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('rbac_roles');
-      if (saved) {
-        try {
-          setRoles(JSON.parse(saved));
-        } catch(e) {}
-      }
-    }
+    loadRbac(true).then((config) => {
+      setRoles(UI_ROLES.map(r => ({ ...r, permissions: permsFor(r.value, config) })));
+    });
   }, []);
   const [editingRole, setEditingRole] = useState<any | null>(null);
 
@@ -511,13 +508,19 @@ export default function UnifiedStaffPage() {
                       <p className="text-sm text-slate-500 mt-1">Thiết lập các quyền truy cập hệ thống cho nhóm này.</p>
                     </div>
                     <button 
-                      onClick={() => {
+                      onClick={async () => {
                         const newRoles = roles.map(r => r.value === editingRole.value ? editingRole : r);
-                        setRoles(newRoles);
-                        if (typeof window !== 'undefined') {
-                          localStorage.setItem('rbac_roles', JSON.stringify(newRoles));
+                        const config = Object.fromEntries(newRoles.filter(r => !['ADMIN', 'MANAGER', 'GUEST'].includes(r.value)).map(r => [r.value, r.permissions]));
+                        try {
+                          const res = await fetch('/api/rbac', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ config }) });
+                          const data = await res.json().catch(() => ({}));
+                          if (!res.ok) throw new Error(data?.error || `Lỗi ${res.status}`);
+                          setRoles(newRoles);
+                          loadRbac(true);
+                          showToast('Đã lưu phân quyền cho nhóm ' + editingRole.label + ' — áp dụng cho mọi người');
+                        } catch (e: any) {
+                          showToast('Không lưu được phân quyền: ' + e.message);
                         }
-                        showToast('Đã lưu cấu hình phân quyền thành công cho nhóm ' + editingRole.label);
                       }}
                       className="px-6 py-2.5 bg-[#F58220] text-white text-sm font-black rounded-xl hover:bg-[#e07010] shadow-md shadow-orange-900/20 transition-all flex items-center gap-2 hover:-translate-y-0.5">
                       <Save size={16} /> Lưu cấu hình
