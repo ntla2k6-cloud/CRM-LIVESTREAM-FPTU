@@ -406,3 +406,54 @@ model Task {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// ─── Kho thiết bị ────────────────────────────────────────────────────────────
+// Người quản lý / người đang giữ = User.id (không khóa ngoại để không đụng model User).
+model EquipmentCategory {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  description String?
+  createdAt   DateTime    @default(now())
+  equipments  Equipment[]
+}
+
+model Equipment {
+  id           String             @id @default(cuid())
+  code         String             @unique // TB-0001…
+  name         String
+  brand        String?
+  model        String?
+  serialNumber String?
+  quantity     Int                @default(1)
+  categoryId   String?
+  category     EquipmentCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  status       String             @default("NEW") // NEW, GOOD, IN_USE, DAMAGED, REPAIRING, LIQUIDATED
+  managerId    String?
+  holderId     String?
+  dueDate      DateTime? // ngày dự kiến trả khi đang được giữ → cảnh báo quá hạn
+  note         String?
+  deletedAt    DateTime? // xóa mềm, giữ lịch sử
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  histories    EquipmentHistory[]
+
+  @@index([deletedAt, status])
+}
+
+// Lịch sử chỉ thêm, không sửa/xóa
+model EquipmentHistory {
+  id          String    @id @default(cuid())
+  equipmentId String
+  equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  action      String // CREATE, UPDATE, HANDOVER, RETURN, STATUS, DELETE, RESTORE
+  actorId     String?
+  actorName   String?
+  fromUserId  String?
+  toUserId    String?
+  status      String? // tình trạng tại thời điểm thao tác
+  changes     Json? // {field: [cũ, mới]}
+  note        String?
+  createdAt   DateTime  @default(now())
+
+  @@index([equipmentId, createdAt])
+}

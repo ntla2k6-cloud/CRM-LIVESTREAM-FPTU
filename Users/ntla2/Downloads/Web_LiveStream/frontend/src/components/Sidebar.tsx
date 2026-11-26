@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { 
-  LayoutDashboard, Users, Settings, Briefcase, Video, Activity, Calendar, Package, ShieldCheck, LogOut
+  LayoutDashboard, Users, Settings, Briefcase, Video, Activity, Calendar, Package, ShieldCheck, LogOut, Wrench
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
@@ -54,6 +54,7 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
             { name: 'Thống kê', icon: Activity, href: '/analytics', perm: 'admin.analytics' },
             { name: 'CRM / CSKH', icon: Users, href: '/cskh', perm: ['crm.view', 'crm.edit', 'crm.export', 'cskh.view', 'cskh.process', 'cskh.manage_orders'] },
             { name: 'Kho Quà tặng', icon: Package, href: '/inventory', perm: ['inventory.view', 'inventory.manage', 'inventory.export'] },
+            { name: 'Kho Thiết bị', icon: Wrench, href: '/equipment', perm: '*' },
             { name: 'Nhân Sự Ekip', icon: Briefcase, href: '/staff', perm: ['admin.users', 'admin.approve', 'admin.rbac'] },
             { name: 'Lịch phân công', icon: Calendar, href: '/schedule', perm: ['schedule.view', 'schedule.register', 'schedule.approve', 'schedule.manage', 'payroll.view', 'payroll.manage', 'payroll.export'] },
             { name: 'Điều khiển LIVE', icon: Video, badge: 'LIVE', href: '/live', perm: ['live.view', 'live.manage', 'live.control', 'live.script'] },

@@ -14,6 +14,9 @@ async function proxy(req: NextRequest, path: string) {
   
   // Extract user role from session to pass to backend
   let userRole = 'GUEST';
+  // Người thao tác (ghi lịch sử, vd Kho thiết bị) — backend chỉ tin khi x-internal-key đúng
+  let userId = '';
+  let userName = '';
   try {
     const sessionToken = req.cookies.get('next-auth.session-token')?.value || req.cookies.get('__Secure-next-auth.session-token')?.value;
     if (sessionToken) {
@@ -23,6 +26,8 @@ async function proxy(req: NextRequest, path: string) {
       });
       if (session && session.user && session.expires > new Date()) {
         userRole = session.user.role;
+        userId = session.user.id;
+        userName = session.user.name || session.user.username || session.user.email || '';
       }
     }
   } catch (e) {
@@ -35,6 +40,7 @@ async function proxy(req: NextRequest, path: string) {
       headers: { 
         'Content-Type': 'application/json',
         'x-user-role': userRole,
+        ...(userId ? { 'x-user-id': userId, 'x-user-name': encodeURIComponent(userName) } : {}),
         // Khóa bí mật chung với backend (env INTERNAL_API_KEY trên Vercel + Render) — backend chỉ tin x-user-role khi khóa đúng
         ...(process.env.INTERNAL_API_KEY ? { 'x-internal-key': process.env.INTERNAL_API_KEY } : {}),
       },
