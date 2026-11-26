@@ -11,3 +11,11 @@ export function signExtensionToken(userId: string, key: string, ttlSeconds = EXT
   const sig = createHmac('sha256', key).update(`fx1.${body}`).digest('base64url');
   return { token: `fx1.${body}.${sig}`, expiresAt: new Date(exp * 1000).toISOString() };
 }
+
+// Mã socket realtime (backend kiểm ở EventsGateway.handleConnection), hạn 12 giờ
+export function signSocketToken(userId: string, key: string, ttlSeconds = 12 * 3600, now = Date.now()) {
+  const exp = Math.floor(now / 1000) + ttlSeconds;
+  const body = Buffer.from(JSON.stringify({ u: userId, exp })).toString('base64url');
+  const sig = createHmac('sha256', key).update(`fs1.${body}`).digest('base64url');
+  return `fs1.${body}.${sig}`;
+}

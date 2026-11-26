@@ -4,7 +4,7 @@ import {
   Play, Square, MessageSquare, Users, Trash2, Timer, Video, ListTodo, Pin, CheckCircle2, Phone, BellRing, Trophy, Clock, Zap, Target, TrendingUp, AlertTriangle, Gift, Heart
 , ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import io from 'socket.io-client';
+import { connectSocket } from '@/lib/socket';
 import { fetchApi } from '@/lib/api';
 
 let socket: any;
@@ -160,10 +160,9 @@ export default function LiveControlPage() {
 
   // 1. Socket.IO & Timer Engine
   useEffect(() => {
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    socket = io(socketUrl);
-
-    socket.emit('joinSession', params);
+    // Kết nối realtime có xác thực; vào lại phòng phiên mỗi lần kết nối (cả khi tự kết nối lại)
+    socket = connectSocket();
+    socket.on('connect', () => socket.emit('joinSession', params));
 
     // TikTok events
     socket.on('tiktokStatus', (data: any) => {

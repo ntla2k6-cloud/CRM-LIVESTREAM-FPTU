@@ -6,19 +6,21 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 export const EXTENSION_ROLE = 'LIVE_MANAGER';
 const PREFIX = 'fx1';
 
-const same = (a: string, b: string) => a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
-const sign = (body: string, key: string) => createHmac('sha256', key).update(`${PREFIX}.${body}`).digest('base64url');
+// Mã socket realtime (fs1): cùng cách ký, hạn ngắn — chỉ người đã đăng nhập CRM mới nghe được comment/lead
+export const SOCKET_PREFIX = 'fs1';
 
-export function signExtensionToken(userId: string, key: string, ttlSeconds: number, now = Date.now()) {
+const same = (a: string, b: string) => a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
+const sign = (prefix: string, body: string, key: string) => createHmac('sha256', key).update(`${prefix}.${body}`).digest('base64url');
+
+export function signToken(prefix: string, userId: string, key: string, ttlSeconds: number, now = Date.now()) {
   const body = Buffer.from(JSON.stringify({ u: userId, exp: Math.floor(now / 1000) + ttlSeconds })).toString('base64url');
-  return `${PREFIX}.${body}.${sign(body, key)}`;
+  return `${prefix}.${body}.${sign(prefix, body, key)}`;
 }
 
-/** Trả userId nếu mã hợp lệ và còn hạn, ngược lại null. */
-export function verifyExtensionToken(token: unknown, key: string, now = Date.now()): string | null {
+export function verifyToken(expectPrefix: string, token: unknown, key: string, now = Date.now()): string | null {
   if (typeof token !== 'string') return null;
   const [prefix, body, sig] = token.trim().split('.');
-  if (prefix !== PREFIX || !body || !sig || !same(sig, sign(body, key))) return null;
+  if (prefix !== expectPrefix || !body || !sig || !same(sig, sign(prefix, body, key))) return null;
   try {
     const payload = JSON.parse(Buffer.from(body, 'base64url').toString('utf8'));
     if (typeof payload?.u !== 'string' || typeof payload?.exp !== 'number') return null;
@@ -27,3 +29,7 @@ export function verifyExtensionToken(token: unknown, key: string, now = Date.now
     return null;
   }
 }
+
+export const signExtensionToken = (userId: string, key: string, ttlSeconds: number, now = Date.now()) => signToken(PREFIX, userId, key, ttlSeconds, now);
+/** Trả userId nếu mã hợp lệ và còn hạn, ngược lại null. */
+export const verifyExtensionToken = (token: unknown, key: string, now = Date.now()) => verifyToken(PREFIX, token, key, now);
