@@ -40,6 +40,7 @@
 - **Deploy**: Vercel auto deploy từ `main`, backend trên Render.
 
 ## Nhật ký
+- 2026-11-26 — Test toàn bộ trên production (ADMIN): 13 API chính 200; Tổng quan đếm đúng 4 phiên, phiên cũ hiện HOÀN THÀNH; Kho thiết bị E2E (tạo/sửa/bàn giao/chặn trùng người/quá hạn + băng cảnh báo/đổi tình trạng/thu hồi/lịch sử 9 bước có người thao tác/5 kiểu xuất CSV/xóa có xác nhận/khôi phục/danh mục + chặn trùng tên); chưa đăng nhập hoặc giả ADMIN → 401. Thiết bị test `TB-0002` để ở trạng thái đã xóa (ẩn).
 - 2026-11-26 — Phiên LIVE tự kết thúc: không có comment mới > 30 phút → `COMPLETED`, `endTime` = comment cuối (`live-session/stale.ts`, chạy khi tải danh sách phiên/tổng quan và khi extension tìm phiên); comment đổ về phiên đã đóng → mở lại `LIVE_NOW`. 3 test.
 - 2026-11-26 — Kho thiết bị: **Thủ kho** (`THU_KHO`) toàn quyền như Admin (thêm/sửa/xóa, danh mục, bàn giao/thu hồi).
 - 2026-11-26 — **Module Kho thiết bị** (`/equipment`, menu "Kho Thiết bị"): thêm/sửa/xóa mềm + khôi phục, danh mục loại do Admin quản lý, người quản lý ≠ người đang giữ, bàn giao (người nhận, hạn trả, tình trạng, ghi chú) / thu hồi (tình trạng thực tế, người tiếp nhận), đổi tình trạng, lịch sử từng thiết bị (ai làm, đổi gì), 8 thẻ thống kê (kể cả **quá hạn trả** + băng cảnh báo), lọc theo tên/mã/loại/tình trạng/người quản lý/người giữ/ngày nhập, xuất Excel (CSV) 5 kiểu: đang lọc, kiểm kê (cột SL thực tế/chênh lệch), theo người giữ, theo loại, hư hỏng/sửa chữa. Proxy gửi thêm `x-user-id`/`x-user-name`. 5 test (61 tổng).
