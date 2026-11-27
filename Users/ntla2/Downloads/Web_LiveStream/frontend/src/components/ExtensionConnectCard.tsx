@@ -5,7 +5,7 @@ import { Puzzle, Download, KeyRound, Copy, Check, Loader2, Lock } from 'lucide-r
 const STEPS = [
   'Tải file extension về rồi giải nén (chuột phải → Extract All).',
   'Mở Chrome, vào chrome://extensions, bật "Developer mode" (góc phải trên).',
-  'Bấm "Load unpacked", chọn thư mục vừa giải nén (có file manifest.json).',
+  'Bấm "Load unpacked", chọn đúng thư mục có file manifest.json bên trong (nếu báo "Manifest file is missing" là chọn sai thư mục). Có bản cũ thì gỡ bản cũ trước.',
   'Bấm "Lấy mã kết nối" bên dưới, dán vào popup extension → "Cài đặt server CRM" → "Mã truy cập extension".',
   'Mở TikTok LIVE trên Chrome, bấm extension FPTU → Bắt đầu.',
 ];

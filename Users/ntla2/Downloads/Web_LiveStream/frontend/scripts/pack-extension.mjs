@@ -26,9 +26,11 @@ try {
   process.exit(0);
 }
 
+// File nằm ngay gốc zip: Windows "Extract All" tự tạo thư mục fptu-extension/ chứa manifest.json.
+// (Trước đây zip có thêm thư mục con → giải nén ra fptu-extension/fptu-extension/, chọn thư mục ngoài
+// khi Load unpacked thì Chrome báo "Manifest file is missing".)
 const zip = new JSZip();
-const root = zip.folder('fptu-extension');
-for (const file of await walk(src)) root.file(relative(src, file).split(sep).join('/'), await readFile(file));
+for (const file of await walk(src)) zip.file(relative(src, file).split(sep).join('/'), await readFile(file));
 await writeFile(out, await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' }));
 const { version } = JSON.parse(await readFile(join(src, 'manifest.json'), 'utf8'));
 console.log(`[pack-extension] public/fptu-extension.zip (v${version})`);
