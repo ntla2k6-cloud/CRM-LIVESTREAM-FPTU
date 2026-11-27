@@ -276,7 +276,8 @@ model Gift {
   price  String // VD: "350,000đ"
   status String // Sẵn sàng, Sắp hết, Hết hàng
 
-  winners Winner[]
+  winners   Winner[]
+  movements GiftMovement[]
 }
 
 model Winner {
@@ -331,6 +332,7 @@ model Shipment {
   trackingCode     String?
   trackingLink     String?
   giftName         String?
+  giftId           Int? // quà đã trừ kho cho đơn này (null = chưa trừ / đã hoàn kho)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -491,4 +493,21 @@ model AppSetting {
   key       String   @id
   value     Json
   updatedAt DateTime @updatedAt
+}
+
+// Lịch sử kho quà: nhập / tặng (trừ theo đơn) / hoàn kho / điều chỉnh. Chỉ thêm, không sửa.
+model GiftMovement {
+  id         String   @id @default(cuid())
+  giftId     Int
+  gift       Gift     @relation(fields: [giftId], references: [id], onDelete: Cascade)
+  type       String // IN (nhập kho), OUT (tặng theo đơn), RETURN (hoàn về kho), ADJUST (điều chỉnh/kiểm kê)
+  quantity   Int // luôn dương; ADJUST có thể âm
+  stockAfter Int // tồn kho sau thao tác
+  shipmentId String?
+  actorId    String?
+  actorName  String?
+  note       String?
+  createdAt  DateTime @default(now())
+
+  @@index([giftId, createdAt])
 }

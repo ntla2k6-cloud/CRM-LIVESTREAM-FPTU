@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import {
   Package, Search, Plus, PackageOpen, Gift, History, Truck, ListChecks,
   MapPin, CheckCircle2, X, Edit3, Save, Trash2, ChevronDown, Download,
-  Calendar, Copy, ExternalLink, FileText, AlertTriangle, Mail, Link2
+  Calendar, Copy, ExternalLink, FileText, AlertTriangle, Mail, Link2, ArrowDownToLine
 } from "lucide-react";
 import { api } from '@/lib/api';
 import { parseTrackingFile, toCsv, ADMIN_FILE_HEADER, type TrackingRow } from '@/lib/trackingImport';
@@ -117,6 +117,14 @@ const GiftBadge = ({ status }: { status: string }) => {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 const MAIL_MAINTENANCE = true;
+
+// Loại dòng lịch sử kho quà
+const MOVE_TYPES: Record<string, { label: string; color: string; sign: string }> = {
+  IN: { label: 'Nhập kho', color: 'text-[#00A859]', sign: '+' },
+  OUT: { label: 'Tặng (đơn)', color: 'text-[#F58220]', sign: '−' },
+  RETURN: { label: 'Hoàn về kho', color: 'text-blue-600', sign: '+' },
+  ADJUST: { label: 'Điều chỉnh', color: 'text-slate-600', sign: '' },
+};
 
 export default function InventoryPage() {
   const [activeTab, setActiveTab] = useState<'STOCK' | 'FULFILLMENT'>('STOCK');
@@ -248,6 +256,32 @@ export default function InventoryPage() {
       console.error(err); showNotice(err.message || 'Lỗi lưu quà tặng! Có thể SKU đã tồn tại.');
       await refreshData();
     } finally { setIsSubmitting(false); }
+  };
+
+  // ─── Nhập kho + lịch sử kho ─────────────────────────────────────────────────
+  const [importGift, setImportGift] = useState<any | null>(null);
+  const [importQty, setImportQty] = useState('');
+  const [importNote, setImportNote] = useState('');
+  const [historyGift, setHistoryGift] = useState<any | null>(null);
+  const [movements, setMovements] = useState<any[] | null>(null);
+
+  const handleImport = async () => {
+    const q = parseInt(importQty, 10);
+    if (!importGift || !q || q <= 0) { showNotice('Nhập số lượng lớn hơn 0'); return; }
+    setIsSubmitting(true);
+    try {
+      await api.post(`/gift/${importGift.id}/import`, { quantity: q, note: importNote });
+      showNotice(`Đã nhập ${q} ${importGift.name} vào kho`);
+      setImportGift(null);
+      await refreshData();
+    } catch (err: any) { showNotice(err.message || 'Lỗi nhập kho'); }
+    finally { setIsSubmitting(false); }
+  };
+
+  const openGiftHistory = async (gift: any) => {
+    setHistoryGift(gift); setMovements(null);
+    try { const res: any = await api.get(`/gift/${gift.id}/movements`); setMovements(res?.data ?? res ?? []); }
+    catch (err: any) { showNotice(err.message || 'Lỗi tải lịch sử kho'); setMovements([]); }
   };
 
   const handleDeleteGift = async () => {
@@ -471,10 +505,11 @@ export default function InventoryPage() {
             /* ═══ STOCK TAB ═══ */
             <>
               {/* KPIs */}
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 shrink-0">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 shrink-0">
                 {[
-                  { label: 'Tổng Tồn Kho', val: gifts.reduce((s, g) => s + (g.stock||0), 0), color: 'blue', icon: PackageOpen },
-                  { label: 'Đã Gửi', val: gifts.reduce((s, g) => s + (g.sent||0), 0), color: 'green', icon: Gift },
+                  { label: 'Đã nhập kho', val: gifts.reduce((s, g) => s + (g.imported||0), 0), color: 'slate', icon: ArrowDownToLine },
+                  { label: 'Đã tặng', val: gifts.reduce((s, g) => s + (g.given||0), 0), color: 'green', icon: Gift },
+                  { label: 'Tồn kho', val: gifts.reduce((s, g) => s + (g.stock||0), 0), color: 'blue', icon: PackageOpen },
                   { label: 'Cảnh báo', val: gifts.filter(g => g.status === 'Sắp hết' || g.status === 'Hết hàng').length, color: 'red', icon: AlertTriangle },
                 ].map(k => (
                   <div key={k.label} className="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
@@ -491,25 +526,33 @@ export default function InventoryPage() {
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex-1 flex flex-col overflow-hidden">
                 <div className="grid min-w-[900px] grid-cols-12 gap-4 p-4 border-b border-slate-100 bg-slate-50/80 text-xs font-black text-slate-500 uppercase tracking-wider">
                   <div className="col-span-1 text-center">SKU</div>
-                  <div className="col-span-4">Tên Quà Tặng</div>
-                  <div className="col-span-2 text-center">Tồn Kho</div>
-                  <div className="col-span-2 text-center">Đã Gửi</div>
-                  <div className="col-span-2">Đơn Giá</div>
-                  <div className="col-span-1 text-center">Sửa</div>
+                  <div className="col-span-3">Tên Quà Tặng</div>
+                  <div className="col-span-1 text-center">Đã nhập</div>
+                  <div className="col-span-1 text-center">Đã tặng</div>
+                  <div className="col-span-2 text-center">Tồn kho</div>
+                  <div className="col-span-1">Đơn Giá</div>
+                  <div className="col-span-3 text-center">Thao tác</div>
                 </div>
                 <div className="flex-1 overflow-auto">
                   {gifts.filter(g => (g.name||'').toLowerCase().includes(search.toLowerCase()) || (g.sku||'').toLowerCase().includes(search.toLowerCase())).map(gift => (
                     <div key={gift.id} className="grid min-w-[900px] grid-cols-12 gap-4 p-4 border-b border-slate-100 hover:bg-slate-50 items-center transition-colors">
                       <div className="col-span-1 text-center font-bold text-slate-400 text-xs">{gift.sku}</div>
-                      <div className="col-span-4 flex flex-col gap-1">
+                      <div className="col-span-3 flex flex-col gap-1">
                         <span className="font-bold text-sm text-slate-900 truncate">{gift.name}</span>
                         <GiftBadge status={gift.status} />
                       </div>
-                      <div className="col-span-2 text-center"><span className={`text-lg font-black ${gift.stock === 0 ? 'text-red-500' : 'text-[#005691]'}`}>{gift.stock}</span></div>
-                      <div className="col-span-2 text-center"><span className="text-lg font-black text-[#00A859]">{gift.sent}</span></div>
-                      <div className="col-span-2 font-bold text-slate-600 text-sm">{gift.price}</div>
-                      <div className="col-span-1 flex justify-center">
-                        <button onClick={() => setSelectedGift(gift)} className="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:bg-[#F58220] hover:text-white flex items-center justify-center transition-colors">
+                      <div className="col-span-1 text-center font-bold text-slate-600">{gift.imported ?? 0}</div>
+                      <div className="col-span-1 text-center font-bold text-[#00A859]">{gift.given ?? 0}</div>
+                      <div className="col-span-2 text-center"><span className={`text-lg font-black ${gift.stock <= 0 ? 'text-red-500' : 'text-[#005691]'}`}>{gift.stock}</span></div>
+                      <div className="col-span-1 font-bold text-slate-600 text-sm">{gift.price}</div>
+                      <div className="col-span-3 flex justify-center gap-1.5">
+                        <button onClick={() => { setImportGift(gift); setImportQty(''); setImportNote(''); }} className="flex items-center gap-1 px-2.5 h-8 rounded-lg bg-[#00A859] text-white text-xs font-bold hover:bg-[#008f4c]">
+                          <ArrowDownToLine size={13} /> Nhập kho
+                        </button>
+                        <button onClick={() => openGiftHistory(gift)} title="Lịch sử nhập/xuất" aria-label="Lịch sử nhập/xuất" className="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:bg-[#005691] hover:text-white flex items-center justify-center">
+                          <History size={13} />
+                        </button>
+                        <button onClick={() => setSelectedGift({ ...gift, origStock: gift.stock })} title="Sửa" aria-label="Sửa quà" className="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:bg-[#F58220] hover:text-white flex items-center justify-center transition-colors">
                           <Edit3 size={13} />
                         </button>
                       </div>
@@ -713,27 +756,26 @@ export default function InventoryPage() {
                     className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold rounded-xl px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm outline-none focus:border-[#F58220] transition-all" />
                 </div>
               ))}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase">Tồn kho</label>
-                  <input type="number" value={selectedGift.stock || 0}
-                    onChange={e => setSelectedGift({...selectedGift, stock: parseInt(e.target.value)||0})}
-                    className="w-full bg-blue-50 border border-blue-200 text-[#005691] text-lg font-black rounded-xl px-4 py-2 outline-none text-center" />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase">Trạng thái kho</label>
-                  <select value={selectedGift.status || 'Sẵn sàng'} onChange={e => setSelectedGift({...selectedGift, status: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold rounded-xl px-3 py-2.5 outline-none">
-                    <option>Sẵn sàng</option><option>Sắp hết</option><option>Hết hàng</option>
-                  </select>
-                </div>
+              {/* Tồn kho: quà mới = số nhập ban đầu; quà cũ = sửa là điều chỉnh kiểm kê (ghi lịch sử). Nhập thêm dùng nút "Nhập kho". */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">{selectedGift.id ? 'Tồn kho thực tế (chỉ sửa khi kiểm kê lệch)' : 'Số lượng nhập kho ban đầu'}</label>
+                <input type="number" min={0} value={selectedGift.stock ?? 0}
+                  onChange={e => setSelectedGift({...selectedGift, stock: Math.max(0, parseInt(e.target.value)||0)})}
+                  className="w-full bg-blue-50 border border-blue-200 text-[#005691] text-lg font-black rounded-xl px-4 py-2 outline-none text-center" />
               </div>
-              <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl flex items-start gap-3">
-                <History className="text-[#F58220] mt-0.5 shrink-0" size={16} />
-                <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                  Đã có <b className="text-[#00A859]">{selectedGift.sent || 0} lượt</b> quà tặng này được giao trong tháng.
-                </p>
-              </div>
+              {selectedGift.id && selectedGift.stock !== selectedGift.origStock && (
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase">Lý do điều chỉnh (ghi vào lịch sử)</label>
+                  <input value={selectedGift.adjustNote || ''} onChange={e => setSelectedGift({...selectedGift, adjustNote: e.target.value})} placeholder="VD: kiểm kê 27/11 thiếu 2 cái"
+                    className="w-full bg-slate-50 border border-slate-200 text-sm rounded-xl px-3 py-2 outline-none focus:border-[#F58220]" />
+                </div>
+              )}
+              {selectedGift.id && (
+                <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl text-xs text-slate-600 font-medium leading-relaxed">
+                  Đã nhập <b>{selectedGift.imported ?? 0}</b> · Đã tặng <b className="text-[#00A859]">{selectedGift.given ?? 0}</b> · Tồn <b className="text-[#005691]">{selectedGift.origStock}</b>.
+                  Nhập thêm hàng: dùng nút <b>Nhập kho</b> ở danh sách để có lịch sử rõ ràng.
+                </div>
+              )}
             </div>
             <div className="p-5 bg-slate-50 border-t border-slate-100 flex gap-3 shrink-0">
               <button onClick={handleDeleteGift} disabled={isSubmitting}
@@ -974,6 +1016,72 @@ export default function InventoryPage() {
                 <button onClick={handlePrintLabels} disabled={!printChosen.length}
                   className="px-4 py-2 bg-[#005691] text-white text-sm font-black rounded-xl disabled:opacity-40">In {printChosen.length} tem</button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Nhập kho */}
+      {importGift && (
+        <div className="fixed inset-0 z-[60] bg-slate-900/50 flex items-center justify-center p-4" onClick={() => setImportGift(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 space-y-4" onClick={e => e.stopPropagation()} role="dialog" aria-label="Nhập kho">
+            <div className="flex items-center justify-between">
+              <h3 className="font-black text-slate-900 flex items-center gap-2"><ArrowDownToLine size={18} className="text-[#00A859]" /> Nhập kho: {importGift.name}</h3>
+              <button onClick={() => setImportGift(null)} className="text-slate-400 hover:text-slate-700" aria-label="Đóng"><X size={20} /></button>
+            </div>
+            <p className="text-xs text-slate-500">Tồn hiện tại: <b className="text-[#005691]">{importGift.stock}</b>. Người nhập và thời gian được ghi tự động.</p>
+            <label className="block space-y-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase">Số lượng nhập *</span>
+              <input autoFocus type="number" min={1} value={importQty} onChange={e => setImportQty(e.target.value)} className="w-full bg-green-50 border border-green-200 text-lg font-black rounded-xl px-4 py-2 outline-none text-center" />
+            </label>
+            <label className="block space-y-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase">Ghi chú (nguồn hàng, số hóa đơn…)</span>
+              <input value={importNote} onChange={e => setImportNote(e.target.value)} placeholder="VD: Lô áo đợt 2, phòng Truyền thông cấp" className="w-full bg-slate-50 border border-slate-200 text-sm rounded-xl px-3 py-2 outline-none focus:border-[#00A859]" />
+            </label>
+            {parseInt(importQty, 10) > 0 && <p className="text-xs text-slate-600">Sau khi nhập: tồn kho <b>{importGift.stock + parseInt(importQty, 10)}</b></p>}
+            <button onClick={handleImport} disabled={isSubmitting} className="w-full py-2.5 bg-[#00A859] text-white font-black rounded-xl hover:bg-[#008f4c] disabled:opacity-50">{isSubmitting ? 'Đang nhập…' : 'Xác nhận nhập kho'}</button>
+          </div>
+        </div>
+      )}
+
+      {/* Lịch sử nhập/xuất kho */}
+      {historyGift && (
+        <div className="fixed inset-0 z-[60] bg-slate-900/50 flex items-center justify-center p-4" onClick={() => setHistoryGift(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85dvh] flex flex-col" onClick={e => e.stopPropagation()} role="dialog" aria-label="Lịch sử kho">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="font-black text-slate-900 flex items-center gap-2"><History size={18} className="text-[#005691]" /> Lịch sử kho: {historyGift.name}</h3>
+                <p className="text-xs text-slate-500 mt-1">Đã nhập <b>{historyGift.imported ?? 0}</b> · Đã tặng <b className="text-[#00A859]">{historyGift.given ?? 0}</b> · Tồn kho <b className="text-[#005691]">{historyGift.stock}</b></p>
+              </div>
+              <button onClick={() => setHistoryGift(null)} className="text-slate-400 hover:text-slate-700" aria-label="Đóng"><X size={20} /></button>
+            </div>
+            <div className="overflow-auto flex-1">
+              {movements === null ? (
+                <p className="py-10 text-center text-sm text-slate-400">Đang tải…</p>
+              ) : movements.length === 0 ? (
+                <p className="py-10 text-center text-sm text-slate-400">Chưa có lịch sử nhập/xuất.</p>
+              ) : (
+                <table className="w-full min-w-[640px] text-sm">
+                  <thead className="bg-slate-50 text-[11px] font-black text-slate-500 uppercase">
+                    <tr>{['Thời gian', 'Loại', 'Số lượng', 'Tồn sau', 'Người thực hiện', 'Đơn / ghi chú'].map(h => <th key={h} className="px-3 py-2.5 text-left">{h}</th>)}</tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {movements.map((m: any) => {
+                      const t = MOVE_TYPES[m.type] || { label: m.type, color: 'text-slate-600', sign: '' };
+                      return (
+                        <tr key={m.id}>
+                          <td className="px-3 py-2 whitespace-nowrap text-slate-600">{new Date(m.createdAt).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' })}</td>
+                          <td className={`px-3 py-2 font-bold ${t.color}`}>{t.label}</td>
+                          <td className={`px-3 py-2 font-black ${t.color}`}>{m.type === 'ADJUST' ? (m.quantity > 0 ? `+${m.quantity}` : m.quantity) : `${t.sign}${m.quantity}`}</td>
+                          <td className="px-3 py-2 font-bold text-[#005691]">{m.stockAfter}</td>
+                          <td className="px-3 py-2 text-slate-700">{m.actorName || '—'}</td>
+                          <td className="px-3 py-2 text-xs text-slate-500">{m.shipmentId && <span className="font-mono font-bold text-[#005691] mr-1">{m.shipmentId}</span>}{m.note}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         </div>

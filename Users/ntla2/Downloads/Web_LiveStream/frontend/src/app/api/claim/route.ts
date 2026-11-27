@@ -116,6 +116,16 @@ export async function POST(req: NextRequest) {
       }
     });
 
+    // Trừ kho quà (cùng quy tắc backend GiftStockService): còn hàng mới trừ, ghi lịch sử OUT
+    const dec = await prisma.gift.updateMany({ where: { id: winner.giftId, stock: { gte: 1 } }, data: { stock: { decrement: 1 } } });
+    if (dec.count) {
+      const g = await prisma.gift.findUnique({ where: { id: winner.giftId }, select: { stock: true } });
+      const after = g?.stock ?? 0;
+      await prisma.shipment.update({ where: { id: shipmentId }, data: { giftId: winner.giftId } });
+      await prisma.giftMovement.create({ data: { giftId: winner.giftId, type: 'OUT', quantity: 1, stockAfter: after, shipmentId, actorName: `Người trúng tự điền (${name})`, note: 'Tặng theo đơn (trang Nhận quà)' } });
+      await prisma.gift.update({ where: { id: winner.giftId }, data: { status: after <= 0 ? 'Hết hàng' : after <= 10 ? 'Sắp hết' : 'Sẵn sàng' } });
+    }
+
     await prisma.shipmentHistory.create({
       data: {
         shipmentId,

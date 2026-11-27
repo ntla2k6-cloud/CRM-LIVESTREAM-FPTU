@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { EmailService, STATUS_LABELS, CARRIER_VISIBLE_STATUSES } from '../email/email.service.js';
+import { GiftStockService, type StockActor } from '../gift/gift-stock.service.js';
 
 // Trạng thái trước khi giao cho đơn vị vận chuyển
 const BEFORE_CARRIER = ['UNPACKED', 'PACKED', 'SENT_TO_ADMIN', 'HANDED_OVER'];
@@ -18,9 +19,11 @@ export class OrderService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly emailService: EmailService,
+    // Kho quà: tạo đơn trừ kho, xóa/đổi quà/hoàn hàng trả về kho (tùy chọn để test cũ không cần)
+    private readonly giftStock?: GiftStockService,
   ) {}
 
-  async create(data: any) {
+  async create(data: any, actor?: StockActor) {
     if (data.phone) {
       const giftName = data.gift || data.giftName || '';
       const existing = await this.prisma.shipment.findFirst({
@@ -48,6 +51,17 @@ export class OrderService {
         trackingLink:     data.trackingLink || null,
       }
     });
+
+    // Trừ kho quà theo tên quà của đơn; hết hàng → hủy đơn vừa tạo và báo lỗi
+    if (shipment.status !== 'RETURNED') {
+      try {
+        const giftId = await this.giftStock?.consume(shipment.id, shipment.giftName, actor);
+        if (giftId) (shipment as any).giftId = giftId;
+      } catch (e) {
+        await this.prisma.shipment.delete({ where: { id: shipment.id } }).catch(() => {});
+        throw e;
+      }
+    }
 
     // Create initial history entry
     await this.prisma.shipmentHistory.create({
@@ -117,7 +131,7 @@ export class OrderService {
     return this.formatShipment(s);
   }
 
-  async update(id: string, data: any) {
+  async update(id: string, data: any, actor?: StockActor) {
     const existing = await this.prisma.shipment.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException('Đơn hàng không tồn tại');
 
@@ -149,6 +163,20 @@ export class OrderService {
     }
     if (data.gift || data.giftName) updateData.giftName = data.gift || data.giftName;
 
+    // Kho quà: đổi quà → trả quà cũ, trừ quà mới; chuyển sang Hoàn hàng → trả về kho; rời Hoàn hàng → trừ lại
+    if (this.giftStock) {
+      const giftChanged = updateData.giftName !== undefined && updateData.giftName.trim().toLowerCase() !== String(existing.giftName ?? '').trim().toLowerCase();
+      const toReturned = data.status === 'RETURNED' && existing.status !== 'RETURNED';
+      const fromReturned = existing.status === 'RETURNED' && data.status && data.status !== 'RETURNED';
+      if (giftChanged || toReturned) {
+        await this.giftStock.release(existing as any, actor, toReturned ? `Đơn ${id} hoàn hàng` : `Đổi quà ở đơn ${id}`);
+      }
+      const finalStatus = data.status || existing.status;
+      if (finalStatus !== 'RETURNED' && (giftChanged || fromReturned)) {
+        await this.giftStock.consume(id, updateData.giftName ?? existing.giftName, actor);
+      }
+    }
+
     const updated = await this.prisma.shipment.update({ where: { id }, data: updateData });
 
     // When status changes: create history
@@ -175,14 +203,14 @@ export class OrderService {
   }
 
   /** Thủ kho chọn nhiều đơn đã đóng gói → "Chuyển Hành chính" (hoặc đổi trạng thái hàng loạt). */
-  async bulkStatus(ids: string[], status: string, note?: string) {
+  async bulkStatus(ids: string[], status: string, note?: string, actor?: StockActor) {
     if (!Array.isArray(ids) || ids.length === 0) throw new BadRequestException('Chưa chọn đơn nào');
     if (!STATUS_LABELS[status]) throw new BadRequestException(`Trạng thái không hợp lệ: ${status}`);
     let updated = 0;
     const notFound: string[] = [];
     for (const id of ids) {
       try {
-        await this.update(id, { status, note });
+        await this.update(id, { status, note }, actor);
         updated++;
       } catch (e) {
         if (e instanceof NotFoundException) notFound.push(id); else throw e;
@@ -257,7 +285,9 @@ export class OrderService {
     return { sent: results.filter((r) => r.ok).length, results };
   }
 
-  async remove(id: string) {
+  async remove(id: string, actor?: StockActor) {
+    const existing = await this.prisma.shipment.findUnique({ where: { id } });
+    if (existing && this.giftStock) await this.giftStock.release(existing as any, actor, `Xóa đơn ${id}`);
     return this.prisma.shipment.delete({ where: { id } });
   }
 

@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Headers } from '@nestjs/common';
+import { actorOf } from '../auth/actor.js';
 import { OrderService } from './order.service.js';
 import { Public, Roles } from '../auth/roles.decorator.js';
 
@@ -7,8 +8,8 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
-  create(@Body() createOrderDto: any) {
-    return this.orderService.create(createOrderDto);
+  create(@Body() createOrderDto: any, @Headers() h: any) {
+    return this.orderService.create(createOrderDto, actorOf(h));
   }
 
   @Get()
@@ -18,8 +19,8 @@ export class OrderController {
 
   @Roles('THU_KHO')
   @Post('bulk-status')
-  bulkStatus(@Body() body: { ids: string[]; status: string; note?: string }) {
-    return this.orderService.bulkStatus(body?.ids, body?.status, body?.note);
+  bulkStatus(@Body() body: { ids: string[]; status: string; note?: string }, @Headers() h: any) {
+    return this.orderService.bulkStatus(body?.ids, body?.status, body?.note, actorOf(h));
   }
 
   @Roles('THU_KHO')
@@ -52,12 +53,12 @@ export class OrderController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: any) {
-    return this.orderService.update(id, updateOrderDto);
+  update(@Param('id') id: string, @Body() updateOrderDto: any, @Headers() h: any) {
+    return this.orderService.update(id, updateOrderDto, actorOf(h));
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.orderService.remove(id);
+  remove(@Param('id') id: string, @Headers() h: any) {
+    return this.orderService.remove(id, actorOf(h));
   }
 }
