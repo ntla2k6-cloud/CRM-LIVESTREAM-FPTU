@@ -139,7 +139,8 @@ export function Sidebar({ sidebarOpen = true }: { sidebarOpen?: boolean }) {
       <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#002f51] border-t border-[#00213b] z-[100] flex items-center justify-around px-1 shadow-[0_-5px_15px_rgba(0,0,0,0.1)]">
         {[
           { name: 'Tổng quan', icon: LayoutDashboard, href: '/', perm: '*' as string | string[] },
-          ...NAV_ITEMS.filter((i) => ['/cskh', '/live', '/inventory', '/equipment'].includes(i.href)),
+          // Thứ tự ưu tiên: CRM, LIVE, Kho quà, Thiết bị (mục nào không có quyền thì bỏ, lấy mục sau)
+          ...['/cskh', '/live', '/inventory', '/equipment'].map((h) => NAV_ITEMS.find((i) => i.href === h)!),
         ].filter(canSee).slice(0, 4).map((item, idx) => {
           const active = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href + '/'));
           return (
